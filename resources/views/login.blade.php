@@ -72,8 +72,8 @@
 
 <body>
 <div id="app">
-    <example-component></example-component>
-    <script type="text/javascript" src="../js/app.js"></script>
+    <login-component></login-component>
 </div>
+<script type="text/javascript" src="../js/app.js"></script>
 </body>
 </html>

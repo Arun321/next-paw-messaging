@@ -37,11 +37,12 @@
                 <div class="mesgs">
                     <div class="msg_history">
                         <div v-for="message in messages.data.singleConversion.data"
+
                              :class="messageType(message.type, 'incoming_msg', 'outgoing_msg')">
                             <div :class="messageType(message.type, 'received_msg', 'sent_msg')">
                                 <div :class="messageType(message.type, 'received_withd_msg', 'sent_withd_msg')">
                                     <p>{{message.body}}</p>
-                                    <span class="time_date"> {{format_date( message.message_created_at) }}</span>
+                                    <span class="time_date"> {{format_time_date( message.message_created_at) }}</span>
                                 </div>
                             </div>
                         </div>
@@ -62,7 +63,8 @@
 
 
 <script>
-    import moment from 'moment'
+    import moment from 'moment';
+    import axios from 'axios';
 
     String.prototype.trunc = String.prototype.trunc ||
         function (n) {
@@ -84,11 +86,18 @@
                 if (value) {
                     return moment(String(value)).format('MM/DD/YYYY')
                 }
+            },
+
+            format_time_date(value){
+                if(value){
+                    return moment(String(value)).format('MM/DD/YYYY | h:mm a')
+                }
             }
             },
 
             data() {
                 return {
+                    token: localStorage.getItem('token'),
                     contacts: {
                         "data": {
                             "messages": {
@@ -306,11 +315,22 @@
                             }
                         }
                     },
+
+                    data:{
+                        results:[]
+                    }
+
                 }
 
 
             }, mounted() {
-                console.log('Component mounted.')
+               // console.log('Component mounted.')
+            axios.post("https://app.nextpaw.com/graph-api")
+                .then(response => {this.results = response.data.results}).then(data => {
+
+
+
+            })
             }
         }
 </script>
