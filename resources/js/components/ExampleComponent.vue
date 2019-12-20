@@ -1,7 +1,8 @@
 <template>
     <div class="container">
-        <h3 class=" text-center">Messaging</h3>
+            <h3 class=" text-center">Messaging</h3>
         <div class="messaging">
+
             <div class="inbox_msg">
                 <div class="inbox_people">
                     <div class="headind_srch">
@@ -12,21 +13,20 @@
                             <div class="stylish-input-group">
                                 <input type="text" class="search-bar" placeholder="Search">
                                 <span class="input-group-addon">
-                <button type="button"> <i class="fa fa-search" aria-hidden="true"></i> </button>
-                </span></div>
+                                    <button type="button"> <i class="fa fa-search" aria-hidden="true"></i> </button>
+                                </span>
+                            </div>
                         </div>
                     </div>
 
 
-                    <div class="inbox_chat">
-
-
-                        <div v-for="contact in contacts.data.messages.data" class="chat_list">
-                            <div class="chat_people">
+                    <div class="inbox_chat" v-if="contacts.length > 0">
+                        <div v-for="contact in contacts" class="chat_list">
+                            <div class="chat_people" v-on:click="loadMessage(contact.contact_id)">
                                 <div class="chat_img"><img :src="contact.media_url"></div>
                                 <div class="chat_ib">
-                                    <h5>{{contact.first_name}} </h5>
-                                    <p>{{ contact.body.trunc(30) }}<span class="chat_date">{{ format_date(contact.message_created_at) }}</span></p>
+                                    <h5>{{contact.first_name}} {{contact.last_name}} </h5>
+                                    <p>{{ trunc(contact.body) }}<span class="chat_date">{{ format_date(contact.message_created_at) }}</span></p>
                                 </div>
                             </div>
                         </div>
@@ -36,8 +36,7 @@
                 </div>
                 <div class="mesgs">
                     <div class="msg_history">
-                        <div v-for="message in messages.data.singleConversion.data"
-
+                        <div v-for="message in messages"
                              :class="messageType(message.type, 'incoming_msg', 'outgoing_msg')">
                             <div :class="messageType(message.type, 'received_msg', 'sent_msg')">
                                 <div :class="messageType(message.type, 'received_withd_msg', 'sent_withd_msg')">
@@ -66,19 +65,92 @@
     import moment from 'moment';
     import axios from 'axios';
 
-    String.prototype.trunc = String.prototype.trunc ||
-        function (n) {
-            return (this.length > n) ? this.substr(0, n - 1) + '....' : this;
-        };
 
     export default {
+        created () {
+            axios({
+                url: 'https://1154558724803321-reviews.jenkins.nextpaw.com/graph-api',
+                headers: {
+                    Authorization: `Bearer ${this.user.token}`
+                },
+                method: 'POST',
+                data: {
+                    query: `{
+    messages(clientId: 4, locationId: 3, page: 1, limit: 20){
+        data{
+            contact_id
+            first_name
+            last_name
+            body
+            media_url
+            message_created_at
+            deleted_at
+            type
+            status
+            sender
+            receiver
+            ps_id
+            unread_message_count
+        }
+        total
+        per_page
+    }
+}`
+                }
+            }).then(response =>
+                this.contacts = response.data.data.messages.data
+            )
+                .catch((e) => console.log(e))
+
+
+
+
+
+        },
         methods: {
             messageType: function (type, class1, class2) {
-                if (type === 'fb_received') {
+                if (type === 'received') {
                     return class1;
                 } else {
                     return class2;
                 }
+            },
+
+            loadMessage:function(value){
+                axios({
+                    url: 'https://1154558724803321-reviews.jenkins.nextpaw.com/graph-api',
+                    headers: {
+                        Authorization: `Bearer ${this.user.token}`
+                    },
+                    method: 'POST',
+                    data: {
+                        query: `{
+    singleConversion(id: ${value}, clientId: 4, locationId: 3, page: 1, limit: 10){
+        data {
+            id
+            first_name
+            last_name
+            contact_id
+            body
+            media_url
+            receiver
+            sender
+            contact_created_at
+            type
+            status
+            archived
+            message_created_at
+        }
+        total
+        per_page
+    }
+}`
+                    }
+                }).then(response =>
+                    this.messages = response.data.data.singleConversion.data
+                )
+                    .catch((e) => console.log(e))
+
             },
 
 
@@ -92,247 +164,23 @@
                 if(value){
                     return moment(String(value)).format('MM/DD/YYYY | h:mm a')
                 }
-            }
             },
+            trunc (n) {
+                return (n && n.length > 15) ? n.substr(0, 10) + '...' : n
+            }
+        },
 
-            data() {
+        data() {
                 return {
-                    token: localStorage.getItem('token'),
-                    contacts: {
-                        "data": {
-                            "messages": {
-                                "data": [
-                                    {
-                                        "contact_id": 15319,
-                                        "first_name": "Vrushabh",
-                                        "last_name": "Vora",
-                                        "body": "Hi Vrushabh, Thank you for choosing Vilano Pets. Can you take 30 seconds and leave us a quick review? The link below makes it easy. \r\napp.nextpaw.com/sr/qg6GrTeMbgA6zGdf \r\nHave questions? Save our number and Text us back anytime! We are happy to help.",
-                                        "media_url": "https://s3.us-west-2.amazonaws.com/nextpaw-assets/11056/HAPPY_CUSTOMER.jpg",
-                                        "message_created_at": "2019-12-16 07:27:30",
-                                        "deleted_at": null,
-                                        "type": "invitation",
-                                        "status": "SENT",
-                                        "sender": "2157097384",
-                                        "receiver": "8019907096",
-                                        "ps_id": null,
-                                        "unread_message_count": 0
-                                    },
-                                    {
-                                        "contact_id": 9268,
-                                        "first_name": "Gabe",
-                                        "last_name": null,
-                                        "body": "Hi Gabe, Thank you for choosing Vilano Pets. Can you take 30 seconds and leave us a quick review? The link below makes it easy. \r\napp.nextpaw.com/sr/iWSTzNxgbPJcXitZ \r\nHave questions? Save our number and Text us back anytime! We are happy to help.",
-                                        "media_url": "https://s3.us-west-2.amazonaws.com/nextpaw-assets/11056/HAPPY_CUSTOMER.jpg",
-                                        "message_created_at": "2019-12-15 13:52:16",
-                                        "deleted_at": null,
-                                        "type": "invitation",
-                                        "status": "SENT",
-                                        "sender": "2157097384",
-                                        "receiver": "6093396808",
-                                        "ps_id": null,
-                                        "unread_message_count": 0
-                                    },
-                                    {
-                                        "contact_id": 30811,
-                                        "first_name": "Ben",
-                                        "last_name": null,
-                                        "body": "Hi Ben, Thank you for choosing Vilano Pets. Can you take 30 seconds and leave us a quick review? The link below makes it easy. \r\napp.nextpaw.com/sr/Ciu7dYT3PowQAfIA \r\nHave questions? Save our number and Text us back anytime! We are happy to help.",
-                                        "media_url": "https://s3.us-west-2.amazonaws.com/nextpaw-assets/11056/HAPPY_CUSTOMER.jpg",
-                                        "message_created_at": "2019-12-12 16:31:42",
-                                        "deleted_at": null,
-                                        "type": "invitation",
-                                        "status": "SENT",
-                                        "sender": "2157097384",
-                                        "receiver": "8012057914",
-                                        "ps_id": null,
-                                        "unread_message_count": 0
-                                    },
-                                    {
-                                        "contact_id": 34550,
-                                        "first_name": "Jerry",
-                                        "last_name": null,
-                                        "body": "Www.qwerty.com",
-                                        "media_url": null,
-                                        "message_created_at": "2019-12-13 19:36:41",
-                                        "deleted_at": null,
-                                        "type": "sent",
-                                        "status": "SENT",
-                                        "sender": "2157097384",
-                                        "receiver": "7173149292",
-                                        "ps_id": null,
-                                        "unread_message_count": 0
-                                    },
-                                    {
-                                        "contact_id": 35216,
-                                        "first_name": "Kelly",
-                                        "last_name": null,
-                                        "body": "Thanks for reaching out to Vilano Pets. We have received your message and will respond to you shortly. For a faster response, call (385) 555-5555 if you'd like to talk with us now.",
-                                        "media_url": null,
-                                        "message_created_at": "2019-12-13 17:54:21",
-                                        "deleted_at": null,
-                                        "type": "sent",
-                                        "status": "SENT",
-                                        "sender": "2157097384",
-                                        "receiver": "7017408611",
-                                        "ps_id": null,
-                                        "unread_message_count": 0
-                                    },
-                                    {
-                                        "contact_id": 35217,
-                                        "first_name": "Joel",
-                                        "last_name": null,
-                                        "body": "😁",
-                                        "media_url": null,
-                                        "message_created_at": "2019-12-13 17:50:16",
-                                        "deleted_at": null,
-                                        "type": "sent",
-                                        "status": "SENT",
-                                        "sender": "2157097384",
-                                        "receiver": "6124628203",
-                                        "ps_id": null,
-                                        "unread_message_count": 0
-                                    },
-                                    {
-                                        "contact_id": 35217,
-                                        "first_name": "Joel",
-                                        "last_name": null,
-                                        "body": "😁",
-                                        "media_url": null,
-                                        "message_created_at": "2019-12-13 17:50:16",
-                                        "deleted_at": null,
-                                        "type": "sent",
-                                        "status": "SENT",
-                                        "sender": "2157097384",
-                                        "receiver": "6124628203",
-                                        "ps_id": null,
-                                        "unread_message_count": 0
-                                    }
-                                ],
-                                "total": 213,
-                                "per_page": 10
-                            }
-                        }
-                    },
-
-
-                    messages: {
-                        "data": {
-                            "singleConversion": {
-                                "data": [
-                                    {
-                                        "id": 38795,
-                                        "first_name": "Carly",
-                                        "last_name": "Patryluk",
-                                        "contact_id": 7574,
-                                        "body": "Ok thanks!",
-                                        "media_url": null,
-                                        "receiver": "435816710114410",
-                                        "sender": "2428886103852853",
-                                        "contact_created_at": "2019-05-23 01:23:59",
-                                        "type": "fb_received",
-                                        "status": "SENT",
-                                        "archived": 0,
-                                        "message_created_at": "2019-05-23 18:07:34"
-                                    },
-                                    {
-                                        "id": 38794,
-                                        "first_name": "Carly",
-                                        "last_name": "Patryluk",
-                                        "contact_id": 7574,
-                                        "body": "Thank you for your interest in NextPaw! Unfortunately, our software isn't available for Canadian customers, but we are looking into expanding. Hopefully, not much longer 🤞",
-                                        "media_url": null,
-                                        "receiver": "435816710114410",
-                                        "sender": "435816710114410",
-                                        "contact_created_at": "2019-05-23 01:23:59",
-                                        "type": "fb_send",
-                                        "status": "SENT",
-                                        "archived": 0,
-                                        "message_created_at": "2019-05-23 17:48:51"
-                                    },
-                                    {
-                                        "id": 38741,
-                                        "first_name": "Carly",
-                                        "last_name": "Patryluk",
-                                        "contact_id": 7574,
-                                        "body": "Do you work with Canadian companies?",
-                                        "media_url": null,
-                                        "receiver": "435816710114410",
-                                        "sender": "2428886103852853",
-                                        "contact_created_at": "2019-05-23 01:23:59",
-                                        "type": "fb_received",
-                                        "status": "SENT",
-                                        "archived": 0,
-                                        "message_created_at": "2019-05-23 01:23:59"
-                                    },
-                                    {
-                                        "id": 38741,
-                                        "first_name": "Carly",
-                                        "last_name": "Patryluk",
-                                        "contact_id": 7574,
-                                        "body": "Do you work with Canadian companies?",
-                                        "media_url": null,
-                                        "receiver": "435816710114410",
-                                        "sender": "2428886103852853",
-                                        "contact_created_at": "2019-05-23 01:23:59",
-                                        "type": "fb_received",
-                                        "status": "SENT",
-                                        "archived": 0,
-                                        "message_created_at": "2019-05-23 01:23:59"
-                                    },
-                                    {
-                                        "id": 38741,
-                                        "first_name": "Carly",
-                                        "last_name": "Patryluk",
-                                        "contact_id": 7574,
-                                        "body": "Do you work with Canadian companies?",
-                                        "media_url": null,
-                                        "receiver": "435816710114410",
-                                        "sender": "2428886103852853",
-                                        "contact_created_at": "2019-05-23 01:23:59",
-                                        "type": "fb_received",
-                                        "status": "SENT",
-                                        "archived": 0,
-                                        "message_created_at": "2019-05-23 01:23:59"
-                                    },
-                                    {
-                                        "id": 38741,
-                                        "first_name": "Carly",
-                                        "last_name": "Patryluk",
-                                        "contact_id": 7574,
-                                        "body": "Do you work with Canadian companies?",
-                                        "media_url": null,
-                                        "receiver": "435816710114410",
-                                        "sender": "2428886103852853",
-                                        "contact_created_at": "2019-05-23 01:23:59",
-                                        "type": "fb_send",
-                                        "status": "SENT",
-                                        "archived": 0,
-                                        "message_created_at": "2019-05-23 01:23:59"
-                                    }
-                                ],
-                                "total": 3,
-                                "per_page": 10
-                            }
-                        }
-                    },
-
-                    data:{
-                        results:[]
-                    }
+                    user: JSON.parse(localStorage.getItem('user')),
+                    contacts: [],
+                    messages:[],
 
                 }
 
 
-            }, mounted() {
-               // console.log('Component mounted.')
-            axios.post("https://app.nextpaw.com/graph-api")
-                .then(response => {this.results = response.data.results}).then(data => {
-
-
-
-            })
             }
-        }
+    }
 </script>
 
 
@@ -560,5 +408,7 @@
     }
 
     .chat_date { font-size:13px; float:right; font-weight: bold;color: #4c4c4c;}
+
+
 </style>
 

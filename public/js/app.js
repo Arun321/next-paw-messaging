@@ -1905,22 +1905,52 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
 
-
-
-String.prototype.trunc = String.prototype.trunc || function (n) {
-  return this.length > n ? this.substr(0, n - 1) + '....' : this;
-};
 
 /* harmony default export */ __webpack_exports__["default"] = ({
+  created: function created() {
+    var _this = this;
+
+    axios__WEBPACK_IMPORTED_MODULE_1___default()({
+      url: 'https://1154558724803321-reviews.jenkins.nextpaw.com/graph-api',
+      headers: {
+        Authorization: "Bearer ".concat(this.user.token)
+      },
+      method: 'POST',
+      data: {
+        query: "{\n    messages(clientId: 4, locationId: 3, page: 1, limit: 20){\n        data{\n            contact_id\n            first_name\n            last_name\n            body\n            media_url\n            message_created_at\n            deleted_at\n            type\n            status\n            sender\n            receiver\n            ps_id\n            unread_message_count\n        }\n        total\n        per_page\n    }\n}"
+      }
+    }).then(function (response) {
+      return _this.contacts = response.data.data.messages.data;
+    })["catch"](function (e) {
+      return console.log(e);
+    });
+  },
   methods: {
     messageType: function messageType(type, class1, class2) {
-      if (type === 'fb_received') {
+      if (type === 'received') {
         return class1;
       } else {
         return class2;
       }
+    },
+    loadMessage: function loadMessage(value) {
+      var _this2 = this;
+
+      axios__WEBPACK_IMPORTED_MODULE_1___default()({
+        url: 'https://1154558724803321-reviews.jenkins.nextpaw.com/graph-api',
+        headers: {
+          Authorization: "Bearer ".concat(this.user.token)
+        },
+        method: 'POST',
+        data: {
+          query: "{\n    singleConversion(id: ".concat(value, ", clientId: 4, locationId: 3, page: 1, limit: 10){\n        data {\n            id\n            first_name\n            last_name\n            contact_id\n            body\n            media_url\n            receiver\n            sender\n            contact_created_at\n            type\n            status\n            archived\n            message_created_at\n        }\n        total\n        per_page\n    }\n}")
+        }
+      }).then(function (response) {
+        return _this2.messages = response.data.data.singleConversion.data;
+      })["catch"](function (e) {
+        return console.log(e);
+      });
     },
     format_date: function format_date(value) {
       if (value) {
@@ -1931,223 +1961,17 @@ String.prototype.trunc = String.prototype.trunc || function (n) {
       if (value) {
         return moment__WEBPACK_IMPORTED_MODULE_0___default()(String(value)).format('MM/DD/YYYY | h:mm a');
       }
+    },
+    trunc: function trunc(n) {
+      return n && n.length > 15 ? n.substr(0, 10) + '...' : n;
     }
   },
   data: function data() {
     return {
-      token: localStorage.getItem('token'),
-      contacts: {
-        "data": {
-          "messages": {
-            "data": [{
-              "contact_id": 15319,
-              "first_name": "Vrushabh",
-              "last_name": "Vora",
-              "body": "Hi Vrushabh, Thank you for choosing Vilano Pets. Can you take 30 seconds and leave us a quick review? The link below makes it easy. \r\napp.nextpaw.com/sr/qg6GrTeMbgA6zGdf \r\nHave questions? Save our number and Text us back anytime! We are happy to help.",
-              "media_url": "https://s3.us-west-2.amazonaws.com/nextpaw-assets/11056/HAPPY_CUSTOMER.jpg",
-              "message_created_at": "2019-12-16 07:27:30",
-              "deleted_at": null,
-              "type": "invitation",
-              "status": "SENT",
-              "sender": "2157097384",
-              "receiver": "8019907096",
-              "ps_id": null,
-              "unread_message_count": 0
-            }, {
-              "contact_id": 9268,
-              "first_name": "Gabe",
-              "last_name": null,
-              "body": "Hi Gabe, Thank you for choosing Vilano Pets. Can you take 30 seconds and leave us a quick review? The link below makes it easy. \r\napp.nextpaw.com/sr/iWSTzNxgbPJcXitZ \r\nHave questions? Save our number and Text us back anytime! We are happy to help.",
-              "media_url": "https://s3.us-west-2.amazonaws.com/nextpaw-assets/11056/HAPPY_CUSTOMER.jpg",
-              "message_created_at": "2019-12-15 13:52:16",
-              "deleted_at": null,
-              "type": "invitation",
-              "status": "SENT",
-              "sender": "2157097384",
-              "receiver": "6093396808",
-              "ps_id": null,
-              "unread_message_count": 0
-            }, {
-              "contact_id": 30811,
-              "first_name": "Ben",
-              "last_name": null,
-              "body": "Hi Ben, Thank you for choosing Vilano Pets. Can you take 30 seconds and leave us a quick review? The link below makes it easy. \r\napp.nextpaw.com/sr/Ciu7dYT3PowQAfIA \r\nHave questions? Save our number and Text us back anytime! We are happy to help.",
-              "media_url": "https://s3.us-west-2.amazonaws.com/nextpaw-assets/11056/HAPPY_CUSTOMER.jpg",
-              "message_created_at": "2019-12-12 16:31:42",
-              "deleted_at": null,
-              "type": "invitation",
-              "status": "SENT",
-              "sender": "2157097384",
-              "receiver": "8012057914",
-              "ps_id": null,
-              "unread_message_count": 0
-            }, {
-              "contact_id": 34550,
-              "first_name": "Jerry",
-              "last_name": null,
-              "body": "Www.qwerty.com",
-              "media_url": null,
-              "message_created_at": "2019-12-13 19:36:41",
-              "deleted_at": null,
-              "type": "sent",
-              "status": "SENT",
-              "sender": "2157097384",
-              "receiver": "7173149292",
-              "ps_id": null,
-              "unread_message_count": 0
-            }, {
-              "contact_id": 35216,
-              "first_name": "Kelly",
-              "last_name": null,
-              "body": "Thanks for reaching out to Vilano Pets. We have received your message and will respond to you shortly. For a faster response, call (385) 555-5555 if you'd like to talk with us now.",
-              "media_url": null,
-              "message_created_at": "2019-12-13 17:54:21",
-              "deleted_at": null,
-              "type": "sent",
-              "status": "SENT",
-              "sender": "2157097384",
-              "receiver": "7017408611",
-              "ps_id": null,
-              "unread_message_count": 0
-            }, {
-              "contact_id": 35217,
-              "first_name": "Joel",
-              "last_name": null,
-              "body": "😁",
-              "media_url": null,
-              "message_created_at": "2019-12-13 17:50:16",
-              "deleted_at": null,
-              "type": "sent",
-              "status": "SENT",
-              "sender": "2157097384",
-              "receiver": "6124628203",
-              "ps_id": null,
-              "unread_message_count": 0
-            }, {
-              "contact_id": 35217,
-              "first_name": "Joel",
-              "last_name": null,
-              "body": "😁",
-              "media_url": null,
-              "message_created_at": "2019-12-13 17:50:16",
-              "deleted_at": null,
-              "type": "sent",
-              "status": "SENT",
-              "sender": "2157097384",
-              "receiver": "6124628203",
-              "ps_id": null,
-              "unread_message_count": 0
-            }],
-            "total": 213,
-            "per_page": 10
-          }
-        }
-      },
-      messages: {
-        "data": {
-          "singleConversion": {
-            "data": [{
-              "id": 38795,
-              "first_name": "Carly",
-              "last_name": "Patryluk",
-              "contact_id": 7574,
-              "body": "Ok thanks!",
-              "media_url": null,
-              "receiver": "435816710114410",
-              "sender": "2428886103852853",
-              "contact_created_at": "2019-05-23 01:23:59",
-              "type": "fb_received",
-              "status": "SENT",
-              "archived": 0,
-              "message_created_at": "2019-05-23 18:07:34"
-            }, {
-              "id": 38794,
-              "first_name": "Carly",
-              "last_name": "Patryluk",
-              "contact_id": 7574,
-              "body": "Thank you for your interest in NextPaw! Unfortunately, our software isn't available for Canadian customers, but we are looking into expanding. Hopefully, not much longer 🤞",
-              "media_url": null,
-              "receiver": "435816710114410",
-              "sender": "435816710114410",
-              "contact_created_at": "2019-05-23 01:23:59",
-              "type": "fb_send",
-              "status": "SENT",
-              "archived": 0,
-              "message_created_at": "2019-05-23 17:48:51"
-            }, {
-              "id": 38741,
-              "first_name": "Carly",
-              "last_name": "Patryluk",
-              "contact_id": 7574,
-              "body": "Do you work with Canadian companies?",
-              "media_url": null,
-              "receiver": "435816710114410",
-              "sender": "2428886103852853",
-              "contact_created_at": "2019-05-23 01:23:59",
-              "type": "fb_received",
-              "status": "SENT",
-              "archived": 0,
-              "message_created_at": "2019-05-23 01:23:59"
-            }, {
-              "id": 38741,
-              "first_name": "Carly",
-              "last_name": "Patryluk",
-              "contact_id": 7574,
-              "body": "Do you work with Canadian companies?",
-              "media_url": null,
-              "receiver": "435816710114410",
-              "sender": "2428886103852853",
-              "contact_created_at": "2019-05-23 01:23:59",
-              "type": "fb_received",
-              "status": "SENT",
-              "archived": 0,
-              "message_created_at": "2019-05-23 01:23:59"
-            }, {
-              "id": 38741,
-              "first_name": "Carly",
-              "last_name": "Patryluk",
-              "contact_id": 7574,
-              "body": "Do you work with Canadian companies?",
-              "media_url": null,
-              "receiver": "435816710114410",
-              "sender": "2428886103852853",
-              "contact_created_at": "2019-05-23 01:23:59",
-              "type": "fb_received",
-              "status": "SENT",
-              "archived": 0,
-              "message_created_at": "2019-05-23 01:23:59"
-            }, {
-              "id": 38741,
-              "first_name": "Carly",
-              "last_name": "Patryluk",
-              "contact_id": 7574,
-              "body": "Do you work with Canadian companies?",
-              "media_url": null,
-              "receiver": "435816710114410",
-              "sender": "2428886103852853",
-              "contact_created_at": "2019-05-23 01:23:59",
-              "type": "fb_send",
-              "status": "SENT",
-              "archived": 0,
-              "message_created_at": "2019-05-23 01:23:59"
-            }],
-            "total": 3,
-            "per_page": 10
-          }
-        }
-      },
-      data: {
-        results: []
-      }
+      user: JSON.parse(localStorage.getItem('user')),
+      contacts: [],
+      messages: []
     };
-  },
-  mounted: function mounted() {
-    var _this = this;
-
-    // console.log('Component mounted.')
-    axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("https://app.nextpaw.com/graph-api").then(function (response) {
-      _this.results = response.data.results;
-    }).then(function (data) {});
   }
 });
 
@@ -2187,6 +2011,10 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
@@ -2199,29 +2027,34 @@ __webpack_require__.r(__webpack_exports__);
     login: function login() {
       var _this = this;
 
-      axios__WEBPACK_IMPORTED_MODULE_0___default.a.post('https://app.nextpaw.com/graph-api/secret', {
-        email: this.email,
-        password: this.password
+      axios__WEBPACK_IMPORTED_MODULE_0___default()({
+        url: 'https://1154558724803321-reviews.jenkins.nextpaw.com/graph-api/secret',
+        method: 'post',
+        data: {
+          query: "{login(email:\"abhishek.shah@hnrtech.com\", password:\"123456\") {\n                                 id\n                                 first_name\n                                 last_name\n                                 token\n                                 error\n                                 message\n                               }}"
+        }
       }).then(function (response) {
         return _this.loginSuccessful(response);
-      })["catch"](function () {
-        return _this.loginFailed();
+      })["catch"](function (e) {
+        return console.log(e);
       });
+    },
+    loginSuccessful: function loginSuccessful(res) {
+      var data = res.data.data.login;
+      data = {
+        first_name: data.first_name,
+        last_name: data.last_name,
+        id: data.id,
+        token: data.token
+      };
+      localStorage.setItem('user', JSON.stringify(data));
+      this.error = false;
+      location.href = '/'; //this.$router.replace(this.$route.query.redirect || '/')
+    },
+    loginFailed: function loginFailed() {
+      this.error = 'Login failed!';
+      localStorage.removeItem('id');
     }
-  },
-  loginSuccessful: function loginSuccessful(res) {
-    if (!res.data.login.token) {
-      this.loginFailed();
-      return;
-    }
-
-    localStorage.setItem('token', res.data.login.token);
-    this.error = false;
-    location.href = '/'; //this.$router.replace(this.$route.query.redirect || '/')
-  },
-  loginFailed: function loginFailed() {
-    this.error = 'Login failed!';
-    localStorage.removeItem('token');
   }
 });
 
@@ -2239,7 +2072,7 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 
 // module
-exports.push([module.i, "\n.container[data-v-299e239e] {\n    max-width: 1170px;\n    margin: auto;\n}\nimg[data-v-299e239e] {\n    max-width: 100%;\n}\n.inbox_people[data-v-299e239e] {\n    background: #f8f8f8 none repeat scroll 0 0;\n    float: left;\n    overflow: hidden;\n    width: 40%;\n    border-right: 1px solid #c4c4c4;\n}\n.inbox_msg[data-v-299e239e] {\n    border: 1px solid #c4c4c4;\n    clear: both;\n    overflow: hidden;\n}\n.top_spac[data-v-299e239e] {\n    margin: 20px 0 0;\n}\n.recent_heading[data-v-299e239e] {\n    float: left;\n    width: 40%;\n}\n.srch_bar[data-v-299e239e] {\n    display: inline-block;\n    text-align: right;\n    width: 60%;\n    padding: 0;\n    outline: 0;\n}\n.headind_srch[data-v-299e239e] {\n    padding: 10px 29px 10px 20px;\n    overflow: hidden;\n    border-bottom: 1px solid #c4c4c4;\n}\n.recent_heading h4[data-v-299e239e] {\n    color: #05728f;\n    font-size: 21px;\n    margin: auto;\n}\n.srch_bar input[data-v-299e239e] {\n    border: 1px solid #cdcdcd;\n    border-width: 0 0 1px 0;\n    width: 80%;\n    padding: 2px 0 4px 6px;\n    background: none;\n    outline: 0;\n}\n.srch_bar .input-group-addon button[data-v-299e239e] {\n    background: rgba(0, 0, 0, 0) none repeat scroll 0 0;\n    border: medium none;\n    padding: 0;\n    color: #707070;\n    font-size: 18px;\n    outline: 0;\n}\n.srch_bar .input-group-addon[data-v-299e239e] {\n    margin: 0 0 0 -27px;\n}\n.chat_ib h5[data-v-299e239e] {\n    font-size: 15px;\n    color: #464646;\n    margin: 0 0 8px 0;\n}\n.chat_ib h5 span[data-v-299e239e] {\n    font-size: 13px;\n    float: right;\n}\n.chat_ib p[data-v-299e239e] {\n    font-size: 14px;\n    color: #989898;\n    margin: auto\n}\n.chat_img[data-v-299e239e] {\n    float: left;\n    width: 11%;\n}\n.chat_ib[data-v-299e239e] {\n    float: left;\n    padding: 0 0 0 15px;\n    width: 88%;\n}\n.chat_people[data-v-299e239e] {\n    overflow: hidden;\n    clear: both;\n    overflow: scroll;\n}\n.chat_list[data-v-299e239e] {\n    border-bottom: 1px solid #c4c4c4;\n    margin: 0;\n    padding: 18px 16px 10px;\n    overflow-y: scroll;\n}\n.inbox_chat[data-v-299e239e] {\n    height: 550px;\n    overflow-y: scroll;\n}\n.active_chat[data-v-299e239e] {\n    background: #ebebeb;\n}\n.incoming_msg_img[data-v-299e239e] {\n    display: inline-block;\n    width: 6%;\n}\n.received_msg[data-v-299e239e] {\n    display: inline-block;\n    padding: 0 0 0 10px;\n    vertical-align: top;\n    width: 92%;\n}\n.received_withd_msg p[data-v-299e239e] {\n    background: #ebebeb none repeat scroll 0 0;\n    border-radius: 3px;\n    color: #646464;\n    font-size: 14px;\n    margin: 0;\n    padding: 5px 10px 5px 12px;\n    width: 100%;\n}\n.time_date[data-v-299e239e] {\n    color: #747474;\n    display: block;\n    font-size: 12px;\n    margin: 8px 0 0;\n}\n.received_withd_msg[data-v-299e239e] {\n    width: 57%;\n}\n.mesgs[data-v-299e239e] {\n    float: left;\n    padding: 30px 15px 0 25px;\n    width: 60%;\n}\n.sent_msg p[data-v-299e239e] {\n    background: #05728f none repeat scroll 0 0;\n    border-radius: 3px;\n    font-size: 14px;\n    margin: 0;\n    color: #fff;\n    padding: 5px 10px 5px 12px;\n    width: 100%;\n}\n.outgoing_msg[data-v-299e239e] {\n    overflow: hidden;\n    margin: 26px 0 26px;\n}\n.sent_msg[data-v-299e239e] {\n    float: right;\n    width: 46%;\n}\n.input_msg_write input[data-v-299e239e] {\n    background: rgba(0, 0, 0, 0) none repeat scroll 0 0;\n    border: medium none;\n    color: #4c4c4c;\n    font-size: 15px;\n    min-height: 48px;\n    width: 100%;\n    outline: 0;\n}\n.type_msg[data-v-299e239e] {\n    border-top: 1px solid #c4c4c4;\n    position: relative;\n}\n.msg_send_btn[data-v-299e239e] {\n    background: #05728f none repeat scroll 0 0;\n    border: medium none;\n    border-radius: 50%;\n    color: #fff;\n    cursor: pointer;\n    font-size: 17px;\n    height: 33px;\n    position: absolute;\n    right: 0;\n    top: 11px;\n    width: 33px;\n}\n.messaging[data-v-299e239e] {\n    padding: 0 0 50px 0;\n}\n.msg_history[data-v-299e239e] {\n    height: 516px;\n    overflow-y: auto;\n}\n.chat_date[data-v-299e239e] { font-size:13px; float:right; font-weight: bold;color: #4c4c4c;}\n", ""]);
+exports.push([module.i, "\n.container[data-v-299e239e] {\n    max-width: 1170px;\n    margin: auto;\n}\nimg[data-v-299e239e] {\n    max-width: 100%;\n}\n.inbox_people[data-v-299e239e] {\n    background: #f8f8f8 none repeat scroll 0 0;\n    float: left;\n    overflow: hidden;\n    width: 40%;\n    border-right: 1px solid #c4c4c4;\n}\n.inbox_msg[data-v-299e239e] {\n    border: 1px solid #c4c4c4;\n    clear: both;\n    overflow: hidden;\n}\n.top_spac[data-v-299e239e] {\n    margin: 20px 0 0;\n}\n.recent_heading[data-v-299e239e] {\n    float: left;\n    width: 40%;\n}\n.srch_bar[data-v-299e239e] {\n    display: inline-block;\n    text-align: right;\n    width: 60%;\n    padding: 0;\n    outline: 0;\n}\n.headind_srch[data-v-299e239e] {\n    padding: 10px 29px 10px 20px;\n    overflow: hidden;\n    border-bottom: 1px solid #c4c4c4;\n}\n.recent_heading h4[data-v-299e239e] {\n    color: #05728f;\n    font-size: 21px;\n    margin: auto;\n}\n.srch_bar input[data-v-299e239e] {\n    border: 1px solid #cdcdcd;\n    border-width: 0 0 1px 0;\n    width: 80%;\n    padding: 2px 0 4px 6px;\n    background: none;\n    outline: 0;\n}\n.srch_bar .input-group-addon button[data-v-299e239e] {\n    background: rgba(0, 0, 0, 0) none repeat scroll 0 0;\n    border: medium none;\n    padding: 0;\n    color: #707070;\n    font-size: 18px;\n    outline: 0;\n}\n.srch_bar .input-group-addon[data-v-299e239e] {\n    margin: 0 0 0 -27px;\n}\n.chat_ib h5[data-v-299e239e] {\n    font-size: 15px;\n    color: #464646;\n    margin: 0 0 8px 0;\n}\n.chat_ib h5 span[data-v-299e239e] {\n    font-size: 13px;\n    float: right;\n}\n.chat_ib p[data-v-299e239e] {\n    font-size: 14px;\n    color: #989898;\n    margin: auto\n}\n.chat_img[data-v-299e239e] {\n    float: left;\n    width: 11%;\n}\n.chat_ib[data-v-299e239e] {\n    float: left;\n    padding: 0 0 0 15px;\n    width: 88%;\n}\n.chat_people[data-v-299e239e] {\n    overflow: hidden;\n    clear: both;\n    overflow: scroll;\n}\n.chat_list[data-v-299e239e] {\n    border-bottom: 1px solid #c4c4c4;\n    margin: 0;\n    padding: 18px 16px 10px;\n    overflow-y: scroll;\n}\n.inbox_chat[data-v-299e239e] {\n    height: 550px;\n    overflow-y: scroll;\n}\n.active_chat[data-v-299e239e] {\n    background: #ebebeb;\n}\n.incoming_msg_img[data-v-299e239e] {\n    display: inline-block;\n    width: 6%;\n}\n.received_msg[data-v-299e239e] {\n    display: inline-block;\n    padding: 0 0 0 10px;\n    vertical-align: top;\n    width: 92%;\n}\n.received_withd_msg p[data-v-299e239e] {\n    background: #ebebeb none repeat scroll 0 0;\n    border-radius: 3px;\n    color: #646464;\n    font-size: 14px;\n    margin: 0;\n    padding: 5px 10px 5px 12px;\n    width: 100%;\n}\n.time_date[data-v-299e239e] {\n    color: #747474;\n    display: block;\n    font-size: 12px;\n    margin: 8px 0 0;\n}\n.received_withd_msg[data-v-299e239e] {\n    width: 57%;\n}\n.mesgs[data-v-299e239e] {\n    float: left;\n    padding: 30px 15px 0 25px;\n    width: 60%;\n}\n.sent_msg p[data-v-299e239e] {\n    background: #05728f none repeat scroll 0 0;\n    border-radius: 3px;\n    font-size: 14px;\n    margin: 0;\n    color: #fff;\n    padding: 5px 10px 5px 12px;\n    width: 100%;\n}\n.outgoing_msg[data-v-299e239e] {\n    overflow: hidden;\n    margin: 26px 0 26px;\n}\n.sent_msg[data-v-299e239e] {\n    float: right;\n    width: 46%;\n}\n.input_msg_write input[data-v-299e239e] {\n    background: rgba(0, 0, 0, 0) none repeat scroll 0 0;\n    border: medium none;\n    color: #4c4c4c;\n    font-size: 15px;\n    min-height: 48px;\n    width: 100%;\n    outline: 0;\n}\n.type_msg[data-v-299e239e] {\n    border-top: 1px solid #c4c4c4;\n    position: relative;\n}\n.msg_send_btn[data-v-299e239e] {\n    background: #05728f none repeat scroll 0 0;\n    border: medium none;\n    border-radius: 50%;\n    color: #fff;\n    cursor: pointer;\n    font-size: 17px;\n    height: 33px;\n    position: absolute;\n    right: 0;\n    top: 11px;\n    width: 33px;\n}\n.messaging[data-v-299e239e] {\n    padding: 0 0 50px 0;\n}\n.msg_history[data-v-299e239e] {\n    height: 516px;\n    overflow-y: auto;\n}\n.chat_date[data-v-299e239e] { font-size:13px; float:right; font-weight: bold;color: #4c4c4c;}\n\n\n", ""]);
 
 // exports
 
@@ -38155,40 +37988,62 @@ var render = function() {
         _c("div", { staticClass: "inbox_people" }, [
           _vm._m(0),
           _vm._v(" "),
-          _c(
-            "div",
-            { staticClass: "inbox_chat" },
-            _vm._l(_vm.contacts.data.messages.data, function(contact) {
-              return _c("div", { staticClass: "chat_list" }, [
-                _c("div", { staticClass: "chat_people" }, [
-                  _c("div", { staticClass: "chat_img" }, [
-                    _c("img", { attrs: { src: contact.media_url } })
-                  ]),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "chat_ib" }, [
-                    _c("h5", [_vm._v(_vm._s(contact.first_name) + " ")]),
-                    _vm._v(" "),
-                    _c("p", [
-                      _vm._v(_vm._s(contact.body.trunc(30))),
-                      _c("span", { staticClass: "chat_date" }, [
-                        _vm._v(
-                          _vm._s(_vm.format_date(contact.message_created_at))
-                        )
-                      ])
-                    ])
+          _vm.contacts.length > 0
+            ? _c(
+                "div",
+                { staticClass: "inbox_chat" },
+                _vm._l(_vm.contacts, function(contact) {
+                  return _c("div", { staticClass: "chat_list" }, [
+                    _c(
+                      "div",
+                      {
+                        staticClass: "chat_people",
+                        on: {
+                          click: function($event) {
+                            return _vm.loadMessage(contact.contact_id)
+                          }
+                        }
+                      },
+                      [
+                        _c("div", { staticClass: "chat_img" }, [
+                          _c("img", { attrs: { src: contact.media_url } })
+                        ]),
+                        _vm._v(" "),
+                        _c("div", { staticClass: "chat_ib" }, [
+                          _c("h5", [
+                            _vm._v(
+                              _vm._s(contact.first_name) +
+                                " " +
+                                _vm._s(contact.last_name) +
+                                " "
+                            )
+                          ]),
+                          _vm._v(" "),
+                          _c("p", [
+                            _vm._v(_vm._s(_vm.trunc(contact.body))),
+                            _c("span", { staticClass: "chat_date" }, [
+                              _vm._v(
+                                _vm._s(
+                                  _vm.format_date(contact.message_created_at)
+                                )
+                              )
+                            ])
+                          ])
+                        ])
+                      ]
+                    )
                   ])
-                ])
-              ])
-            }),
-            0
-          )
+                }),
+                0
+              )
+            : _vm._e()
         ]),
         _vm._v(" "),
         _c("div", { staticClass: "mesgs" }, [
           _c(
             "div",
             { staticClass: "msg_history" },
-            _vm._l(_vm.messages.data.singleConversion.data, function(message) {
+            _vm._l(_vm.messages, function(message) {
               return _c(
                 "div",
                 {

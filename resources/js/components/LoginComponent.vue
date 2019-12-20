@@ -3,19 +3,23 @@
         <form class="login" @submit.prevent="login">
             <a href="/">Home</a>
             <tr>
-                <td colspan=2><center><font size=4><b>Login Page</b></font></center> <br></td>
+                <td colspan=2>
+                    <center><font size=4><b>Login Page</b></font></center>
+                    <br></td>
             </tr>
             <tr>
                 <td><label>Email:</label></td>
-            <td><input required v-model="email" type="email" placeholder="Email"/></td>
+                <td><input required v-model="email" type="email" placeholder="Email"/></td>
             </tr>
             <tr>
                 <td><label>Password:</label></td>
-            <td><input required v-model="password" type="password" placeholder="Password"/></td>
+                <td><input required v-model="password" type="password" placeholder="Password"/></td>
             </tr>
             <tr>
-                <td ><input type="Reset"></td>
-            <td><button type="submit" @click="login">Login</button></td>
+                <td><input type="Reset"></td>
+                <td>
+                    <button type="submit" @click="login">Login</button>
+                </td>
             </tr>
         </form>
     </div>
@@ -34,30 +38,45 @@
         },
         methods: {
             login() {
-                axios.post('https://app.nextpaw.com/graph-api/secret', {email: this.email, password: this.password})
-                    .then(response => this.loginSuccessful(response))
-                    .catch(() => this.loginFailed())
-            }
 
-        },
-        loginSuccessful(res) {
-            if (!res.data.login.token) {
-                this.loginFailed();
-                return
-            }
-            localStorage.setItem('token', res.data.login.token);
-            this.error = false;
-            location.href = '/';
+                axios({
+                    url: 'https://1154558724803321-reviews.jenkins.nextpaw.com/graph-api/secret',
+                    method: 'post',
+                    data: {
+                        query: `{login(email:"abhishek.shah@hnrtech.com", password:"123456") {
+                                     id
+                                     first_name
+                                     last_name
+                                     token
+                                     error
+                                     message
+                                   }}`
+                    }
+                }).then(response => this.loginSuccessful(response))
+                    .catch((e) => console.log(e));
+            },
+            loginSuccessful(res) {
 
-            //this.$router.replace(this.$route.query.redirect || '/')
-        },
-        loginFailed () {
-            this.error = 'Login failed!';
-            localStorage.removeItem('token')
+                let data = res.data.data.login;
+                data = {
+                    first_name: data.first_name,
+                    last_name: data.last_name,
+                    id: data.id,
+                    token: data.token
+                };
+                localStorage.setItem('user', JSON.stringify(data));
+                this.error = false;
+                location.href = '/';
+
+                //this.$router.replace(this.$route.query.redirect || '/')
+            },
+            loginFailed() {
+                this.error = 'Login failed!';
+                localStorage.removeItem('id')
+            }
         }
     }
 </script>
-
 
 
 <style scoped>
