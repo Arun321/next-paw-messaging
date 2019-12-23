@@ -21,8 +21,8 @@
 
 
                     <div class="inbox_chat" v-if="contacts.length > 0">
-                        <div v-for="contact in contacts" class="chat_list">
-                            <div class="chat_people" v-on:click="loadMessage(contact.contact_id)">
+                        <div class="chat_list" v-for="contact in contacts" v-on:click="loadMessage(contact.contact_id)":class="{'active': contact.contact_id == activeIndex}">
+                            <div  class="chat_people">
                                 <div class="chat_img"><img :src="contact.media_url"></div>
                                 <div class="chat_ib">
                                     <h5>{{contact.first_name}} {{contact.last_name}} </h5>
@@ -107,7 +107,13 @@
 
 
         },
+
         methods: {
+
+            toggleIsClicked: function () {
+                this.isClicked = !this.isClicked
+            },
+
             messageType: function (type, class1, class2) {
                 if (type === 'received') {
                     return class1;
@@ -116,7 +122,7 @@
                 }
             },
 
-            loadMessage:function(value){
+            loadMessage: function (value) {
                 axios({
                     url: 'https://1154558724803321-reviews.jenkins.nextpaw.com/graph-api',
                     headers: {
@@ -149,29 +155,35 @@
                 }).then(response =>
                     this.messages = response.data.data.singleConversion.data
                 )
-                    .catch((e) => console.log(e))
-
+                // console.log(this.activeIndex)
+                //     .catch((e) => console.log(e))
+                this.activeIndex = value
             },
 
 
-            format_date(value){
+            format_date(value) {
                 if (value) {
                     return moment(String(value)).format('MM/DD/YYYY')
                 }
             },
 
-            format_time_date(value){
-                if(value){
+            format_time_date(value) {
+                if (value) {
                     return moment(String(value)).format('MM/DD/YYYY | h:mm a')
                 }
             },
-            trunc (n) {
+            trunc(n) {
                 return (n && n.length > 15) ? n.substr(0, 10) + '...' : n
-            }
+            },
+            // myFunction(divObj) {
+            //     divObj.style.background = "black";
+            // }
         },
 
         data() {
                 return {
+                    color : 'blue',
+                    activeIndex: null,
                     user: JSON.parse(localStorage.getItem('user')),
                     contacts: [],
                     messages:[],
@@ -409,6 +421,12 @@
 
     .chat_date { font-size:13px; float:right; font-weight: bold;color: #4c4c4c;}
 
+    .chat_list{
 
+    }
+
+    .active {
+        background-color: red;
+    }
 </style>
 
