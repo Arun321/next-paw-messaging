@@ -19,39 +19,52 @@
                         </div>
                     </div>
 
-
+                    <div v-if="contactLoading" style="display: flex; justify-content: center; align-items: center;">
+                        <i class="fa fa-circle-o-notch fa-spin" style="font-size: 45px; color: deepskyblue;"></i>
+                    </div>
                     <div class="inbox_chat" v-if="contacts.length > 0">
-                        <div class="chat_list" v-for="contact in contacts" v-on:click="loadMessage(contact.contact_id)":class="{'active': contact.contact_id == activeIndex}">
-                            <div  class="chat_people">
-                                <div class="chat_img"><img :src="contact.media_url"></div>
-                                <div class="chat_ib">
-                                    <h5>{{contact.first_name}} {{contact.last_name}} </h5>
-                                    <p>{{ trunc(contact.body) }}<span class="chat_date">{{ format_date(contact.message_created_at) }}</span></p>
+
+                        <div v-if="!contactLoading">
+                            <div class="chat_list" v-for="contact in contacts"
+                                 v-on:click="loadMessage(contact.contact_id)"
+                                 :class="{'active': contact.contact_id == activeIndex}">
+                                <div class="chat_people">
+                                    <div class="chat_img"><img :src="contact.media_url"></div>
+                                    <div class="chat_ib">
+                                        <h5>{{contact.first_name}} {{contact.last_name}} </h5>
+                                        <p>{{ trunc(contact.body) }}<span class="chat_date">{{ format_date(contact.message_created_at) }}</span>
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-
-
                     </div>
                 </div>
+
                 <div class="mesgs">
-                    <div class="msg_history">
-                        <div v-for="message in messages"
-                             :class="messageType(message.type, 'incoming_msg', 'outgoing_msg')">
-                            <div :class="messageType(message.type, 'received_msg', 'sent_msg')">
-                                <div :class="messageType(message.type, 'received_withd_msg', 'sent_withd_msg')">
-                                    <p>{{message.body}}</p>
-                                    <span class="time_date"> {{format_time_date( message.message_created_at) }}</span>
+                    <div v-if="msgLoading" style="display: flex; justify-content: center; align-items: center;">
+                        <i class="fa fa-circle-o-notch fa-spin" style="font-size: 45px; color: blue;"></i>
+                    </div>
+                    <div v-if="!msgLoading">
+                        <div class="msg_history">
+                            <div v-for="message in messages"
+                                 :class="messageType(message.type, 'incoming_msg', 'outgoing_msg')">
+                                <div :class="messageType(message.type, 'received_msg', 'sent_msg')">
+                                    <div :class="messageType(message.type, 'received_withd_msg', 'sent_withd_msg')">
+                                        <p>{{message.body}}</p>
+                                        <span class="time_date"> {{format_time_date( message.message_created_at) }}</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="type_msg">
-                        <div class="input_msg_write">
 
-                            <input type="text" class="write_msg" placeholder="Type a message"/>
-                            <button class="msg_send_btn" type="button"><i class="fa fa-paper-plane-o"
-                                                                          aria-hidden="true"></i></button>
+
+                        <div class="type_msg">
+                            <div class="input_msg_write">
+                                <input type="text" class="write_msg" placeholder="Type a message"/>
+                                <button class="msg_send_btn" type="button"><i class="fa fa-paper-plane-o"
+                                                                              aria-hidden="true"></i></button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -65,9 +78,9 @@
     import moment from 'moment';
     import axios from 'axios';
 
-
     export default {
         created () {
+            this.contactLoading = true
             axios({
                 url: 'https://1154558724803321-reviews.jenkins.nextpaw.com/graph-api',
                 headers: {
@@ -97,15 +110,11 @@
     }
 }`
                 }
-            }).then(response =>
+            }).then(response => {
+                this.contactLoading = false
                 this.contacts = response.data.data.messages.data
-            )
-                .catch((e) => console.log(e))
-
-
-
-
-
+                }
+            ).catch((e) => console.log(e))
         },
 
         methods: {
@@ -123,6 +132,7 @@
             },
 
             loadMessage: function (value) {
+                this.msgLoading = true
                 axios({
                     url: 'https://1154558724803321-reviews.jenkins.nextpaw.com/graph-api',
                     headers: {
@@ -152,11 +162,38 @@
     }
 }`
                     }
-                }).then(response =>
-                    this.messages = response.data.data.singleConversion.data
+                }).then(response => {
+                        this.msgLoading = false
+                        this.messages = response.data.data.singleConversion.data
+                }
                 )
-                // console.log(this.activeIndex)
-                //     .catch((e) => console.log(e))
+                    .catch((e) => console.log(e))
+                this.activeIndex = value
+            },
+
+            sendMessage: function (value1,value2,value3,value4) {
+                axios({
+                    url: 'https://1154558724803321-reviews.jenkins.nextpaw.com/graph-api',
+                    headers: {
+                        Authorization: `Bearer ${this.user.token}`
+                    },
+                    method: 'POST',
+                    data: {
+                        query: `mutation messageSendMutation
+                        {
+    messageSendMutation(clientId: ${value1}, locationId: ${value2}, contactId: ${value3}, body: ${value4},
+        ){
+        id
+        error
+        message
+    }
+}`
+                    }
+                }).then(response => {
+                        this.sendMessages = response.data.data.messageSendMutation
+                    }
+                )
+                    .catch((e) => console.log(e))
                 this.activeIndex = value
             },
 
@@ -182,11 +219,13 @@
 
         data() {
                 return {
-                    color : 'blue',
+                    msgLoading: false,
+                    contactLoading:false,
                     activeIndex: null,
                     user: JSON.parse(localStorage.getItem('user')),
                     contacts: [],
                     messages:[],
+                    sendMessages:[]
 
                 }
 
@@ -421,12 +460,8 @@
 
     .chat_date { font-size:13px; float:right; font-weight: bold;color: #4c4c4c;}
 
-    .chat_list{
-
-    }
-
     .active {
-        background-color: red;
+        background-color: #05728f ;
     }
 </style>
 

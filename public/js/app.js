@@ -1905,12 +1905,26 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   created: function created() {
     var _this = this;
 
+    this.contactLoading = true;
     axios__WEBPACK_IMPORTED_MODULE_1___default()({
       url: 'https://1154558724803321-reviews.jenkins.nextpaw.com/graph-api',
       headers: {
@@ -1921,7 +1935,8 @@ __webpack_require__.r(__webpack_exports__);
         query: "{\n    messages(clientId: 4, locationId: 3, page: 1, limit: 20){\n        data{\n            contact_id\n            first_name\n            last_name\n            body\n            media_url\n            message_created_at\n            deleted_at\n            type\n            status\n            sender\n            receiver\n            ps_id\n            unread_message_count\n        }\n        total\n        per_page\n    }\n}"
       }
     }).then(function (response) {
-      return _this.contacts = response.data.data.messages.data;
+      _this.contactLoading = false;
+      _this.contacts = response.data.data.messages.data;
     })["catch"](function (e) {
       return console.log(e);
     });
@@ -1940,6 +1955,7 @@ __webpack_require__.r(__webpack_exports__);
     loadMessage: function loadMessage(value) {
       var _this2 = this;
 
+      this.msgLoading = true;
       axios__WEBPACK_IMPORTED_MODULE_1___default()({
         url: 'https://1154558724803321-reviews.jenkins.nextpaw.com/graph-api',
         headers: {
@@ -1950,10 +1966,30 @@ __webpack_require__.r(__webpack_exports__);
           query: "{\n    singleConversion(id: ".concat(value, ", clientId: 4, locationId: 3, page: 1, limit: 10){\n        data {\n            id\n            first_name\n            last_name\n            contact_id\n            body\n            media_url\n            receiver\n            sender\n            contact_created_at\n            type\n            status\n            archived\n            message_created_at\n        }\n        total\n        per_page\n    }\n}")
         }
       }).then(function (response) {
-        return _this2.messages = response.data.data.singleConversion.data;
-      }); // console.log(this.activeIndex)
-      //     .catch((e) => console.log(e))
+        _this2.msgLoading = false;
+        _this2.messages = response.data.data.singleConversion.data;
+      })["catch"](function (e) {
+        return console.log(e);
+      });
+      this.activeIndex = value;
+    },
+    sendMessage: function sendMessage(value1, value2, value3, value4) {
+      var _this3 = this;
 
+      axios__WEBPACK_IMPORTED_MODULE_1___default()({
+        url: 'https://1154558724803321-reviews.jenkins.nextpaw.com/graph-api',
+        headers: {
+          Authorization: "Bearer ".concat(this.user.token)
+        },
+        method: 'POST',
+        data: {
+          query: "mutation messageSendMutation\n                        {\n    messageSendMutation(clientId: ".concat(value1, ", locationId: ").concat(value2, ", contactId: ").concat(value3, ", body: ").concat(value4, ",\n        ){\n        id\n        error\n        message\n    }\n}")
+        }
+      }).then(function (response) {
+        _this3.sendMessages = response.data.data.messageSendMutation;
+      })["catch"](function (e) {
+        return console.log(e);
+      });
       this.activeIndex = value;
     },
     format_date: function format_date(value) {
@@ -1975,11 +2011,13 @@ __webpack_require__.r(__webpack_exports__);
   },
   data: function data() {
     return {
-      color: 'blue',
+      msgLoading: false,
+      contactLoading: false,
       activeIndex: null,
       user: JSON.parse(localStorage.getItem('user')),
       contacts: [],
-      messages: []
+      messages: [],
+      sendMessages: []
     };
   }
 });
@@ -2081,7 +2119,7 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 
 // module
-exports.push([module.i, "\n.container[data-v-299e239e] {\n    max-width: 1170px;\n    margin: auto;\n}\nimg[data-v-299e239e] {\n    max-width: 100%;\n}\n.inbox_people[data-v-299e239e] {\n    background: #f8f8f8 none repeat scroll 0 0;\n    float: left;\n    overflow: hidden;\n    width: 40%;\n    border-right: 1px solid #c4c4c4;\n}\n.inbox_msg[data-v-299e239e] {\n    border: 1px solid #c4c4c4;\n    clear: both;\n    overflow: hidden;\n}\n.top_spac[data-v-299e239e] {\n    margin: 20px 0 0;\n}\n.recent_heading[data-v-299e239e] {\n    float: left;\n    width: 40%;\n}\n.srch_bar[data-v-299e239e] {\n    display: inline-block;\n    text-align: right;\n    width: 60%;\n    padding: 0;\n    outline: 0;\n}\n.headind_srch[data-v-299e239e] {\n    padding: 10px 29px 10px 20px;\n    overflow: hidden;\n    border-bottom: 1px solid #c4c4c4;\n}\n.recent_heading h4[data-v-299e239e] {\n    color: #05728f;\n    font-size: 21px;\n    margin: auto;\n}\n.srch_bar input[data-v-299e239e] {\n    border: 1px solid #cdcdcd;\n    border-width: 0 0 1px 0;\n    width: 80%;\n    padding: 2px 0 4px 6px;\n    background: none;\n    outline: 0;\n}\n.srch_bar .input-group-addon button[data-v-299e239e] {\n    background: rgba(0, 0, 0, 0) none repeat scroll 0 0;\n    border: medium none;\n    padding: 0;\n    color: #707070;\n    font-size: 18px;\n    outline: 0;\n}\n.srch_bar .input-group-addon[data-v-299e239e] {\n    margin: 0 0 0 -27px;\n}\n.chat_ib h5[data-v-299e239e] {\n    font-size: 15px;\n    color: #464646;\n    margin: 0 0 8px 0;\n}\n.chat_ib h5 span[data-v-299e239e] {\n    font-size: 13px;\n    float: right;\n}\n.chat_ib p[data-v-299e239e] {\n    font-size: 14px;\n    color: #989898;\n    margin: auto\n}\n.chat_img[data-v-299e239e] {\n    float: left;\n    width: 11%;\n}\n.chat_ib[data-v-299e239e] {\n    float: left;\n    padding: 0 0 0 15px;\n    width: 88%;\n}\n.chat_people[data-v-299e239e] {\n    overflow: hidden;\n    clear: both;\n    overflow: scroll;\n}\n.chat_list[data-v-299e239e] {\n    border-bottom: 1px solid #c4c4c4;\n    margin: 0;\n    padding: 18px 16px 10px;\n    overflow-y: scroll;\n}\n.inbox_chat[data-v-299e239e] {\n    height: 550px;\n    overflow-y: scroll;\n}\n.active_chat[data-v-299e239e] {\n    background: #ebebeb;\n}\n.incoming_msg_img[data-v-299e239e] {\n    display: inline-block;\n    width: 6%;\n}\n.received_msg[data-v-299e239e] {\n    display: inline-block;\n    padding: 0 0 0 10px;\n    vertical-align: top;\n    width: 92%;\n}\n.received_withd_msg p[data-v-299e239e] {\n    background: #ebebeb none repeat scroll 0 0;\n    border-radius: 3px;\n    color: #646464;\n    font-size: 14px;\n    margin: 0;\n    padding: 5px 10px 5px 12px;\n    width: 100%;\n}\n.time_date[data-v-299e239e] {\n    color: #747474;\n    display: block;\n    font-size: 12px;\n    margin: 8px 0 0;\n}\n.received_withd_msg[data-v-299e239e] {\n    width: 57%;\n}\n.mesgs[data-v-299e239e] {\n    float: left;\n    padding: 30px 15px 0 25px;\n    width: 60%;\n}\n.sent_msg p[data-v-299e239e] {\n    background: #05728f none repeat scroll 0 0;\n    border-radius: 3px;\n    font-size: 14px;\n    margin: 0;\n    color: #fff;\n    padding: 5px 10px 5px 12px;\n    width: 100%;\n}\n.outgoing_msg[data-v-299e239e] {\n    overflow: hidden;\n    margin: 26px 0 26px;\n}\n.sent_msg[data-v-299e239e] {\n    float: right;\n    width: 46%;\n}\n.input_msg_write input[data-v-299e239e] {\n    background: rgba(0, 0, 0, 0) none repeat scroll 0 0;\n    border: medium none;\n    color: #4c4c4c;\n    font-size: 15px;\n    min-height: 48px;\n    width: 100%;\n    outline: 0;\n}\n.type_msg[data-v-299e239e] {\n    border-top: 1px solid #c4c4c4;\n    position: relative;\n}\n.msg_send_btn[data-v-299e239e] {\n    background: #05728f none repeat scroll 0 0;\n    border: medium none;\n    border-radius: 50%;\n    color: #fff;\n    cursor: pointer;\n    font-size: 17px;\n    height: 33px;\n    position: absolute;\n    right: 0;\n    top: 11px;\n    width: 33px;\n}\n.messaging[data-v-299e239e] {\n    padding: 0 0 50px 0;\n}\n.msg_history[data-v-299e239e] {\n    height: 516px;\n    overflow-y: auto;\n}\n.chat_date[data-v-299e239e] { font-size:13px; float:right; font-weight: bold;color: #4c4c4c;}\n.chat_list[data-v-299e239e]{\n}\n.active[data-v-299e239e] {\n    background-color: red;\n}\n", ""]);
+exports.push([module.i, "\n.container[data-v-299e239e] {\n    max-width: 1170px;\n    margin: auto;\n}\nimg[data-v-299e239e] {\n    max-width: 100%;\n}\n.inbox_people[data-v-299e239e] {\n    background: #f8f8f8 none repeat scroll 0 0;\n    float: left;\n    overflow: hidden;\n    width: 40%;\n    border-right: 1px solid #c4c4c4;\n}\n.inbox_msg[data-v-299e239e] {\n    border: 1px solid #c4c4c4;\n    clear: both;\n    overflow: hidden;\n}\n.top_spac[data-v-299e239e] {\n    margin: 20px 0 0;\n}\n.recent_heading[data-v-299e239e] {\n    float: left;\n    width: 40%;\n}\n.srch_bar[data-v-299e239e] {\n    display: inline-block;\n    text-align: right;\n    width: 60%;\n    padding: 0;\n    outline: 0;\n}\n.headind_srch[data-v-299e239e] {\n    padding: 10px 29px 10px 20px;\n    overflow: hidden;\n    border-bottom: 1px solid #c4c4c4;\n}\n.recent_heading h4[data-v-299e239e] {\n    color: #05728f;\n    font-size: 21px;\n    margin: auto;\n}\n.srch_bar input[data-v-299e239e] {\n    border: 1px solid #cdcdcd;\n    border-width: 0 0 1px 0;\n    width: 80%;\n    padding: 2px 0 4px 6px;\n    background: none;\n    outline: 0;\n}\n.srch_bar .input-group-addon button[data-v-299e239e] {\n    background: rgba(0, 0, 0, 0) none repeat scroll 0 0;\n    border: medium none;\n    padding: 0;\n    color: #707070;\n    font-size: 18px;\n    outline: 0;\n}\n.srch_bar .input-group-addon[data-v-299e239e] {\n    margin: 0 0 0 -27px;\n}\n.chat_ib h5[data-v-299e239e] {\n    font-size: 15px;\n    color: #464646;\n    margin: 0 0 8px 0;\n}\n.chat_ib h5 span[data-v-299e239e] {\n    font-size: 13px;\n    float: right;\n}\n.chat_ib p[data-v-299e239e] {\n    font-size: 14px;\n    color: #989898;\n    margin: auto\n}\n.chat_img[data-v-299e239e] {\n    float: left;\n    width: 11%;\n}\n.chat_ib[data-v-299e239e] {\n    float: left;\n    padding: 0 0 0 15px;\n    width: 88%;\n}\n.chat_people[data-v-299e239e] {\n    overflow: hidden;\n    clear: both;\n    overflow: scroll;\n}\n.chat_list[data-v-299e239e] {\n    border-bottom: 1px solid #c4c4c4;\n    margin: 0;\n    padding: 18px 16px 10px;\n    overflow-y: scroll;\n}\n.inbox_chat[data-v-299e239e] {\n    height: 550px;\n    overflow-y: scroll;\n}\n.active_chat[data-v-299e239e] {\n    background: #ebebeb;\n}\n.incoming_msg_img[data-v-299e239e] {\n    display: inline-block;\n    width: 6%;\n}\n.received_msg[data-v-299e239e] {\n    display: inline-block;\n    padding: 0 0 0 10px;\n    vertical-align: top;\n    width: 92%;\n}\n.received_withd_msg p[data-v-299e239e] {\n    background: #ebebeb none repeat scroll 0 0;\n    border-radius: 3px;\n    color: #646464;\n    font-size: 14px;\n    margin: 0;\n    padding: 5px 10px 5px 12px;\n    width: 100%;\n}\n.time_date[data-v-299e239e] {\n    color: #747474;\n    display: block;\n    font-size: 12px;\n    margin: 8px 0 0;\n}\n.received_withd_msg[data-v-299e239e] {\n    width: 57%;\n}\n.mesgs[data-v-299e239e] {\n    float: left;\n    padding: 30px 15px 0 25px;\n    width: 60%;\n}\n.sent_msg p[data-v-299e239e] {\n    background: #05728f none repeat scroll 0 0;\n    border-radius: 3px;\n    font-size: 14px;\n    margin: 0;\n    color: #fff;\n    padding: 5px 10px 5px 12px;\n    width: 100%;\n}\n.outgoing_msg[data-v-299e239e] {\n    overflow: hidden;\n    margin: 26px 0 26px;\n}\n.sent_msg[data-v-299e239e] {\n    float: right;\n    width: 46%;\n}\n.input_msg_write input[data-v-299e239e] {\n    background: rgba(0, 0, 0, 0) none repeat scroll 0 0;\n    border: medium none;\n    color: #4c4c4c;\n    font-size: 15px;\n    min-height: 48px;\n    width: 100%;\n    outline: 0;\n}\n.type_msg[data-v-299e239e] {\n    border-top: 1px solid #c4c4c4;\n    position: relative;\n}\n.msg_send_btn[data-v-299e239e] {\n    background: #05728f none repeat scroll 0 0;\n    border: medium none;\n    border-radius: 50%;\n    color: #fff;\n    cursor: pointer;\n    font-size: 17px;\n    height: 33px;\n    position: absolute;\n    right: 0;\n    top: 11px;\n    width: 33px;\n}\n.messaging[data-v-299e239e] {\n    padding: 0 0 50px 0;\n}\n.msg_history[data-v-299e239e] {\n    height: 516px;\n    overflow-y: auto;\n}\n.chat_date[data-v-299e239e] { font-size:13px; float:right; font-weight: bold;color: #4c4c4c;}\n.active[data-v-299e239e] {\n    background-color: #05728f ;\n}\n", ""]);
 
 // exports
 
@@ -37997,116 +38035,165 @@ var render = function() {
         _c("div", { staticClass: "inbox_people" }, [
           _vm._m(0),
           _vm._v(" "),
-          _vm.contacts.length > 0
+          _vm.contactLoading
             ? _c(
                 "div",
-                { staticClass: "inbox_chat" },
-                _vm._l(_vm.contacts, function(contact) {
-                  return _c(
-                    "div",
-                    {
-                      staticClass: "chat_list",
-                      class: { active: contact.contact_id == _vm.activeIndex },
-                      on: {
-                        click: function($event) {
-                          return _vm.loadMessage(contact.contact_id)
-                        }
-                      }
-                    },
-                    [
-                      _c("div", { staticClass: "chat_people" }, [
-                        _c("div", { staticClass: "chat_img" }, [
-                          _c("img", { attrs: { src: contact.media_url } })
-                        ]),
-                        _vm._v(" "),
-                        _c("div", { staticClass: "chat_ib" }, [
-                          _c("h5", [
-                            _vm._v(
-                              _vm._s(contact.first_name) +
-                                " " +
-                                _vm._s(contact.last_name) +
-                                " "
-                            )
-                          ]),
-                          _vm._v(" "),
-                          _c("p", [
-                            _vm._v(_vm._s(_vm.trunc(contact.body))),
-                            _c("span", { staticClass: "chat_date" }, [
-                              _vm._v(
-                                _vm._s(
-                                  _vm.format_date(contact.message_created_at)
-                                )
-                              )
-                            ])
-                          ])
-                        ])
-                      ])
-                    ]
-                  )
-                }),
-                0
+                {
+                  staticStyle: {
+                    display: "flex",
+                    "justify-content": "center",
+                    "align-items": "center"
+                  }
+                },
+                [
+                  _c("i", {
+                    staticClass: "fa fa-circle-o-notch fa-spin",
+                    staticStyle: { "font-size": "45px", color: "deepskyblue" }
+                  })
+                ]
               )
+            : _vm._e(),
+          _vm._v(" "),
+          _vm.contacts.length > 0
+            ? _c("div", { staticClass: "inbox_chat" }, [
+                !_vm.contactLoading
+                  ? _c(
+                      "div",
+                      _vm._l(_vm.contacts, function(contact) {
+                        return _c(
+                          "div",
+                          {
+                            staticClass: "chat_list",
+                            class: {
+                              active: contact.contact_id == _vm.activeIndex
+                            },
+                            on: {
+                              click: function($event) {
+                                return _vm.loadMessage(contact.contact_id)
+                              }
+                            }
+                          },
+                          [
+                            _c("div", { staticClass: "chat_people" }, [
+                              _c("div", { staticClass: "chat_img" }, [
+                                _c("img", { attrs: { src: contact.media_url } })
+                              ]),
+                              _vm._v(" "),
+                              _c("div", { staticClass: "chat_ib" }, [
+                                _c("h5", [
+                                  _vm._v(
+                                    _vm._s(contact.first_name) +
+                                      " " +
+                                      _vm._s(contact.last_name) +
+                                      " "
+                                  )
+                                ]),
+                                _vm._v(" "),
+                                _c("p", [
+                                  _vm._v(_vm._s(_vm.trunc(contact.body))),
+                                  _c("span", { staticClass: "chat_date" }, [
+                                    _vm._v(
+                                      _vm._s(
+                                        _vm.format_date(
+                                          contact.message_created_at
+                                        )
+                                      )
+                                    )
+                                  ])
+                                ])
+                              ])
+                            ])
+                          ]
+                        )
+                      }),
+                      0
+                    )
+                  : _vm._e()
+              ])
             : _vm._e()
         ]),
         _vm._v(" "),
         _c("div", { staticClass: "mesgs" }, [
-          _c(
-            "div",
-            { staticClass: "msg_history" },
-            _vm._l(_vm.messages, function(message) {
-              return _c(
+          _vm.msgLoading
+            ? _c(
                 "div",
                 {
-                  class: _vm.messageType(
-                    message.type,
-                    "incoming_msg",
-                    "outgoing_msg"
-                  )
+                  staticStyle: {
+                    display: "flex",
+                    "justify-content": "center",
+                    "align-items": "center"
+                  }
                 },
                 [
-                  _c(
-                    "div",
-                    {
-                      class: _vm.messageType(
-                        message.type,
-                        "received_msg",
-                        "sent_msg"
-                      )
-                    },
-                    [
-                      _c(
-                        "div",
-                        {
-                          class: _vm.messageType(
-                            message.type,
-                            "received_withd_msg",
-                            "sent_withd_msg"
-                          )
-                        },
-                        [
-                          _c("p", [_vm._v(_vm._s(message.body))]),
-                          _vm._v(" "),
-                          _c("span", { staticClass: "time_date" }, [
-                            _vm._v(
-                              " " +
-                                _vm._s(
-                                  _vm.format_time_date(
-                                    message.message_created_at
-                                  )
-                                )
-                            )
-                          ])
-                        ]
-                      )
-                    ]
-                  )
+                  _c("i", {
+                    staticClass: "fa fa-circle-o-notch fa-spin",
+                    staticStyle: { "font-size": "45px", color: "blue" }
+                  })
                 ]
               )
-            }),
-            0
-          ),
+            : _vm._e(),
           _vm._v(" "),
-          _vm._m(1)
+          !_vm.msgLoading
+            ? _c("div", [
+                _c(
+                  "div",
+                  { staticClass: "msg_history" },
+                  _vm._l(_vm.messages, function(message) {
+                    return _c(
+                      "div",
+                      {
+                        class: _vm.messageType(
+                          message.type,
+                          "incoming_msg",
+                          "outgoing_msg"
+                        )
+                      },
+                      [
+                        _c(
+                          "div",
+                          {
+                            class: _vm.messageType(
+                              message.type,
+                              "received_msg",
+                              "sent_msg"
+                            )
+                          },
+                          [
+                            _c(
+                              "div",
+                              {
+                                class: _vm.messageType(
+                                  message.type,
+                                  "received_withd_msg",
+                                  "sent_withd_msg"
+                                )
+                              },
+                              [
+                                _c("p", [_vm._v(_vm._s(message.body))]),
+                                _vm._v(" "),
+                                _c("span", { staticClass: "time_date" }, [
+                                  _vm._v(
+                                    " " +
+                                      _vm._s(
+                                        _vm.format_time_date(
+                                          message.message_created_at
+                                        )
+                                      )
+                                  )
+                                ])
+                              ]
+                            )
+                          ]
+                        )
+                      ]
+                    )
+                  }),
+                  0
+                ),
+                _vm._v(" "),
+                _vm._m(1)
+              ])
+            : _vm._e()
         ])
       ])
     ])
