@@ -61,9 +61,12 @@
 
                         <div class="type_msg" >
                             <div class="input_msg_write" >
-                                <input type="text"  class="write_msg" placeholder="Type a message"/>
-                                <button class="msg_send_btn" type="button"><i class="fa fa-paper-plane-o"
-                                                                              aria-hidden="true"></i></button>
+                                <input type="text"  class="write_msg" placeholder="Type a message" v-model="typedMessage" />
+                                <button class="msg_send_btn" type="button" v-on:click="sendMessage">
+                                    <i class="fa fa-paper-plane-o"
+                                       aria-hidden="true">
+                                    </i>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -80,16 +83,21 @@
 
     export default {
         created () {
-            this.contactLoading = true
-            axios({
-                url: 'https://1154558724803321-reviews.jenkins.nextpaw.com/graph-api',
-                headers: {
-                    Authorization: `Bearer ${this.user.token}`
-                },
-                method: 'POST',
-                data: {
-                    query: `{
-                             messages(clientId: 4, locationId: 3, page: 1, limit: 20){
+            this.loadContacts()
+        },
+
+        methods: {
+            loadContacts() {
+                this.contactLoading = true
+                axios({
+                    url: 'https://1154558724803321-reviews.jenkins.nextpaw.com/graph-api',
+                    headers: {
+                        Authorization: `Bearer ${this.user.token}`
+                    },
+                    method: 'POST',
+                    data: {
+                        query: `{
+                             messages(clientId: 1, locationId: 1, page: 1, limit: 20){
                               data{
                                     contact_id
                                     first_name
@@ -111,16 +119,10 @@
                             }`
                     }
                 }).then(response => {
-                    this.contactLoading = false
-                    this.contacts = response.data.data.messages.data
+                        this.contactLoading = false
+                        this.contacts = response.data.data.messages.data
                     }
                 ).catch((e) => console.log(e))
-            },
-
-        methods: {
-
-            toggleIsClicked: function () {
-                this.isClicked = !this.isClicked
             },
 
             messageType: function (type, class1, class2) {
@@ -132,7 +134,8 @@
             },
 
             loadMessage: function (value) {
-                this.msgLoading = true
+                this.typedMessage = '';
+                this.msgLoading = true;
                 axios({
                     url: 'https://1154558724803321-reviews.jenkins.nextpaw.com/graph-api',
                     headers: {
@@ -141,7 +144,7 @@
                     method: 'POST',
                     data: {
                         query: `{
-                                 singleConversion(id: ${value}, clientId: 4, locationId: 3, page: 1, limit: 10){
+                                 singleConversion(id: ${value}, clientId: 1, locationId: 1, page: 1, limit: 20){
                                 data {
                                     id
                                     first_name
@@ -163,14 +166,13 @@
                         }`
                     }
                 }).then(response => {
-                        this.msgLoading = false
-                        this.messages = response.data.data.singleConversion.data
-                })
-                    .catch((e) => console.log(e))
+                        this.msgLoading = false;
+                        this.messages = response.data.data.singleConversion.data.reverse()
+                }).catch((e) => console.log(e));
                 this.activeIndex = value
             },
 
-            sendMessage: function (value1,value2) {
+            sendMessage: function () {
                 axios({
                     url: 'https://1154558724803321-reviews.jenkins.nextpaw.com/graph-api',
                     headers: {
@@ -180,8 +182,9 @@
                     data: {
                         query: `mutation messageSendMutation
                         {
-                            messageSendMutation(clientId: 1, locationId: 1, contactId: ${value1}, body: ${value2},
-                            ){
+                            messageSendMutation(clientId: 1, locationId: 1, contactId: ${this.activeIndex}, body: "${this.typedMessage}",
+                           )
+                            {
                             id
                             error
                             message
@@ -189,18 +192,17 @@
                         }`
                     }
                 }).then(response => {
-                    this.sendMsgs = response.data.data.messageSendMutation
+                    this.typedMessage = '';
+                    setTimeout(() => {
+                        this.loadMessage(response.data.data.messageSendMutation.id);
+                    }, 500);
+                    console.log(response)
                 })
                     .catch(e => {
                         this.errors.push(e)
                         // this.activeIndex = value
                     })
             },
-
-            sendMessages(){
-
-            },
-
             format_date(value) {
                 if (value) {
                     return moment(String(value)).format('MM/DD/YYYY')
@@ -227,9 +229,8 @@
                 activeIndex: null,
                 user: JSON.parse(localStorage.getItem('user')),
                 contacts: [],
+                typedMessage: '',
                 messages:[],
-                sendMsgs:[],
-                sendMsg:'',
                 errors:[]
 
             }

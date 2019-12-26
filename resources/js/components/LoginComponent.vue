@@ -43,7 +43,7 @@
                     url: 'https://1154558724803321-reviews.jenkins.nextpaw.com/graph-api/secret',
                     method: 'post',
                     data: {
-                        query: `{login(email:"abhishek.shah@hnrtech.com", password:"123456") {
+                        query: `{login(email:"monika.kumari@hnrtech.com", password:"123456") {
                                      id
                                      first_name
                                      last_name
