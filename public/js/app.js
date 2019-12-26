@@ -1932,7 +1932,7 @@ __webpack_require__.r(__webpack_exports__);
       },
       method: 'POST',
       data: {
-        query: "{\n    messages(clientId: 4, locationId: 3, page: 1, limit: 20){\n        data{\n            contact_id\n            first_name\n            last_name\n            body\n            media_url\n            message_created_at\n            deleted_at\n            type\n            status\n            sender\n            receiver\n            ps_id\n            unread_message_count\n        }\n        total\n        per_page\n    }\n}"
+        query: "{\n                         messages(clientId: 4, locationId: 3, page: 1, limit: 20){\n                          data{\n                                contact_id\n                                first_name\n                                last_name\n                                body\n                                media_url\n                                message_created_at\n                                deleted_at\n                                type\n                                status\n                                sender\n                                receiver\n                                ps_id\n                                unread_message_count\n                                 }\n                            total\n                            per_page\n                            }\n                        }"
       }
     }).then(function (response) {
       _this.contactLoading = false;
@@ -1963,7 +1963,7 @@ __webpack_require__.r(__webpack_exports__);
         },
         method: 'POST',
         data: {
-          query: "{\n    singleConversion(id: ".concat(value, ", clientId: 4, locationId: 3, page: 1, limit: 10){\n        data {\n            id\n            first_name\n            last_name\n            contact_id\n            body\n            media_url\n            receiver\n            sender\n            contact_created_at\n            type\n            status\n            archived\n            message_created_at\n        }\n        total\n        per_page\n    }\n}")
+          query: "{\n                             singleConversion(id: ".concat(value, ", clientId: 4, locationId: 3, page: 1, limit: 10){\n                            data {\n                                id\n                                first_name\n                                last_name\n                                contact_id\n                                body\n                                media_url\n                                receiver\n                                sender\n                                contact_created_at\n                                type\n                                status\n                                archived\n                                message_created_at\n                            }\n                            total\n                            per_page\n                        }\n                    }")
         }
       }).then(function (response) {
         _this2.msgLoading = false;
@@ -1973,7 +1973,7 @@ __webpack_require__.r(__webpack_exports__);
       });
       this.activeIndex = value;
     },
-    sendMessage: function sendMessage(value1, value2, value3, value4) {
+    sendMessage: function sendMessage(value1, value2) {
       var _this3 = this;
 
       axios__WEBPACK_IMPORTED_MODULE_1___default()({
@@ -1983,15 +1983,16 @@ __webpack_require__.r(__webpack_exports__);
         },
         method: 'POST',
         data: {
-          query: "mutation messageSendMutation\n                        {\n    messageSendMutation(clientId: ".concat(value1, ", locationId: ").concat(value2, ", contactId: ").concat(value3, ", body: ").concat(value4, ",\n        ){\n        id\n        error\n        message\n    }\n}")
+          query: "mutation messageSendMutation\n                    {\n                        messageSendMutation(clientId: 1, locationId: 1, contactId: ".concat(value1, ", body: ").concat(value2, ",\n                        ){\n                        id\n                        error\n                        message\n                        }\n                    }")
         }
       }).then(function (response) {
-        _this3.sendMessages = response.data.data.messageSendMutation;
+        _this3.sendMsgs = response.data.data.messageSendMutation;
       })["catch"](function (e) {
-        return console.log(e);
+        _this3.errors.push(e); // this.activeIndex = value
+
       });
-      this.activeIndex = value;
     },
+    sendMessages: function sendMessages() {},
     format_date: function format_date(value) {
       if (value) {
         return moment__WEBPACK_IMPORTED_MODULE_0___default()(String(value)).format('MM/DD/YYYY');
@@ -2017,7 +2018,9 @@ __webpack_require__.r(__webpack_exports__);
       user: JSON.parse(localStorage.getItem('user')),
       contacts: [],
       messages: [],
-      sendMessages: []
+      sendMsgs: [],
+      sendMsg: '',
+      errors: []
     };
   }
 });

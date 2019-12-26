@@ -59,9 +59,9 @@
                         </div>
 
 
-                        <div class="type_msg">
-                            <div class="input_msg_write">
-                                <input type="text" class="write_msg" placeholder="Type a message"/>
+                        <div class="type_msg" >
+                            <div class="input_msg_write" >
+                                <input type="text"  class="write_msg" placeholder="Type a message"/>
                                 <button class="msg_send_btn" type="button"><i class="fa fa-paper-plane-o"
                                                                               aria-hidden="true"></i></button>
                             </div>
@@ -89,33 +89,33 @@
                 method: 'POST',
                 data: {
                     query: `{
-    messages(clientId: 4, locationId: 3, page: 1, limit: 20){
-        data{
-            contact_id
-            first_name
-            last_name
-            body
-            media_url
-            message_created_at
-            deleted_at
-            type
-            status
-            sender
-            receiver
-            ps_id
-            unread_message_count
-        }
-        total
-        per_page
-    }
-}`
-                }
-            }).then(response => {
-                this.contactLoading = false
-                this.contacts = response.data.data.messages.data
-                }
-            ).catch((e) => console.log(e))
-        },
+                             messages(clientId: 4, locationId: 3, page: 1, limit: 20){
+                              data{
+                                    contact_id
+                                    first_name
+                                    last_name
+                                    body
+                                    media_url
+                                    message_created_at
+                                    deleted_at
+                                    type
+                                    status
+                                    sender
+                                    receiver
+                                    ps_id
+                                    unread_message_count
+                                     }
+                                total
+                                per_page
+                                }
+                            }`
+                    }
+                }).then(response => {
+                    this.contactLoading = false
+                    this.contacts = response.data.data.messages.data
+                    }
+                ).catch((e) => console.log(e))
+            },
 
         methods: {
 
@@ -141,37 +141,36 @@
                     method: 'POST',
                     data: {
                         query: `{
-    singleConversion(id: ${value}, clientId: 4, locationId: 3, page: 1, limit: 10){
-        data {
-            id
-            first_name
-            last_name
-            contact_id
-            body
-            media_url
-            receiver
-            sender
-            contact_created_at
-            type
-            status
-            archived
-            message_created_at
-        }
-        total
-        per_page
-    }
-}`
+                                 singleConversion(id: ${value}, clientId: 4, locationId: 3, page: 1, limit: 10){
+                                data {
+                                    id
+                                    first_name
+                                    last_name
+                                    contact_id
+                                    body
+                                    media_url
+                                    receiver
+                                    sender
+                                    contact_created_at
+                                    type
+                                    status
+                                    archived
+                                    message_created_at
+                                }
+                                total
+                                per_page
+                            }
+                        }`
                     }
                 }).then(response => {
                         this.msgLoading = false
                         this.messages = response.data.data.singleConversion.data
-                }
-                )
+                })
                     .catch((e) => console.log(e))
                 this.activeIndex = value
             },
 
-            sendMessage: function (value1,value2,value3,value4) {
+            sendMessage: function (value1,value2) {
                 axios({
                     url: 'https://1154558724803321-reviews.jenkins.nextpaw.com/graph-api',
                     headers: {
@@ -181,22 +180,26 @@
                     data: {
                         query: `mutation messageSendMutation
                         {
-    messageSendMutation(clientId: ${value1}, locationId: ${value2}, contactId: ${value3}, body: ${value4},
-        ){
-        id
-        error
-        message
-    }
-}`
+                            messageSendMutation(clientId: 1, locationId: 1, contactId: ${value1}, body: ${value2},
+                            ){
+                            id
+                            error
+                            message
+                            }
+                        }`
                     }
                 }).then(response => {
-                        this.sendMessages = response.data.data.messageSendMutation
-                    }
-                )
-                    .catch((e) => console.log(e))
-                this.activeIndex = value
+                    this.sendMsgs = response.data.data.messageSendMutation
+                })
+                    .catch(e => {
+                        this.errors.push(e)
+                        // this.activeIndex = value
+                    })
             },
 
+            sendMessages(){
+
+            },
 
             format_date(value) {
                 if (value) {
@@ -218,19 +221,19 @@
         },
 
         data() {
-                return {
-                    msgLoading: false,
-                    contactLoading:false,
-                    activeIndex: null,
-                    user: JSON.parse(localStorage.getItem('user')),
-                    contacts: [],
-                    messages:[],
-                    sendMessages:[]
-
-                }
-
+            return {
+                msgLoading: false,
+                contactLoading:false,
+                activeIndex: null,
+                user: JSON.parse(localStorage.getItem('user')),
+                contacts: [],
+                messages:[],
+                sendMsgs:[],
+                sendMsg:'',
+                errors:[]
 
             }
+        }
     }
 </script>
 
