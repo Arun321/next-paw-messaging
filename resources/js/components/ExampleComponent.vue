@@ -38,8 +38,11 @@
                                 </div>
                             </div>
                         </div>
+                        <scroll-loader :loader-method="scrollContact" :loader-enable="loadMore">
+                        </scroll-loader>
                     </div>
                 </div>
+
 
                 <div class="mesgs">
                     <div v-if="msgLoading" style="display: flex; justify-content: center; align-items: center;">
@@ -80,6 +83,9 @@
 <script>
     import moment from 'moment';
     import axios from 'axios';
+    import ScrollLoader from 'vue-scroll-loader';
+
+    Vue.use(ScrollLoader)
 
     export default {
         created () {
@@ -88,6 +94,7 @@
 
         methods: {
             loadContacts() {
+                console.log('inside function')
                 this.contactLoading = true
                 axios({
                     url: 'https://1154558724803321-reviews.jenkins.nextpaw.com/graph-api',
@@ -97,7 +104,7 @@
                     method: 'POST',
                     data: {
                         query: `{
-                             messages(clientId: 1, locationId: 1, page: 1, limit: 20){
+                             messages(clientId: 1, locationId: 1, page: ${this.page}, limit: 20){
                               data{
                                     contact_id
                                     first_name
@@ -120,6 +127,7 @@
                     }
                 }).then(response => {
                         this.contactLoading = false
+                        // console.log(response.data.data.messages.data)
                         this.contacts = response.data.data.messages.data
                     }
                 ).catch((e) => console.log(e))
@@ -217,16 +225,20 @@
             trunc(n) {
                 return (n && n.length > 15) ? n.substr(0, 10) + '...' : n
             },
-            // myFunction(divObj) {
-            //     divObj.style.background = "black";
-            // }
+            scrollContact(){
+                console.log('scrolling')
+                this.page++
+                this.loadContacts()
+            }
         },
 
         data() {
             return {
+                loadMore: true,
                 msgLoading: false,
                 contactLoading:false,
                 activeIndex: null,
+                page:1,
                 user: JSON.parse(localStorage.getItem('user')),
                 contacts: [],
                 typedMessage: '',
@@ -235,6 +247,9 @@
 
             }
         }
+        // mounted() {
+        //     this.loadContacts()
+        // }
     }
 </script>
 
