@@ -1844,6 +1844,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var vue_scroll_loader__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! vue-scroll-loader */ "./node_modules/vue-scroll-loader/dist/scroll-loader.umd.min.js");
 /* harmony import */ var vue_scroll_loader__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_2__);
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
 //
 //
 //
@@ -1931,31 +1939,38 @@ __webpack_require__.r(__webpack_exports__);
 
 Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_2___default.a);
 /* harmony default export */ __webpack_exports__["default"] = ({
-  created: function created() {
-    this.loadContacts();
+  created: function created() {// this.loadContacts()
   },
   methods: {
     loadContacts: function loadContacts() {
       var _this = this;
 
-      console.log('inside function');
-      this.contactLoading = true;
-      axios__WEBPACK_IMPORTED_MODULE_1___default()({
-        url: 'https://1154558724803321-reviews.jenkins.nextpaw.com/graph-api',
-        headers: {
-          Authorization: "Bearer ".concat(this.user.token)
-        },
-        method: 'POST',
-        data: {
-          query: "{\n                         messages(clientId: 1, locationId: 1, page: ".concat(this.page, ", limit: 20){\n                          data{\n                                contact_id\n                                first_name\n                                last_name\n                                body\n                                media_url\n                                message_created_at\n                                deleted_at\n                                type\n                                status\n                                sender\n                                receiver\n                                ps_id\n                                unread_message_count\n                                 }\n                            total\n                            per_page\n                            }\n                        }")
-        }
-      }).then(function (response) {
-        _this.contactLoading = false; // console.log(response.data.data.messages.data)
+      if (this.loadMore == true) {
+        axios__WEBPACK_IMPORTED_MODULE_1___default()({
+          url: 'https://1154558724803321-reviews.jenkins.nextpaw.com/graph-api',
+          headers: {
+            Authorization: "Bearer ".concat(this.user.token)
+          },
+          method: 'POST',
+          data: {
+            query: "{\n                         messages(clientId: 1, locationId: 1, page: ".concat(this.page, ", limit: 20){\n                          data{\n                                contact_id\n                                first_name\n                                last_name\n                                body\n                                media_url\n                                message_created_at\n                                deleted_at\n                                type\n                                status\n                                sender\n                                receiver\n                                ps_id\n                                unread_message_count\n                                 }\n                            total\n                            per_page\n                            }\n                        }")
+          }
+        }).then(function (response) {
+          var _this$contacts;
 
-        _this.contacts = response.data.data.messages.data;
-      })["catch"](function (e) {
-        return console.log(e);
-      });
+          _this.page++; // this.contacts = response.data.data.messages.data
+
+          var temp = response.data.data.messages.data;
+
+          (_this$contacts = _this.contacts).push.apply(_this$contacts, _toConsumableArray(temp));
+
+          response.data.data.messages.data.length < 20 ? _this.loadMore = false : _this.loadMore = true;
+        })["catch"](function (e) {
+          return console.log(e);
+        });
+      } else {
+        $('.loader').hide();
+      }
     },
     messageType: function messageType(type, class1, class2) {
       if (type === 'received') {
@@ -2023,10 +2038,11 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_2___default.a);
       return n && n.length > 15 ? n.substr(0, 10) + '...' : n;
     },
     scrollContact: function scrollContact() {
-      console.log('scrolling');
-      this.page++;
       this.loadContacts();
     }
+  },
+  mounted: function mounted() {
+    this.loadContacts();
   },
   data: function data() {
     return {
@@ -2039,7 +2055,8 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_2___default.a);
       contacts: [],
       typedMessage: '',
       messages: [],
-      errors: []
+      errors: [],
+      contactSearch: ''
     };
   } // mounted() {
   //     this.loadContacts()

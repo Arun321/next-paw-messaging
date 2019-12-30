@@ -89,21 +89,20 @@
 
     export default {
         created () {
-            this.loadContacts()
+            // this.loadContacts()
         },
 
         methods: {
             loadContacts() {
-                console.log('inside function')
-                this.contactLoading = true
-                axios({
-                    url: 'https://1154558724803321-reviews.jenkins.nextpaw.com/graph-api',
-                    headers: {
-                        Authorization: `Bearer ${this.user.token}`
-                    },
-                    method: 'POST',
-                    data: {
-                        query: `{
+                if(this.loadMore == true) {
+                    axios({
+                        url: 'https://1154558724803321-reviews.jenkins.nextpaw.com/graph-api',
+                        headers: {
+                            Authorization: `Bearer ${this.user.token}`
+                        },
+                        method: 'POST',
+                        data: {
+                            query: `{
                              messages(clientId: 1, locationId: 1, page: ${this.page}, limit: 20){
                               data{
                                     contact_id
@@ -124,13 +123,17 @@
                                 per_page
                                 }
                             }`
-                    }
-                }).then(response => {
-                        this.contactLoading = false
-                        // console.log(response.data.data.messages.data)
-                        this.contacts = response.data.data.messages.data
-                    }
-                ).catch((e) => console.log(e))
+                        }
+                    }).then(response => {
+                        this.page++
+                        // this.contacts = response.data.data.messages.data
+                        var temp = response.data.data.messages.data;
+                        this.contacts.push(...temp)
+                        response.data.data.messages.data.length < 20 ? (this.loadMore = false) : this.loadMore = true
+                    }).catch((e) => console.log(e))
+                } else{
+                    $('.loader').hide()
+                }
             },
 
             messageType: function (type, class1, class2) {
@@ -226,10 +229,11 @@
                 return (n && n.length > 15) ? n.substr(0, 10) + '...' : n
             },
             scrollContact(){
-                console.log('scrolling')
-                this.page++
                 this.loadContacts()
             }
+        },
+        mounted() {
+            this.loadContacts()
         },
 
         data() {
@@ -243,7 +247,8 @@
                 contacts: [],
                 typedMessage: '',
                 messages:[],
-                errors:[]
+                errors:[],
+                contactSearch:''
 
             }
         }
