@@ -11,7 +11,7 @@
                         </div>
                         <div class="srch_bar">
                             <div class="stylish-input-group">
-                                <input type="text" class="search-bar" placeholder="Search">
+                                <input type="text" v-model="search" class="search-bar" placeholder="Search">
                                 <span class="input-group-addon">
                                     <button type="button"> <i class="fa fa-search" aria-hidden="true"></i> </button>
                                 </span>
@@ -25,7 +25,7 @@
                     <div class="inbox_chat" v-if="contacts.length > 0">
 
                         <div v-if="!contactLoading">
-                            <div class="chat_list" v-for="contact in contacts"
+                            <div class="chat_list" v-for="contact in filteredContacts"
                                  v-on:click="loadMessage(contact.contact_id)"
                                  :class="{'active': contact.contact_id == activeIndex}">
                                 <div class="chat_people">
@@ -38,7 +38,7 @@
                                 </div>
                             </div>
                         </div>
-                        <scroll-loader :loader-method="scrollContact" :loader-enable="loadMore">
+                        <scroll-loader :loader-method="loadContacts" :loader-disable="!loadMore">
                         </scroll-loader>
                     </div>
                 </div>
@@ -49,7 +49,7 @@
                         <i class="fa fa-circle-o-notch fa-spin" style="font-size: 45px; color: blue;"></i>
                     </div>
                     <div v-if="!msgLoading">
-                        <div class="msg_history">
+                        <div id="msg_history" class="msg_history">
                             <div v-for="message in messages"
                                  :class="messageType(message.type, 'incoming_msg', 'outgoing_msg')">
                                 <div :class="messageType(message.type, 'received_msg', 'sent_msg')">
@@ -93,6 +93,11 @@
         },
 
         methods: {
+            scrollToEnd (){
+                let container = document.querySelector('.msg_history');
+                let height = container.scrollHeight;
+                container.scrollTop = height;
+            },
             loadContacts() {
                 if(this.loadMore == true) {
                     axios({
@@ -129,10 +134,12 @@
                         // this.contacts = response.data.data.messages.data
                         var temp = response.data.data.messages.data;
                         this.contacts.push(...temp)
+                        // console.log(this.contacts)
                         response.data.data.messages.data.length < 20 ? (this.loadMore = false) : this.loadMore = true
                     }).catch((e) => console.log(e))
                 } else{
-                    $('.loader').hide()
+                    this.loadMore = false
+                    // $('.loader').hide()
                 }
             },
 
@@ -179,6 +186,9 @@
                 }).then(response => {
                         this.msgLoading = false;
                         this.messages = response.data.data.singleConversion.data.reverse()
+                    setTimeout(() => {
+                        this.scrollToEnd()
+                    }, 400)
                 }).catch((e) => console.log(e));
                 this.activeIndex = value
             },
@@ -229,7 +239,17 @@
                 return (n && n.length > 15) ? n.substr(0, 10) + '...' : n
             },
             scrollContact(){
+
                 this.loadContacts()
+            }
+        },
+        computed:{
+            filteredContacts:function () {
+                // this.loadMore = false;
+                // $('.loader').hide()
+                return this.contacts.filter((contact)=>{
+                      return contact.first_name.toLowerCase().match(this.search)
+                })
             }
         },
         mounted() {
@@ -248,13 +268,10 @@
                 typedMessage: '',
                 messages:[],
                 errors:[],
-                contactSearch:''
+                search:''
 
             }
         }
-        // mounted() {
-        //     this.loadContacts()
-        // }
     }
 </script>
 
@@ -479,7 +496,7 @@
 
     .msg_history {
         height: 516px;
-        overflow-y: auto;
+        overflow-y: scroll;
     }
 
     .chat_date { font-size:13px; float:right; font-weight: bold;color: #4c4c4c;}

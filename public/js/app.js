@@ -1942,6 +1942,11 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_2___default.a);
   created: function created() {// this.loadContacts()
   },
   methods: {
+    scrollToEnd: function scrollToEnd() {
+      var container = document.querySelector('.msg_history');
+      var height = container.scrollHeight;
+      container.scrollTop = height;
+    },
     loadContacts: function loadContacts() {
       var _this = this;
 
@@ -1962,14 +1967,15 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_2___default.a);
 
           var temp = response.data.data.messages.data;
 
-          (_this$contacts = _this.contacts).push.apply(_this$contacts, _toConsumableArray(temp));
+          (_this$contacts = _this.contacts).push.apply(_this$contacts, _toConsumableArray(temp)); // console.log(this.contacts)
+
 
           response.data.data.messages.data.length < 20 ? _this.loadMore = false : _this.loadMore = true;
         })["catch"](function (e) {
           return console.log(e);
         });
       } else {
-        $('.loader').hide();
+        this.loadMore = false; // $('.loader').hide()
       }
     },
     messageType: function messageType(type, class1, class2) {
@@ -1996,6 +2002,9 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_2___default.a);
       }).then(function (response) {
         _this2.msgLoading = false;
         _this2.messages = response.data.data.singleConversion.data.reverse();
+        setTimeout(function () {
+          _this2.scrollToEnd();
+        }, 400);
       })["catch"](function (e) {
         return console.log(e);
       });
@@ -2041,6 +2050,17 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_2___default.a);
       this.loadContacts();
     }
   },
+  computed: {
+    filteredContacts: function filteredContacts() {
+      var _this4 = this;
+
+      // this.loadMore = false;
+      // $('.loader').hide()
+      return this.contacts.filter(function (contact) {
+        return contact.first_name.toLowerCase().match(_this4.search);
+      });
+    }
+  },
   mounted: function mounted() {
     this.loadContacts();
   },
@@ -2056,12 +2076,9 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_2___default.a);
       typedMessage: '',
       messages: [],
       errors: [],
-      contactSearch: ''
+      search: ''
     };
-  } // mounted() {
-  //     this.loadContacts()
-  // }
-
+  }
 });
 
 /***/ }),
@@ -2161,7 +2178,7 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 
 // module
-exports.push([module.i, "\n.container[data-v-299e239e] {\n    max-width: 1170px;\n    margin: auto;\n}\nimg[data-v-299e239e] {\n    max-width: 100%;\n}\n.inbox_people[data-v-299e239e] {\n    background: #f8f8f8 none repeat scroll 0 0;\n    float: left;\n    overflow: hidden;\n    width: 40%;\n    border-right: 1px solid #c4c4c4;\n}\n.inbox_msg[data-v-299e239e] {\n    border: 1px solid #c4c4c4;\n    clear: both;\n    overflow: hidden;\n}\n.top_spac[data-v-299e239e] {\n    margin: 20px 0 0;\n}\n.recent_heading[data-v-299e239e] {\n    float: left;\n    width: 40%;\n}\n.srch_bar[data-v-299e239e] {\n    display: inline-block;\n    text-align: right;\n    width: 60%;\n    padding: 0;\n    outline: 0;\n}\n.headind_srch[data-v-299e239e] {\n    padding: 10px 29px 10px 20px;\n    overflow: hidden;\n    border-bottom: 1px solid #c4c4c4;\n}\n.recent_heading h4[data-v-299e239e] {\n    color: #05728f;\n    font-size: 21px;\n    margin: auto;\n}\n.srch_bar input[data-v-299e239e] {\n    border: 1px solid #cdcdcd;\n    border-width: 0 0 1px 0;\n    width: 80%;\n    padding: 2px 0 4px 6px;\n    background: none;\n    outline: 0;\n}\n.srch_bar .input-group-addon button[data-v-299e239e] {\n    background: rgba(0, 0, 0, 0) none repeat scroll 0 0;\n    border: medium none;\n    padding: 0;\n    color: #707070;\n    font-size: 18px;\n    outline: 0;\n}\n.srch_bar .input-group-addon[data-v-299e239e] {\n    margin: 0 0 0 -27px;\n}\n.chat_ib h5[data-v-299e239e] {\n    font-size: 15px;\n    color: #464646;\n    margin: 0 0 8px 0;\n}\n.chat_ib h5 span[data-v-299e239e] {\n    font-size: 13px;\n    float: right;\n}\n.chat_ib p[data-v-299e239e] {\n    font-size: 14px;\n    color: #989898;\n    margin: auto\n}\n.chat_img[data-v-299e239e] {\n    float: left;\n    width: 11%;\n}\n.chat_ib[data-v-299e239e] {\n    float: left;\n    padding: 0 0 0 15px;\n    width: 88%;\n}\n.chat_people[data-v-299e239e] {\n    overflow: hidden;\n    clear: both;\n    overflow: scroll;\n}\n.chat_list[data-v-299e239e] {\n    border-bottom: 1px solid #c4c4c4;\n    margin: 0;\n    padding: 18px 16px 10px;\n    overflow-y: scroll;\n}\n.inbox_chat[data-v-299e239e] {\n    height: 550px;\n    overflow-y: scroll;\n}\n.active_chat[data-v-299e239e] {\n    background: #ebebeb;\n}\n.incoming_msg_img[data-v-299e239e] {\n    display: inline-block;\n    width: 6%;\n}\n.received_msg[data-v-299e239e] {\n    display: inline-block;\n    padding: 0 0 0 10px;\n    vertical-align: top;\n    width: 92%;\n}\n.received_withd_msg p[data-v-299e239e] {\n    background: #ebebeb none repeat scroll 0 0;\n    border-radius: 3px;\n    color: #646464;\n    font-size: 14px;\n    margin: 0;\n    padding: 5px 10px 5px 12px;\n    width: 100%;\n}\n.time_date[data-v-299e239e] {\n    color: #747474;\n    display: block;\n    font-size: 12px;\n    margin: 8px 0 0;\n}\n.received_withd_msg[data-v-299e239e] {\n    width: 57%;\n}\n.mesgs[data-v-299e239e] {\n    float: left;\n    padding: 30px 15px 0 25px;\n    width: 60%;\n}\n.sent_msg p[data-v-299e239e] {\n    background: #05728f none repeat scroll 0 0;\n    border-radius: 3px;\n    font-size: 14px;\n    margin: 0;\n    color: #fff;\n    padding: 5px 10px 5px 12px;\n    width: 100%;\n}\n.outgoing_msg[data-v-299e239e] {\n    overflow: hidden;\n    margin: 26px 0 26px;\n}\n.sent_msg[data-v-299e239e] {\n    float: right;\n    width: 46%;\n}\n.input_msg_write input[data-v-299e239e] {\n    background: rgba(0, 0, 0, 0) none repeat scroll 0 0;\n    border: medium none;\n    color: #4c4c4c;\n    font-size: 15px;\n    min-height: 48px;\n    width: 100%;\n    outline: 0;\n}\n.type_msg[data-v-299e239e] {\n    border-top: 1px solid #c4c4c4;\n    position: relative;\n}\n.msg_send_btn[data-v-299e239e] {\n    background: #05728f none repeat scroll 0 0;\n    border: medium none;\n    border-radius: 50%;\n    color: #fff;\n    cursor: pointer;\n    font-size: 17px;\n    height: 33px;\n    position: absolute;\n    right: 0;\n    top: 11px;\n    width: 33px;\n}\n.messaging[data-v-299e239e] {\n    padding: 0 0 50px 0;\n}\n.msg_history[data-v-299e239e] {\n    height: 516px;\n    overflow-y: auto;\n}\n.chat_date[data-v-299e239e] { font-size:13px; float:right; font-weight: bold;color: #4c4c4c;}\n.active[data-v-299e239e] {\n    background-color: #05728f ;\n}\n", ""]);
+exports.push([module.i, "\n.container[data-v-299e239e] {\n    max-width: 1170px;\n    margin: auto;\n}\nimg[data-v-299e239e] {\n    max-width: 100%;\n}\n.inbox_people[data-v-299e239e] {\n    background: #f8f8f8 none repeat scroll 0 0;\n    float: left;\n    overflow: hidden;\n    width: 40%;\n    border-right: 1px solid #c4c4c4;\n}\n.inbox_msg[data-v-299e239e] {\n    border: 1px solid #c4c4c4;\n    clear: both;\n    overflow: hidden;\n}\n.top_spac[data-v-299e239e] {\n    margin: 20px 0 0;\n}\n.recent_heading[data-v-299e239e] {\n    float: left;\n    width: 40%;\n}\n.srch_bar[data-v-299e239e] {\n    display: inline-block;\n    text-align: right;\n    width: 60%;\n    padding: 0;\n    outline: 0;\n}\n.headind_srch[data-v-299e239e] {\n    padding: 10px 29px 10px 20px;\n    overflow: hidden;\n    border-bottom: 1px solid #c4c4c4;\n}\n.recent_heading h4[data-v-299e239e] {\n    color: #05728f;\n    font-size: 21px;\n    margin: auto;\n}\n.srch_bar input[data-v-299e239e] {\n    border: 1px solid #cdcdcd;\n    border-width: 0 0 1px 0;\n    width: 80%;\n    padding: 2px 0 4px 6px;\n    background: none;\n    outline: 0;\n}\n.srch_bar .input-group-addon button[data-v-299e239e] {\n    background: rgba(0, 0, 0, 0) none repeat scroll 0 0;\n    border: medium none;\n    padding: 0;\n    color: #707070;\n    font-size: 18px;\n    outline: 0;\n}\n.srch_bar .input-group-addon[data-v-299e239e] {\n    margin: 0 0 0 -27px;\n}\n.chat_ib h5[data-v-299e239e] {\n    font-size: 15px;\n    color: #464646;\n    margin: 0 0 8px 0;\n}\n.chat_ib h5 span[data-v-299e239e] {\n    font-size: 13px;\n    float: right;\n}\n.chat_ib p[data-v-299e239e] {\n    font-size: 14px;\n    color: #989898;\n    margin: auto\n}\n.chat_img[data-v-299e239e] {\n    float: left;\n    width: 11%;\n}\n.chat_ib[data-v-299e239e] {\n    float: left;\n    padding: 0 0 0 15px;\n    width: 88%;\n}\n.chat_people[data-v-299e239e] {\n    overflow: hidden;\n    clear: both;\n    overflow: scroll;\n}\n.chat_list[data-v-299e239e] {\n    border-bottom: 1px solid #c4c4c4;\n    margin: 0;\n    padding: 18px 16px 10px;\n    overflow-y: scroll;\n}\n.inbox_chat[data-v-299e239e] {\n    height: 550px;\n    overflow-y: scroll;\n}\n.active_chat[data-v-299e239e] {\n    background: #ebebeb;\n}\n.incoming_msg_img[data-v-299e239e] {\n    display: inline-block;\n    width: 6%;\n}\n.received_msg[data-v-299e239e] {\n    display: inline-block;\n    padding: 0 0 0 10px;\n    vertical-align: top;\n    width: 92%;\n}\n.received_withd_msg p[data-v-299e239e] {\n    background: #ebebeb none repeat scroll 0 0;\n    border-radius: 3px;\n    color: #646464;\n    font-size: 14px;\n    margin: 0;\n    padding: 5px 10px 5px 12px;\n    width: 100%;\n}\n.time_date[data-v-299e239e] {\n    color: #747474;\n    display: block;\n    font-size: 12px;\n    margin: 8px 0 0;\n}\n.received_withd_msg[data-v-299e239e] {\n    width: 57%;\n}\n.mesgs[data-v-299e239e] {\n    float: left;\n    padding: 30px 15px 0 25px;\n    width: 60%;\n}\n.sent_msg p[data-v-299e239e] {\n    background: #05728f none repeat scroll 0 0;\n    border-radius: 3px;\n    font-size: 14px;\n    margin: 0;\n    color: #fff;\n    padding: 5px 10px 5px 12px;\n    width: 100%;\n}\n.outgoing_msg[data-v-299e239e] {\n    overflow: hidden;\n    margin: 26px 0 26px;\n}\n.sent_msg[data-v-299e239e] {\n    float: right;\n    width: 46%;\n}\n.input_msg_write input[data-v-299e239e] {\n    background: rgba(0, 0, 0, 0) none repeat scroll 0 0;\n    border: medium none;\n    color: #4c4c4c;\n    font-size: 15px;\n    min-height: 48px;\n    width: 100%;\n    outline: 0;\n}\n.type_msg[data-v-299e239e] {\n    border-top: 1px solid #c4c4c4;\n    position: relative;\n}\n.msg_send_btn[data-v-299e239e] {\n    background: #05728f none repeat scroll 0 0;\n    border: medium none;\n    border-radius: 50%;\n    color: #fff;\n    cursor: pointer;\n    font-size: 17px;\n    height: 33px;\n    position: absolute;\n    right: 0;\n    top: 11px;\n    width: 33px;\n}\n.messaging[data-v-299e239e] {\n    padding: 0 0 50px 0;\n}\n.msg_history[data-v-299e239e] {\n    height: 516px;\n    overflow-y: scroll;\n}\n.chat_date[data-v-299e239e] { font-size:13px; float:right; font-weight: bold;color: #4c4c4c;}\n.active[data-v-299e239e] {\n    background-color: #05728f ;\n}\n", ""]);
 
 // exports
 
@@ -38075,7 +38092,37 @@ var render = function() {
     _c("div", { staticClass: "messaging" }, [
       _c("div", { staticClass: "inbox_msg" }, [
         _c("div", { staticClass: "inbox_people" }, [
-          _vm._m(0),
+          _c("div", { staticClass: "headind_srch" }, [
+            _vm._m(0),
+            _vm._v(" "),
+            _c("div", { staticClass: "srch_bar" }, [
+              _c("div", { staticClass: "stylish-input-group" }, [
+                _c("input", {
+                  directives: [
+                    {
+                      name: "model",
+                      rawName: "v-model",
+                      value: _vm.search,
+                      expression: "search"
+                    }
+                  ],
+                  staticClass: "search-bar",
+                  attrs: { type: "text", placeholder: "Search" },
+                  domProps: { value: _vm.search },
+                  on: {
+                    input: function($event) {
+                      if ($event.target.composing) {
+                        return
+                      }
+                      _vm.search = $event.target.value
+                    }
+                  }
+                }),
+                _vm._v(" "),
+                _vm._m(1)
+              ])
+            ])
+          ]),
           _vm._v(" "),
           _vm.contactLoading
             ? _c(
@@ -38104,7 +38151,7 @@ var render = function() {
                   !_vm.contactLoading
                     ? _c(
                         "div",
-                        _vm._l(_vm.contacts, function(contact) {
+                        _vm._l(_vm.filteredContacts, function(contact) {
                           return _c(
                             "div",
                             {
@@ -38159,8 +38206,8 @@ var render = function() {
                   _vm._v(" "),
                   _c("scroll-loader", {
                     attrs: {
-                      "loader-method": _vm.scrollContact,
-                      "loader-enable": _vm.loadMore
+                      "loader-method": _vm.loadContacts,
+                      "loader-disable": !_vm.loadMore
                     }
                   })
                 ],
@@ -38193,7 +38240,7 @@ var render = function() {
             ? _c("div", [
                 _c(
                   "div",
-                  { staticClass: "msg_history" },
+                  { staticClass: "msg_history", attrs: { id: "msg_history" } },
                   _vm._l(_vm.messages, function(message) {
                     return _c(
                       "div",
@@ -38299,27 +38346,20 @@ var staticRenderFns = [
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "headind_srch" }, [
-      _c("div", { staticClass: "recent_heading" }, [
-        _c("h4", [_vm._v("Recent")])
-      ]),
-      _vm._v(" "),
-      _c("div", { staticClass: "srch_bar" }, [
-        _c("div", { staticClass: "stylish-input-group" }, [
-          _c("input", {
-            staticClass: "search-bar",
-            attrs: { type: "text", placeholder: "Search" }
-          }),
-          _vm._v(" "),
-          _c("span", { staticClass: "input-group-addon" }, [
-            _c("button", { attrs: { type: "button" } }, [
-              _c("i", {
-                staticClass: "fa fa-search",
-                attrs: { "aria-hidden": "true" }
-              })
-            ])
-          ])
-        ])
+    return _c("div", { staticClass: "recent_heading" }, [
+      _c("h4", [_vm._v("Recent")])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("span", { staticClass: "input-group-addon" }, [
+      _c("button", { attrs: { type: "button" } }, [
+        _c("i", {
+          staticClass: "fa fa-search",
+          attrs: { "aria-hidden": "true" }
+        })
       ])
     ])
   }
