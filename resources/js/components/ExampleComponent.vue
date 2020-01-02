@@ -6,15 +6,31 @@
             <div class="inbox_msg">
                 <div class="inbox_people">
                     <div class="headind_srch">
-                        <div class="recent_heading">
-                            <h4>Recent</h4>
-                        </div>
-                        <div class="srch_bar">
-                            <div class="stylish-input-group">
-                                <input type="text" v-model="search" class="search-bar" placeholder="Search">
-                                <span class="input-group-addon">
+                        <div class="row">
+                            <div class="col-md-12 form-group contacts_header plus-icon"
+                                 style="display: inline-flex;padding-left: 0px !important;">
+                                <div class="col-md-2 offset-md-1" style="padding: 0px !important;">
+                                    <button type="button" class="start_conversation" ><i class="fa fa-plus" aria-hidden="true"></i></button>
+                                </div>
+                                <div class="col-md-8" style="text-align: left;">
+                                    <select class="form-control filters" name="msg_filter" id="msg_filter" style="width: 220px;">
+                                        <option value="all">All</option>
+                                        <option value="unread">Unread</option>
+                                        <option value="facebook">Facebook</option>
+                                        <option value="text">Text</option>
+                                        <option value="website">Website</option>
+                                        <option value="archived">Archived</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="offset-md-2 srch_bar">
+                                <div class="stylish-input-group">
+                                    <input type="text" v-model="search" class="search-bar" placeholder="Search">
+                                    <span class="input-group-addon">
                                     <button type="button"> <i class="fa fa-search" aria-hidden="true"></i> </button>
-                                </span>
+                                            </span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -26,10 +42,13 @@
 
                         <div v-if="!contactLoading">
                             <div class="chat_list" v-for="contact in filteredContacts"
-                                 v-on:click="loadMessage(contact.contact_id)"
+                                 v-on:click="loadMessage(contact.contact_id, 'yes')"
                                  :class="{'active': contact.contact_id == activeIndex}">
                                 <div class="chat_people">
-                                    <div class="chat_img"><img :src="contact.media_url"></div>
+                                    <div class="chat_img">
+                                        <img v-show="!contact.ps_id" src="https://app.nextpaw.com/img/text-msg.png">
+                                        <img v-show="contact.ps_id" src="https://app.nextpaw.com//img/fb-msg.png">
+                                    </div>
                                     <div class="chat_ib">
                                         <h5>{{contact.first_name}} {{contact.last_name}} </h5>
                                         <p>{{ trunc(contact.body) }}<span class="chat_date">{{ format_date(contact.message_created_at) }}</span>
@@ -45,6 +64,16 @@
 
 
                 <div class="mesgs">
+                    <div class="sticky">
+                        <div class="col-md-12">
+                            <div class="toolbar__label current_name text-center">
+                                Contact Name!
+                                <span class="archive-icon">
+                                    <i class="fa fa-archive" aria-hidden="true"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
                     <div v-if="msgLoading" style="display: flex; justify-content: center; align-items: center;">
                         <i class="fa fa-circle-o-notch fa-spin" style="font-size: 45px; color: blue;"></i>
                     </div>
@@ -151,9 +180,11 @@
                 }
             },
 
-            loadMessage: function (value) {
+            loadMessage: function (value, reload) {
                 this.typedMessage = '';
-                this.msgLoading = true;
+                if (reload == 'yes') {
+                    this.msgLoading = true;
+                }
                 axios({
                     url: 'https://1154558724803321-reviews.jenkins.nextpaw.com/graph-api',
                     headers: {
@@ -215,7 +246,8 @@
                 }).then(response => {
                     this.typedMessage = '';
                     setTimeout(() => {
-                        this.loadMessage(response.data.data.messageSendMutation.id);
+                        this.loadMessage(response.data.data.messageSendMutation.id, 'no');
+                        this.loadContacts()
                     }, 500);
                     console.log(response)
                 })
@@ -277,6 +309,22 @@
 
 
 <style scoped>
+    .sticky {
+        position: -webkit-sticky;
+        position: sticky;
+        top: 0;
+        padding: 5px;
+        /*background-color: #cae8ca;*/
+        border: 2px solid #c4c4c4;
+    }
+
+    .fa-archive {
+        position: absolute;
+        width: 24px;
+        right: 0;
+        top: 5px;
+    }
+
     .container {
         max-width: 1170px;
         margin: auto;
@@ -394,7 +442,7 @@
     }
 
     .inbox_chat {
-        height: 550px;
+        max-height: 531px;
         overflow-y: scroll;
     }
 
@@ -436,6 +484,7 @@
     }
 
     .mesgs {
+        border-left: 1px solid #c4c4c4;
         float: left;
         padding: 30px 15px 0 25px;
         width: 60%;
