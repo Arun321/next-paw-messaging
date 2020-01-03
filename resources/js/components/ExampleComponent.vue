@@ -58,6 +58,7 @@
                             </div>
                         </div>
                         <scroll-loader :loader-method="loadContacts" :loader-disable="!loadMore">
+                            <div>Loading....</div>
                         </scroll-loader>
                     </div>
                 </div>
@@ -117,18 +118,16 @@
     Vue.use(ScrollLoader)
 
     export default {
-        created () {
-            // this.loadContacts()
-        },
-
         methods: {
             scrollToEnd (){
                 let container = document.querySelector('.msg_history');
                 let height = container.scrollHeight;
                 container.scrollTop = height;
             },
-            loadContacts() {
-                if(this.loadMore == true) {
+            loadContacts(refresh = false) {
+                console.log('page',this.page)
+                console.log('loadmore',this.loadMore)
+                if(this.loadMore === true) {
                     axios({
                         url: 'https://1154558724803321-reviews.jenkins.nextpaw.com/graph-api',
                         headers: {
@@ -161,10 +160,16 @@
                     }).then(response => {
                         this.page++
                         // this.contacts = response.data.data.messages.data
-                        var temp = response.data.data.messages.data;
+                        let temp = response.data.data.messages.data;
+                        console.log('refresh',refresh)
+                        if(refresh === true){
+                            this.contacts = []
+                        }
                         this.contacts.push(...temp)
-                        // console.log(this.contacts)
-                        response.data.data.messages.data.length < 20 ? (this.loadMore = false) : this.loadMore = true
+                        if (this.contacts.length >= response.data.data.messages.total) {
+                            this.loadMore = false
+                        }
+                        // response.data.data.messages.data.length < 20 ? (this.loadMore = false) : this.loadMore = true
                     }).catch((e) => console.log(e))
                 } else{
                     this.loadMore = false
@@ -247,7 +252,9 @@
                     this.typedMessage = '';
                     setTimeout(() => {
                         this.loadMessage(response.data.data.messageSendMutation.id, 'no');
-                        this.loadContacts()
+                        this.page=1
+                        this.loadMore=true
+                        this.loadContacts(true)
                     }, 500);
                     console.log(response)
                 })
@@ -269,10 +276,6 @@
             },
             trunc(n) {
                 return (n && n.length > 15) ? n.substr(0, 10) + '...' : n
-            },
-            scrollContact(){
-
-                this.loadContacts()
             }
         },
         computed:{

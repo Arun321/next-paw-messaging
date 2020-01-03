@@ -1963,13 +1963,12 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 //
 //
 //
+//
 
 
 
 Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_2___default.a);
 /* harmony default export */ __webpack_exports__["default"] = ({
-  created: function created() {// this.loadContacts()
-  },
   methods: {
     scrollToEnd: function scrollToEnd() {
       var container = document.querySelector('.msg_history');
@@ -1979,7 +1978,11 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_2___default.a);
     loadContacts: function loadContacts() {
       var _this = this;
 
-      if (this.loadMore == true) {
+      var refresh = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+      console.log('page', this.page);
+      console.log('loadmore', this.loadMore);
+
+      if (this.loadMore === true) {
         axios__WEBPACK_IMPORTED_MODULE_1___default()({
           url: 'https://1154558724803321-reviews.jenkins.nextpaw.com/graph-api',
           headers: {
@@ -1995,11 +1998,18 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_2___default.a);
           _this.page++; // this.contacts = response.data.data.messages.data
 
           var temp = response.data.data.messages.data;
+          console.log('refresh', refresh);
 
-          (_this$contacts = _this.contacts).push.apply(_this$contacts, _toConsumableArray(temp)); // console.log(this.contacts)
+          if (refresh === true) {
+            _this.contacts = [];
+          }
 
+          (_this$contacts = _this.contacts).push.apply(_this$contacts, _toConsumableArray(temp));
 
-          response.data.data.messages.data.length < 20 ? _this.loadMore = false : _this.loadMore = true;
+          if (_this.contacts.length >= response.data.data.messages.total) {
+            _this.loadMore = false;
+          } // response.data.data.messages.data.length < 20 ? (this.loadMore = false) : this.loadMore = true
+
         })["catch"](function (e) {
           return console.log(e);
         });
@@ -2060,7 +2070,10 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_2___default.a);
         setTimeout(function () {
           _this3.loadMessage(response.data.data.messageSendMutation.id, 'no');
 
-          _this3.loadContacts();
+          _this3.page = 1;
+          _this3.loadMore = true;
+
+          _this3.loadContacts(true);
         }, 500);
         console.log(response);
       })["catch"](function (e) {
@@ -2080,9 +2093,6 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_2___default.a);
     },
     trunc: function trunc(n) {
       return n && n.length > 15 ? n.substr(0, 10) + '...' : n;
-    },
-    scrollContact: function scrollContact() {
-      this.loadContacts();
     }
   },
   computed: {
@@ -38270,12 +38280,16 @@ var render = function() {
                       )
                     : _vm._e(),
                   _vm._v(" "),
-                  _c("scroll-loader", {
-                    attrs: {
-                      "loader-method": _vm.loadContacts,
-                      "loader-disable": !_vm.loadMore
-                    }
-                  })
+                  _c(
+                    "scroll-loader",
+                    {
+                      attrs: {
+                        "loader-method": _vm.loadContacts,
+                        "loader-disable": !_vm.loadMore
+                      }
+                    },
+                    [_c("div", [_vm._v("Loading....")])]
+                  )
                 ],
                 1
               )
