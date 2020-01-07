@@ -38,13 +38,13 @@
                     <div v-if="contactLoading" style="display: flex; justify-content: center; align-items: center;">
                         <i class="fa fa-circle-o-notch fa-spin" style="font-size: 45px; color: deepskyblue;"></i>
                     </div>
-                    <div class="inbox_chat" v-if="contacts.length > 0">
+                    <div id="inbox_chat" class="inbox_chat" v-if="contacts.length > 0">
 
                         <div v-if="!contactLoading">
                             <div class="chat_list" v-for="contact in filteredContacts"
                                  v-on:click="loadMessage(contact.contact_id, 'yes')"
                                  :class="{'active': contact.contact_id == activeIndex}">
-                                <div class="chat_people">
+                                <div class="chat_people" >
                                     <div class="chat_img">
                                         <img v-show="!contact.ps_id" src="https://app.nextpaw.com/img/text-msg.png">
                                         <img v-show="contact.ps_id" src="https://app.nextpaw.com//img/fb-msg.png">
@@ -66,10 +66,11 @@
 
                 <div class="mesgs">
                     <div class="sticky">
-                        <div class="col-md-12">
-                            <div class="toolbar__label current_name text-center">
-                                Contact Name!
-                                <span class="archive-icon">
+                        <div class="col-md-12" >
+                            <div class="toolbar__label current_name text-center" >
+                                <h4>{{ this.activeTitle }}</h4>
+                                <span class="archive-icon" >
+<!--                                    <img class="archive-img" src="https://image.flaticon.com/icons/svg/73/73581.svg" alt="">-->
                                     <i class="fa fa-archive" aria-hidden="true"></i>
                                 </span>
                             </div>
@@ -118,11 +119,50 @@
     Vue.use(ScrollLoader)
 
     export default {
+        data() {
+            return {
+                loadMore: true,
+                msgLoading: false,
+                contactLoading:false,
+                activeIndex: 0,
+                loadAll: false,
+                activeTitle: '',
+                page:1,
+                user: JSON.parse(localStorage.getItem('user')),
+                contacts: [],
+                typedMessage: '',
+                messages:[],
+                errors:[],
+                search:''
+
+            }
+        },
+        computed: {
+            filteredContacts: function () {
+                // this.loadMore = false;
+                // $('.loader').hide()
+                return this.contacts.filter((contact) => {
+                    return contact.first_name.toLowerCase().match(this.search)
+                })
+            }
+        },
+        mounted() {
+            this.loadContacts()
+        },
         methods: {
             scrollToEnd (){
                 let container = document.querySelector('.msg_history');
                 let height = container.scrollHeight;
                 container.scrollTop = height;
+            },
+            scrollToTop(){
+                var myDiv = document.getElementById('inbox_chat');
+                if (myDiv) {
+                    myDiv.scrollTop = 0;
+                }
+                // console.log('scrolled')
+                // let container = document.querySelector('.inbox_chat');
+                // let height = container.scrollHeight;
             },
             loadContacts(refresh = false) {
                 console.log('page',this.page)
@@ -150,6 +190,7 @@
                                     sender
                                     receiver
                                     ps_id
+                                    archived
                                     unread_message_count
                                      }
                                 total
@@ -161,13 +202,17 @@
                         this.page++
                         // this.contacts = response.data.data.messages.data
                         let temp = response.data.data.messages.data;
-                        console.log('refresh',refresh)
+                        // console.log('refresh',refresh)
                         if(refresh === true){
                             this.contacts = []
                         }
                         this.contacts.push(...temp)
+
                         if (this.contacts.length >= response.data.data.messages.total) {
                             this.loadMore = false
+                        }
+                        if (this.loadAll && this.loadMore) {
+                            this.loadContacts()
                         }
                         // response.data.data.messages.data.length < 20 ? (this.loadMore = false) : this.loadMore = true
                     }).catch((e) => console.log(e))
@@ -222,6 +267,13 @@
                 }).then(response => {
                         this.msgLoading = false;
                         this.messages = response.data.data.singleConversion.data.reverse()
+                        let activeContact = this.contacts.filter(function(elem){
+                            if(elem.contact_id == value) return true;
+                        });
+                        console.log(activeContact)
+                        // if (activeContact[0].ps_id == 'null')
+                    let contactNum = !activeContact[0].ps_id ? ' | ' +activeContact[0].sender : ''
+                        return this.activeTitle = activeContact[0].first_name + contactNum
                     setTimeout(() => {
                         this.scrollToEnd()
                     }, 400)
@@ -254,7 +306,11 @@
                         this.loadMessage(response.data.data.messageSendMutation.id, 'no');
                         this.page=1
                         this.loadMore=true
+                        this.loadAll = true
                         this.loadContacts(true)
+                        setTimeout(() => {
+                            this.scrollToTop()
+                        }, 400)
                     }, 500);
                     console.log(response)
                 })
@@ -276,34 +332,8 @@
             },
             trunc(n) {
                 return (n && n.length > 15) ? n.substr(0, 10) + '...' : n
-            }
-        },
-        computed:{
-            filteredContacts:function () {
-                // this.loadMore = false;
-                // $('.loader').hide()
-                return this.contacts.filter((contact)=>{
-                      return contact.first_name.toLowerCase().match(this.search)
-                })
-            }
-        },
-        mounted() {
-            this.loadContacts()
-        },
-
-        data() {
-            return {
-                loadMore: true,
-                msgLoading: false,
-                contactLoading:false,
-                activeIndex: null,
-                page:1,
-                user: JSON.parse(localStorage.getItem('user')),
-                contacts: [],
-                typedMessage: '',
-                messages:[],
-                errors:[],
-                search:''
+            },
+            scrollListener(){
 
             }
         }
@@ -318,12 +348,27 @@
         top: 0;
         padding: 5px;
         /*background-color: #cae8ca;*/
-        border: 2px solid #c4c4c4;
+        /*border: 2px solid #c4c4c4;*/
     }
+
+    /*.archive-icon {*/
+    /*    position: absolute;*/
+    /*    right: 0;*/
+    /*    font-size: 25px;*/
+    /*    margin-top: -10px;*/
+    /*}*/
+
+    /*.archive-img {*/
+    /*    position: absolute;*/
+    /*    width: 24px;*/
+    /*    right: 0;*/
+    /*    top: 5px;*/
+    /*}*/
 
     .fa-archive {
         position: absolute;
         width: 24px;
+        font-size: 18px;
         right: 0;
         top: 5px;
     }
@@ -433,6 +478,7 @@
 
     .chat_people {
         overflow: hidden;
+        color: white;
         clear: both;
         overflow: scroll;
     }
@@ -445,6 +491,7 @@
     }
 
     .inbox_chat {
+        scroll-behavior: smooth;
         max-height: 531px;
         overflow-y: scroll;
     }
@@ -554,7 +601,7 @@
     .chat_date { font-size:13px; float:right; font-weight: bold;color: #4c4c4c;}
 
     .active {
-        background-color: #05728f ;
+        background-color: aliceblue ;
     }
 </style>
 

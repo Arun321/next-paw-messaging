@@ -1964,19 +1964,61 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 //
 //
 //
+//
 
 
 
 Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_2___default.a);
 /* harmony default export */ __webpack_exports__["default"] = ({
+  data: function data() {
+    return {
+      loadMore: true,
+      msgLoading: false,
+      contactLoading: false,
+      activeIndex: 0,
+      loadAll: false,
+      activeTitle: '',
+      page: 1,
+      user: JSON.parse(localStorage.getItem('user')),
+      contacts: [],
+      typedMessage: '',
+      messages: [],
+      errors: [],
+      search: ''
+    };
+  },
+  computed: {
+    filteredContacts: function filteredContacts() {
+      var _this = this;
+
+      // this.loadMore = false;
+      // $('.loader').hide()
+      return this.contacts.filter(function (contact) {
+        return contact.first_name.toLowerCase().match(_this.search);
+      });
+    }
+  },
+  mounted: function mounted() {
+    this.loadContacts();
+  },
   methods: {
     scrollToEnd: function scrollToEnd() {
       var container = document.querySelector('.msg_history');
       var height = container.scrollHeight;
       container.scrollTop = height;
     },
+    scrollToTop: function scrollToTop() {
+      var myDiv = document.getElementById('inbox_chat');
+
+      if (myDiv) {
+        myDiv.scrollTop = 0;
+      } // console.log('scrolled')
+      // let container = document.querySelector('.inbox_chat');
+      // let height = container.scrollHeight;
+
+    },
     loadContacts: function loadContacts() {
-      var _this = this;
+      var _this2 = this;
 
       var refresh = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
       console.log('page', this.page);
@@ -1990,24 +2032,27 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_2___default.a);
           },
           method: 'POST',
           data: {
-            query: "{\n                         messages(clientId: 1, locationId: 1, page: ".concat(this.page, ", limit: 20){\n                          data{\n                                contact_id\n                                first_name\n                                last_name\n                                body\n                                media_url\n                                message_created_at\n                                deleted_at\n                                type\n                                status\n                                sender\n                                receiver\n                                ps_id\n                                unread_message_count\n                                 }\n                            total\n                            per_page\n                            }\n                        }")
+            query: "{\n                         messages(clientId: 1, locationId: 1, page: ".concat(this.page, ", limit: 20){\n                          data{\n                                contact_id\n                                first_name\n                                last_name\n                                body\n                                media_url\n                                message_created_at\n                                deleted_at\n                                type\n                                status\n                                sender\n                                receiver\n                                ps_id\n                                archived\n                                unread_message_count\n                                 }\n                            total\n                            per_page\n                            }\n                        }")
           }
         }).then(function (response) {
-          var _this$contacts;
+          var _this2$contacts;
 
-          _this.page++; // this.contacts = response.data.data.messages.data
+          _this2.page++; // this.contacts = response.data.data.messages.data
 
-          var temp = response.data.data.messages.data;
-          console.log('refresh', refresh);
+          var temp = response.data.data.messages.data; // console.log('refresh',refresh)
 
           if (refresh === true) {
-            _this.contacts = [];
+            _this2.contacts = [];
           }
 
-          (_this$contacts = _this.contacts).push.apply(_this$contacts, _toConsumableArray(temp));
+          (_this2$contacts = _this2.contacts).push.apply(_this2$contacts, _toConsumableArray(temp));
 
-          if (_this.contacts.length >= response.data.data.messages.total) {
-            _this.loadMore = false;
+          if (_this2.contacts.length >= response.data.data.messages.total) {
+            _this2.loadMore = false;
+          }
+
+          if (_this2.loadAll && _this2.loadMore) {
+            _this2.loadContacts();
           } // response.data.data.messages.data.length < 20 ? (this.loadMore = false) : this.loadMore = true
 
         })["catch"](function (e) {
@@ -2025,7 +2070,7 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_2___default.a);
       }
     },
     loadMessage: function loadMessage(value, reload) {
-      var _this2 = this;
+      var _this3 = this;
 
       this.typedMessage = '';
 
@@ -2043,10 +2088,19 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_2___default.a);
           query: "{\n                             singleConversion(id: ".concat(value, ", clientId: 1, locationId: 1, page: 1, limit: 20){\n                            data {\n                                id\n                                first_name\n                                last_name\n                                contact_id\n                                body\n                                media_url\n                                receiver\n                                sender\n                                contact_created_at\n                                type\n                                status\n                                archived\n                                message_created_at\n                            }\n                            total\n                            per_page\n                        }\n                    }")
         }
       }).then(function (response) {
-        _this2.msgLoading = false;
-        _this2.messages = response.data.data.singleConversion.data.reverse();
+        _this3.msgLoading = false;
+        _this3.messages = response.data.data.singleConversion.data.reverse();
+
+        var activeContact = _this3.contacts.filter(function (elem) {
+          if (elem.contact_id == value) return true;
+        });
+
+        console.log(activeContact); // if (activeContact[0].ps_id == 'null')
+
+        var contactNum = !activeContact[0].ps_id ? ' | ' + activeContact[0].sender : '';
+        return _this3.activeTitle = activeContact[0].first_name + contactNum;
         setTimeout(function () {
-          _this2.scrollToEnd();
+          _this3.scrollToEnd();
         }, 400);
       })["catch"](function (e) {
         return console.log(e);
@@ -2054,7 +2108,7 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_2___default.a);
       this.activeIndex = value;
     },
     sendMessage: function sendMessage() {
-      var _this3 = this;
+      var _this4 = this;
 
       axios__WEBPACK_IMPORTED_MODULE_1___default()({
         url: 'https://1154558724803321-reviews.jenkins.nextpaw.com/graph-api',
@@ -2066,18 +2120,23 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_2___default.a);
           query: "mutation messageSendMutation\n                    {\n                        messageSendMutation(clientId: 1, locationId: 1, contactId: ".concat(this.activeIndex, ", body: \"").concat(this.typedMessage, "\",\n                       )\n                        {\n                        id\n                        error\n                        message\n                        }\n                    }")
         }
       }).then(function (response) {
-        _this3.typedMessage = '';
+        _this4.typedMessage = '';
         setTimeout(function () {
-          _this3.loadMessage(response.data.data.messageSendMutation.id, 'no');
+          _this4.loadMessage(response.data.data.messageSendMutation.id, 'no');
 
-          _this3.page = 1;
-          _this3.loadMore = true;
+          _this4.page = 1;
+          _this4.loadMore = true;
+          _this4.loadAll = true;
 
-          _this3.loadContacts(true);
+          _this4.loadContacts(true);
+
+          setTimeout(function () {
+            _this4.scrollToTop();
+          }, 400);
         }, 500);
         console.log(response);
       })["catch"](function (e) {
-        _this3.errors.push(e); // this.activeIndex = value
+        _this4.errors.push(e); // this.activeIndex = value
 
       });
     },
@@ -2093,36 +2152,8 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_2___default.a);
     },
     trunc: function trunc(n) {
       return n && n.length > 15 ? n.substr(0, 10) + '...' : n;
-    }
-  },
-  computed: {
-    filteredContacts: function filteredContacts() {
-      var _this4 = this;
-
-      // this.loadMore = false;
-      // $('.loader').hide()
-      return this.contacts.filter(function (contact) {
-        return contact.first_name.toLowerCase().match(_this4.search);
-      });
-    }
-  },
-  mounted: function mounted() {
-    this.loadContacts();
-  },
-  data: function data() {
-    return {
-      loadMore: true,
-      msgLoading: false,
-      contactLoading: false,
-      activeIndex: null,
-      page: 1,
-      user: JSON.parse(localStorage.getItem('user')),
-      contacts: [],
-      typedMessage: '',
-      messages: [],
-      errors: [],
-      search: ''
-    };
+    },
+    scrollListener: function scrollListener() {}
   }
 });
 
@@ -2223,7 +2254,7 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 
 // module
-exports.push([module.i, "\n.sticky[data-v-299e239e] {\n    position: -webkit-sticky;\n    position: sticky;\n    top: 0;\n    padding: 5px;\n    /*background-color: #cae8ca;*/\n    border: 2px solid #c4c4c4;\n}\n.fa-archive[data-v-299e239e] {\n    position: absolute;\n    width: 24px;\n    right: 0;\n    top: 5px;\n}\n.container[data-v-299e239e] {\n    max-width: 1170px;\n    margin: auto;\n}\nimg[data-v-299e239e] {\n    max-width: 100%;\n}\n.inbox_people[data-v-299e239e] {\n    background: #f8f8f8 none repeat scroll 0 0;\n    float: left;\n    overflow: hidden;\n    width: 40%;\n    border-right: 1px solid #c4c4c4;\n}\n.inbox_msg[data-v-299e239e] {\n    border: 1px solid #c4c4c4;\n    clear: both;\n    overflow: hidden;\n}\n.top_spac[data-v-299e239e] {\n    margin: 20px 0 0;\n}\n.recent_heading[data-v-299e239e] {\n    float: left;\n    width: 40%;\n}\n.srch_bar[data-v-299e239e] {\n    display: inline-block;\n    text-align: right;\n    width: 60%;\n    padding: 0;\n    outline: 0;\n}\n.headind_srch[data-v-299e239e] {\n    padding: 10px 29px 10px 20px;\n    overflow: hidden;\n    border-bottom: 1px solid #c4c4c4;\n}\n.recent_heading h4[data-v-299e239e] {\n    color: #05728f;\n    font-size: 21px;\n    margin: auto;\n}\n.srch_bar input[data-v-299e239e] {\n    border: 1px solid #cdcdcd;\n    border-width: 0 0 1px 0;\n    width: 80%;\n    padding: 2px 0 4px 6px;\n    background: none;\n    outline: 0;\n}\n.srch_bar .input-group-addon button[data-v-299e239e] {\n    background: rgba(0, 0, 0, 0) none repeat scroll 0 0;\n    border: medium none;\n    padding: 0;\n    color: #707070;\n    font-size: 18px;\n    outline: 0;\n}\n.srch_bar .input-group-addon[data-v-299e239e] {\n    margin: 0 0 0 -27px;\n}\n.chat_ib h5[data-v-299e239e] {\n    font-size: 15px;\n    color: #464646;\n    margin: 0 0 8px 0;\n}\n.chat_ib h5 span[data-v-299e239e] {\n    font-size: 13px;\n    float: right;\n}\n.chat_ib p[data-v-299e239e] {\n    font-size: 14px;\n    color: #989898;\n    margin: auto\n}\n.chat_img[data-v-299e239e] {\n    float: left;\n    width: 11%;\n}\n.chat_ib[data-v-299e239e] {\n    float: left;\n    padding: 0 0 0 15px;\n    width: 88%;\n}\n.chat_people[data-v-299e239e] {\n    overflow: hidden;\n    clear: both;\n    overflow: scroll;\n}\n.chat_list[data-v-299e239e] {\n    border-bottom: 1px solid #c4c4c4;\n    margin: 0;\n    padding: 18px 16px 10px;\n    overflow-y: scroll;\n}\n.inbox_chat[data-v-299e239e] {\n    max-height: 531px;\n    overflow-y: scroll;\n}\n.active_chat[data-v-299e239e] {\n    background: #ebebeb;\n}\n.incoming_msg_img[data-v-299e239e] {\n    display: inline-block;\n    width: 6%;\n}\n.received_msg[data-v-299e239e] {\n    display: inline-block;\n    padding: 0 0 0 10px;\n    vertical-align: top;\n    width: 92%;\n}\n.received_withd_msg p[data-v-299e239e] {\n    background: #ebebeb none repeat scroll 0 0;\n    border-radius: 3px;\n    color: #646464;\n    font-size: 14px;\n    margin: 0;\n    padding: 5px 10px 5px 12px;\n    width: 100%;\n}\n.time_date[data-v-299e239e] {\n    color: #747474;\n    display: block;\n    font-size: 12px;\n    margin: 8px 0 0;\n}\n.received_withd_msg[data-v-299e239e] {\n    width: 57%;\n}\n.mesgs[data-v-299e239e] {\n    border-left: 1px solid #c4c4c4;\n    float: left;\n    padding: 30px 15px 0 25px;\n    width: 60%;\n}\n.sent_msg p[data-v-299e239e] {\n    background: #05728f none repeat scroll 0 0;\n    border-radius: 3px;\n    font-size: 14px;\n    margin: 0;\n    color: #fff;\n    padding: 5px 10px 5px 12px;\n    width: 100%;\n}\n.outgoing_msg[data-v-299e239e] {\n    overflow: hidden;\n    margin: 26px 0 26px;\n}\n.sent_msg[data-v-299e239e] {\n    float: right;\n    width: 46%;\n}\n.input_msg_write input[data-v-299e239e] {\n    background: rgba(0, 0, 0, 0) none repeat scroll 0 0;\n    border: medium none;\n    color: #4c4c4c;\n    font-size: 15px;\n    min-height: 48px;\n    width: 100%;\n    outline: 0;\n}\n.type_msg[data-v-299e239e] {\n    border-top: 1px solid #c4c4c4;\n    position: relative;\n}\n.msg_send_btn[data-v-299e239e] {\n    background: #05728f none repeat scroll 0 0;\n    border: medium none;\n    border-radius: 50%;\n    color: #fff;\n    cursor: pointer;\n    font-size: 17px;\n    height: 33px;\n    position: absolute;\n    right: 0;\n    top: 11px;\n    width: 33px;\n}\n.messaging[data-v-299e239e] {\n    padding: 0 0 50px 0;\n}\n.msg_history[data-v-299e239e] {\n    height: 516px;\n    overflow-y: scroll;\n}\n.chat_date[data-v-299e239e] { font-size:13px; float:right; font-weight: bold;color: #4c4c4c;}\n.active[data-v-299e239e] {\n    background-color: #05728f ;\n}\n", ""]);
+exports.push([module.i, "\n.sticky[data-v-299e239e] {\n    position: -webkit-sticky;\n    position: sticky;\n    top: 0;\n    padding: 5px;\n    /*background-color: #cae8ca;*/\n    /*border: 2px solid #c4c4c4;*/\n}\n\n/*.archive-icon {*/\n/*    position: absolute;*/\n/*    right: 0;*/\n/*    font-size: 25px;*/\n/*    margin-top: -10px;*/\n/*}*/\n\n/*.archive-img {*/\n/*    position: absolute;*/\n/*    width: 24px;*/\n/*    right: 0;*/\n/*    top: 5px;*/\n/*}*/\n.fa-archive[data-v-299e239e] {\n    position: absolute;\n    width: 24px;\n    font-size: 18px;\n    right: 0;\n    top: 5px;\n}\n.container[data-v-299e239e] {\n    max-width: 1170px;\n    margin: auto;\n}\nimg[data-v-299e239e] {\n    max-width: 100%;\n}\n.inbox_people[data-v-299e239e] {\n    background: #f8f8f8 none repeat scroll 0 0;\n    float: left;\n    overflow: hidden;\n    width: 40%;\n    border-right: 1px solid #c4c4c4;\n}\n.inbox_msg[data-v-299e239e] {\n    border: 1px solid #c4c4c4;\n    clear: both;\n    overflow: hidden;\n}\n.top_spac[data-v-299e239e] {\n    margin: 20px 0 0;\n}\n.recent_heading[data-v-299e239e] {\n    float: left;\n    width: 40%;\n}\n.srch_bar[data-v-299e239e] {\n    display: inline-block;\n    text-align: right;\n    width: 60%;\n    padding: 0;\n    outline: 0;\n}\n.headind_srch[data-v-299e239e] {\n    padding: 10px 29px 10px 20px;\n    overflow: hidden;\n    border-bottom: 1px solid #c4c4c4;\n}\n.recent_heading h4[data-v-299e239e] {\n    color: #05728f;\n    font-size: 21px;\n    margin: auto;\n}\n.srch_bar input[data-v-299e239e] {\n    border: 1px solid #cdcdcd;\n    border-width: 0 0 1px 0;\n    width: 80%;\n    padding: 2px 0 4px 6px;\n    background: none;\n    outline: 0;\n}\n.srch_bar .input-group-addon button[data-v-299e239e] {\n    background: rgba(0, 0, 0, 0) none repeat scroll 0 0;\n    border: medium none;\n    padding: 0;\n    color: #707070;\n    font-size: 18px;\n    outline: 0;\n}\n.srch_bar .input-group-addon[data-v-299e239e] {\n    margin: 0 0 0 -27px;\n}\n.chat_ib h5[data-v-299e239e] {\n    font-size: 15px;\n    color: #464646;\n    margin: 0 0 8px 0;\n}\n.chat_ib h5 span[data-v-299e239e] {\n    font-size: 13px;\n    float: right;\n}\n.chat_ib p[data-v-299e239e] {\n    font-size: 14px;\n    color: #989898;\n    margin: auto\n}\n.chat_img[data-v-299e239e] {\n    float: left;\n    width: 11%;\n}\n.chat_ib[data-v-299e239e] {\n    float: left;\n    padding: 0 0 0 15px;\n    width: 88%;\n}\n.chat_people[data-v-299e239e] {\n    overflow: hidden;\n    color: white;\n    clear: both;\n    overflow: scroll;\n}\n.chat_list[data-v-299e239e] {\n    border-bottom: 1px solid #c4c4c4;\n    margin: 0;\n    padding: 18px 16px 10px;\n    overflow-y: scroll;\n}\n.inbox_chat[data-v-299e239e] {\n    scroll-behavior: smooth;\n    max-height: 531px;\n    overflow-y: scroll;\n}\n.active_chat[data-v-299e239e] {\n    background: #ebebeb;\n}\n.incoming_msg_img[data-v-299e239e] {\n    display: inline-block;\n    width: 6%;\n}\n.received_msg[data-v-299e239e] {\n    display: inline-block;\n    padding: 0 0 0 10px;\n    vertical-align: top;\n    width: 92%;\n}\n.received_withd_msg p[data-v-299e239e] {\n    background: #ebebeb none repeat scroll 0 0;\n    border-radius: 3px;\n    color: #646464;\n    font-size: 14px;\n    margin: 0;\n    padding: 5px 10px 5px 12px;\n    width: 100%;\n}\n.time_date[data-v-299e239e] {\n    color: #747474;\n    display: block;\n    font-size: 12px;\n    margin: 8px 0 0;\n}\n.received_withd_msg[data-v-299e239e] {\n    width: 57%;\n}\n.mesgs[data-v-299e239e] {\n    border-left: 1px solid #c4c4c4;\n    float: left;\n    padding: 30px 15px 0 25px;\n    width: 60%;\n}\n.sent_msg p[data-v-299e239e] {\n    background: #05728f none repeat scroll 0 0;\n    border-radius: 3px;\n    font-size: 14px;\n    margin: 0;\n    color: #fff;\n    padding: 5px 10px 5px 12px;\n    width: 100%;\n}\n.outgoing_msg[data-v-299e239e] {\n    overflow: hidden;\n    margin: 26px 0 26px;\n}\n.sent_msg[data-v-299e239e] {\n    float: right;\n    width: 46%;\n}\n.input_msg_write input[data-v-299e239e] {\n    background: rgba(0, 0, 0, 0) none repeat scroll 0 0;\n    border: medium none;\n    color: #4c4c4c;\n    font-size: 15px;\n    min-height: 48px;\n    width: 100%;\n    outline: 0;\n}\n.type_msg[data-v-299e239e] {\n    border-top: 1px solid #c4c4c4;\n    position: relative;\n}\n.msg_send_btn[data-v-299e239e] {\n    background: #05728f none repeat scroll 0 0;\n    border: medium none;\n    border-radius: 50%;\n    color: #fff;\n    cursor: pointer;\n    font-size: 17px;\n    height: 33px;\n    position: absolute;\n    right: 0;\n    top: 11px;\n    width: 33px;\n}\n.messaging[data-v-299e239e] {\n    padding: 0 0 50px 0;\n}\n.msg_history[data-v-299e239e] {\n    height: 516px;\n    overflow-y: scroll;\n}\n.chat_date[data-v-299e239e] { font-size:13px; float:right; font-weight: bold;color: #4c4c4c;}\n.active[data-v-299e239e] {\n    background-color: aliceblue ;\n}\n", ""]);
 
 // exports
 
@@ -38193,7 +38224,7 @@ var render = function() {
           _vm.contacts.length > 0
             ? _c(
                 "div",
-                { staticClass: "inbox_chat" },
+                { staticClass: "inbox_chat", attrs: { id: "inbox_chat" } },
                 [
                   !_vm.contactLoading
                     ? _c(
@@ -38297,7 +38328,19 @@ var render = function() {
         ]),
         _vm._v(" "),
         _c("div", { staticClass: "mesgs" }, [
-          _vm._m(2),
+          _c("div", { staticClass: "sticky" }, [
+            _c("div", { staticClass: "col-md-12" }, [
+              _c(
+                "div",
+                { staticClass: "toolbar__label current_name text-center" },
+                [
+                  _c("h4", [_vm._v(_vm._s(this.activeTitle))]),
+                  _vm._v(" "),
+                  _vm._m(2)
+                ]
+              )
+            ])
+          ]),
           _vm._v(" "),
           _vm.msgLoading
             ? _c(
@@ -38513,20 +38556,11 @@ var staticRenderFns = [
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "sticky" }, [
-      _c("div", { staticClass: "col-md-12" }, [
-        _c("div", { staticClass: "toolbar__label current_name text-center" }, [
-          _vm._v(
-            "\n                            Contact Name!\n                            "
-          ),
-          _c("span", { staticClass: "archive-icon" }, [
-            _c("i", {
-              staticClass: "fa fa-archive",
-              attrs: { "aria-hidden": "true" }
-            })
-          ])
-        ])
-      ])
+    return _c("span", { staticClass: "archive-icon" }, [
+      _c("i", {
+        staticClass: "fa fa-archive",
+        attrs: { "aria-hidden": "true" }
+      })
     ])
   }
 ]
