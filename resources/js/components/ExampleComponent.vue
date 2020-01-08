@@ -13,11 +13,12 @@
                                     <button type="button" class="start_conversation" ><i class="fa fa-plus" aria-hidden="true"></i></button>
                                 </div>
                                 <div class="col-md-8" style="text-align: left;">
-                                    <select class="form-control filters" name="msg_filter" id="msg_filter" style="width: 220px;">
+                                    <select v-model="selectedOption" class="form-control filters" name="msg_filter" id="msg_filter" style="width: 220px;">
+                                        <option disabled value="">Please select one</option>
                                         <option value="all">All</option>
                                         <option value="unread">Unread</option>
                                         <option value="facebook">Facebook</option>
-                                        <option value="text">Text</option>
+                                        <option  value="text">Text</option>
                                         <option value="website">Website</option>
                                         <option value="archived">Archived</option>
                                     </select>
@@ -50,15 +51,18 @@
                                         <img v-show="contact.ps_id" src="https://app.nextpaw.com//img/fb-msg.png">
                                     </div>
                                     <div class="chat_ib">
-                                        <h5>{{contact.first_name}} {{contact.last_name}} </h5>
+                                        <h5>{{contact.first_name}} {{contact.last_name}} <span class="archive" v-if="contact.archived === 1">Archived</span></h5>
                                         <p>{{ trunc(contact.body) }}<span class="chat_date">{{ format_date(contact.message_created_at) }}</span>
                                         </p>
                                     </div>
                                 </div>
                             </div>
                         </div>
+<!--                        <div style="display: flex; justify-content: center">-->
+<!--                            <button v-if="" class="btn-success" @click="loadContacts">Load More</button>-->
+<!--                        </div>-->
+
                         <scroll-loader :loader-method="loadContacts" :loader-disable="!loadMore">
-                            <div>Loading....</div>
                         </scroll-loader>
                     </div>
                 </div>
@@ -69,7 +73,7 @@
                         <div class="col-md-12" >
                             <div class="toolbar__label current_name text-center" >
                                 <h4>{{ this.activeTitle }}</h4>
-                                <span class="archive-icon" >
+                                <span class="archive-icon" v-on:click="archivedContact()" >
 <!--                                    <img class="archive-img" src="https://image.flaticon.com/icons/svg/73/73581.svg" alt="">-->
                                     <i class="fa fa-archive" aria-hidden="true"></i>
                                 </span>
@@ -133,8 +137,16 @@
                 typedMessage: '',
                 messages:[],
                 errors:[],
-                search:''
+                search:'',
+                selectedOption:''
 
+            }
+        },
+        watch: {
+            selectedOption: {
+                handler (n, o) {
+                    this.search = ''
+                }
             }
         },
         computed: {
@@ -142,7 +154,16 @@
                 // this.loadMore = false;
                 // $('.loader').hide()
                 return this.contacts.filter((contact) => {
-                    return contact.first_name.toLowerCase().match(this.search)
+                    if(this.selectedOption === 'facebook') {
+                        return contact.ps_id && contact.first_name.toLowerCase().match(this.search)
+                    } else if(this.selectedOption === 'text') {
+                        return !contact.ps_id && contact.first_name.toLowerCase().match(this.search)
+                    }else if (this.selectedOption === 'archived'){
+                        return contact.archived === 1 && contact.first_name.toLowerCase().match(this.search)
+                    }
+                    else {
+                        return contact.first_name.toLowerCase().match(this.search)
+                    }
                 })
             }
         },
@@ -202,6 +223,7 @@
                         this.page++
                         // this.contacts = response.data.data.messages.data
                         let temp = response.data.data.messages.data;
+                        console.log(response.data.data.messages.data)
                         // console.log('refresh',refresh)
                         if(refresh === true){
                             this.contacts = []
@@ -222,13 +244,35 @@
                 }
             },
 
-            messageType: function (type, class1, class2) {
-                if (type === 'received') {
-                    return class1;
-                } else {
-                    return class2;
+            archivedContact(value) {
+                if (this.loadMore === true) {
+                    axios({
+                        url: 'https://1154558724803321-reviews.jenkins.nextpaw.com/graph-api',
+                        headers: {
+                            Authorization: `Bearer ${this.user.token}`
+                        },
+                        method: 'POST',
+                        data: {
+                            query: `{
+                                     {
+                                    contactArchive(id: ${value}, clientId: 1, locationId: 1){
+                                        id
+                                        first_name
+                                        last_name
+                                        archived
+                                        error
+                                        message
+                                    }
+                                }
+                            }`
+                        }
+                    }).then(response =>{
+                        console.log(response.data.data.contactArchive.archived)
+                    }).catch((e) => console.log(e))
                 }
             },
+
+
 
             loadMessage: function (value, reload) {
                 this.typedMessage = '';
@@ -267,20 +311,29 @@
                 }).then(response => {
                         this.msgLoading = false;
                         this.messages = response.data.data.singleConversion.data.reverse()
-                        let activeContact = this.contacts.filter(function(elem){
-                            if(elem.contact_id == value) return true;
-                        });
+
+                    setTimeout(() => {
+                        this.scrollToEnd()
+                    }, 400)
+                    let activeContact = this.contacts.filter(function (elem) {
+                        if (elem.contact_id == value) return true;
+                    });
                         console.log(activeContact)
                         // if (activeContact[0].ps_id == 'null')
                     let contactNum = !activeContact[0].ps_id ? ' | ' +activeContact[0].sender : ''
                         return this.activeTitle = activeContact[0].first_name + contactNum
-                    setTimeout(() => {
-                        this.scrollToEnd()
-                    }, 400)
+
                 }).catch((e) => console.log(e));
                 this.activeIndex = value
             },
 
+            messageType: function (type, class1, class2) {
+                if (type === 'received') {
+                    return class1;
+                } else {
+                    return class2;
+                }
+            },
             sendMessage: function () {
                 axios({
                     url: 'https://1154558724803321-reviews.jenkins.nextpaw.com/graph-api',
@@ -599,6 +652,8 @@
     }
 
     .chat_date { font-size:13px; float:right; font-weight: bold;color: #4c4c4c;}
+
+    .archive{font-size:13px; float:right; font-weight: bold;color: #4c4c4c;}
 
     .active {
         background-color: aliceblue ;
