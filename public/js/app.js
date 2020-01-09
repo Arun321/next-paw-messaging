@@ -1968,7 +1968,6 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 //
 //
 //
-//
 
 
 
@@ -2083,7 +2082,9 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_2___default.a);
         this.loadMore = false; // $('.loader').hide()
       }
     },
-    archivedContact: function archivedContact(value) {
+    archivedContact: function archivedContact() {
+      var _this3 = this;
+
       if (this.loadMore === true) {
         axios__WEBPACK_IMPORTED_MODULE_1___default()({
           url: 'https://1154558724803321-reviews.jenkins.nextpaw.com/graph-api',
@@ -2092,17 +2093,20 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_2___default.a);
           },
           method: 'POST',
           data: {
-            query: "{\n                                 {\n                                contactArchive(id: ".concat(value, ", clientId: 1, locationId: 1){\n                                    id\n                                    first_name\n                                    last_name\n                                    archived\n                                    error\n                                    message\n                                }\n                            }\n                        }")
+            query: "{\n                        contactArchive(id: ".concat(this.activeIndex, ", clientId: 1, locationId: 1){\n                                    id\n                                    first_name\n                                    last_name\n                                    archived\n                                    error\n                                    message\n                                    }\n                        }")
           }
         }).then(function (response) {
-          console.log(response.data.data.contactArchive.archived);
+          _this3.page = 0;
+          _this3.loadMore = true;
+
+          _this3.loadContacts(true);
         })["catch"](function (e) {
           return console.log(e);
-        });
+        }); // this.activeIndex=value
       }
     },
     loadMessage: function loadMessage(value, reload) {
-      var _this3 = this;
+      var _this4 = this;
 
       this.typedMessage = '';
 
@@ -2120,20 +2124,20 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_2___default.a);
           query: "{\n                             singleConversion(id: ".concat(value, ", clientId: 1, locationId: 1, page: 1, limit: 20){\n                            data {\n                                id\n                                first_name\n                                last_name\n                                contact_id\n                                body\n                                media_url\n                                receiver\n                                sender\n                                contact_created_at\n                                type\n                                status\n                                archived\n                                message_created_at\n                            }\n                            total\n                            per_page\n                        }\n                    }")
         }
       }).then(function (response) {
-        _this3.msgLoading = false;
-        _this3.messages = response.data.data.singleConversion.data.reverse();
+        _this4.msgLoading = false;
+        _this4.messages = response.data.data.singleConversion.data.reverse();
         setTimeout(function () {
-          _this3.scrollToEnd();
+          _this4.scrollToEnd();
         }, 400);
 
-        var activeContact = _this3.contacts.filter(function (elem) {
+        var activeContact = _this4.contacts.filter(function (elem) {
           if (elem.contact_id == value) return true;
         });
 
         console.log(activeContact); // if (activeContact[0].ps_id == 'null')
 
         var contactNum = !activeContact[0].ps_id ? ' | ' + activeContact[0].sender : '';
-        return _this3.activeTitle = activeContact[0].first_name + contactNum;
+        return _this4.activeTitle = activeContact[0].first_name + contactNum;
       })["catch"](function (e) {
         return console.log(e);
       });
@@ -2147,7 +2151,7 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_2___default.a);
       }
     },
     sendMessage: function sendMessage() {
-      var _this4 = this;
+      var _this5 = this;
 
       axios__WEBPACK_IMPORTED_MODULE_1___default()({
         url: 'https://1154558724803321-reviews.jenkins.nextpaw.com/graph-api',
@@ -2159,23 +2163,23 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_2___default.a);
           query: "mutation messageSendMutation\n                    {\n                        messageSendMutation(clientId: 1, locationId: 1, contactId: ".concat(this.activeIndex, ", body: \"").concat(this.typedMessage, "\",\n                       )\n                        {\n                        id\n                        error\n                        message\n                        }\n                    }")
         }
       }).then(function (response) {
-        _this4.typedMessage = '';
+        _this5.typedMessage = '';
         setTimeout(function () {
-          _this4.loadMessage(response.data.data.messageSendMutation.id, 'no');
+          _this5.loadMessage(response.data.data.messageSendMutation.id, 'no');
 
-          _this4.page = 1;
-          _this4.loadMore = true;
-          _this4.loadAll = true;
+          _this5.page = 1;
+          _this5.loadMore = true;
+          _this5.loadAll = true;
 
-          _this4.loadContacts(true);
+          _this5.loadContacts(true);
 
           setTimeout(function () {
-            _this4.scrollToTop();
+            _this5.scrollToTop();
           }, 400);
         }, 500);
         console.log(response);
       })["catch"](function (e) {
-        _this4.errors.push(e); // this.activeIndex = value
+        _this5.errors.push(e); // this.activeIndex = value
 
       });
     },
@@ -38462,11 +38466,7 @@ var render = function() {
                     "span",
                     {
                       staticClass: "archive-icon",
-                      on: {
-                        click: function($event) {
-                          return _vm.archivedContact()
-                        }
-                      }
+                      on: { click: _vm.archivedContact }
                     },
                     [
                       _c("i", {

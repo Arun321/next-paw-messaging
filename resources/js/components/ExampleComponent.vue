@@ -61,7 +61,6 @@
 <!--                        <div style="display: flex; justify-content: center">-->
 <!--                            <button v-if="" class="btn-success" @click="loadContacts">Load More</button>-->
 <!--                        </div>-->
-
                         <scroll-loader :loader-method="loadContacts" :loader-disable="!loadMore">
                         </scroll-loader>
                     </div>
@@ -73,7 +72,7 @@
                         <div class="col-md-12" >
                             <div class="toolbar__label current_name text-center" >
                                 <h4>{{ this.activeTitle }}</h4>
-                                <span class="archive-icon" v-on:click="archivedContact()" >
+                                <span class="archive-icon" v-on:click="archivedContact" >
 <!--                                    <img class="archive-img" src="https://image.flaticon.com/icons/svg/73/73581.svg" alt="">-->
                                     <i class="fa fa-archive" aria-hidden="true"></i>
                                 </span>
@@ -244,7 +243,7 @@
                 }
             },
 
-            archivedContact(value) {
+            archivedContact() {
                 if (this.loadMore === true) {
                     axios({
                         url: 'https://1154558724803321-reviews.jenkins.nextpaw.com/graph-api',
@@ -254,21 +253,22 @@
                         method: 'POST',
                         data: {
                             query: `{
-                                     {
-                                    contactArchive(id: ${value}, clientId: 1, locationId: 1){
+                            contactArchive(id: ${this.activeIndex}, clientId: 1, locationId: 1){
                                         id
                                         first_name
                                         last_name
                                         archived
                                         error
                                         message
-                                    }
-                                }
+                                        }
                             }`
                         }
-                    }).then(response =>{
-                        console.log(response.data.data.contactArchive.archived)
+                    }).then(response => {
+                        this.page = 0
+                        this.loadMore = true
+                        this.loadContacts(true)
                     }).catch((e) => console.log(e))
+                    // this.activeIndex=value
                 }
             },
 
