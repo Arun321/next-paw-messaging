@@ -13,12 +13,11 @@
                                     <button type="button" class="start_conversation" ><i class="fa fa-plus" aria-hidden="true"></i></button>
                                 </div>
                                 <div class="col-md-8" style="text-align: left;">
-                                    <select v-model="selectedOption" class="form-control filters" name="msg_filter" id="msg_filter" style="width: 220px;">
-                                        <option disabled value="">Please select one</option>
+                                    <select v-on:change="sortBy"  class="form-control filters" name="msg_filter" id="msg_filter" style="width: 220px;">
                                         <option value="all">All</option>
                                         <option value="unread">Unread</option>
                                         <option value="facebook">Facebook</option>
-                                        <option  value="text">Text</option>
+                                        <option value="text">Text</option>
                                         <option value="website">Website</option>
                                         <option value="archived">Archived</option>
                                     </select>
@@ -27,7 +26,7 @@
 
                             <div class="offset-md-2 srch_bar">
                                 <div class="stylish-input-group">
-                                    <input type="text" v-model="search" class="search-bar" placeholder="Search">
+                                    <input type="text" v-on:change="sortBy" v-model="search" class="search-bar" placeholder="Search">
                                     <span class="input-group-addon">
                                     <button type="button"> <i class="fa fa-search" aria-hidden="true"></i> </button>
                                             </span>
@@ -42,7 +41,7 @@
                     <div id="inbox_chat" class="inbox_chat" v-if="contacts.length > 0">
 
                         <div v-if="!contactLoading">
-                            <div class="chat_list" v-for="contact in filteredContacts"
+                            <div class="chat_list" v-for="contact in contacts"
                                  v-on:click="loadMessage(contact.contact_id, 'yes')"
                                  :class="{'active': contact.contact_id == activeIndex}">
                                 <div class="chat_people" >
@@ -149,27 +148,30 @@
             }
         },
         computed: {
-            filteredContacts: function () {
-                // this.loadMore = false;
-                // $('.loader').hide()
-                return this.contacts.filter((contact) => {
-                    if(this.selectedOption === 'facebook') {
-                        return contact.ps_id && contact.first_name.toLowerCase().match(this.search)
-                    } else if(this.selectedOption === 'text') {
-                        return !contact.ps_id && contact.first_name.toLowerCase().match(this.search)
-                    }else if (this.selectedOption === 'archived'){
-                        return contact.archived === 1 && contact.first_name.toLowerCase().match(this.search)
-                    }
-                    else {
-                        return contact.first_name.toLowerCase().match(this.search)
-                    }
-                })
-            }
+            // filteredContacts: function () {
+            //     // this.loadMore = false;
+            //     // $('.loader').hide()
+            //     return this.contacts.filter((contact) => {
+            //         if(this.selectedOption === 'facebook') {
+            //             return contact.ps_id && contact.first_name.toLowerCase().match(this.search)
+            //         } else if(this.selectedOption === 'text') {
+            //             return !contact.ps_id && contact.first_name.toLowerCase().match(this.search)
+            //         }else if (this.selectedOption === 'archived'){
+            //             return contact.archived === 1 && contact.first_name.toLowerCase().match(this.search)
+            //         }
+            //         else {
+            //             return contact.first_name.toLowerCase().match(this.search)
+            //         }
+            //     })
+            // }
         },
         mounted() {
             this.loadContacts()
         },
         methods: {
+            sortBy(e) {
+                this.filteredContacts(e.target.value)
+            },
             scrollToEnd (){
                 let container = document.querySelector('.msg_history');
                 let height = container.scrollHeight;
@@ -244,7 +246,6 @@
             },
 
             archivedContact() {
-                if (this.loadMore === true) {
                     axios({
                         url: 'https://1154558724803321-reviews.jenkins.nextpaw.com/graph-api',
                         headers: {
@@ -269,9 +270,51 @@
                         this.loadContacts(true)
                     }).catch((e) => console.log(e))
                     // this.activeIndex=value
-                }
+
             },
 
+            filteredContacts(filter, search = null){
+                axios({
+                    url: 'https://1154558724803321-reviews.jenkins.nextpaw.com/graph-api',
+                    headers: {
+                        Authorization: `Bearer ${this.user.token}`
+                    },
+                    method: 'POST',
+                    data:{
+                        query:`{
+                        search(clientId: 1, locationId: 1, contacts: 0,
+                                search: ${search},           ##optional
+                                filter: "${filter}",           ##all/facebook/text/unread/archive/website
+                                page: 1,
+                                limit: 100){
+                                            data{
+                                                id
+                                                contact_id
+                                                archived
+                                                first_name
+                                                last_name
+                                                body
+                                                media_url
+                                                message_created_at
+                                                deleted_at
+                                                type
+                                                status
+                                                sender
+                                                receiver
+                                                ps_id
+                                                unread_message_count
+                                            }
+                                            total
+                                            per_page
+                                }
+                        }`
+                    }
+                }).then(response =>{
+                    this.page = 0
+                    this.loadMore = true
+                    this.loadContacts(true)
+                }).catch((e) => console.log(e))
+            },
 
 
             loadMessage: function (value, reload) {

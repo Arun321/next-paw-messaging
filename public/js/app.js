@@ -1967,7 +1967,6 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 //
 //
 //
-//
 
 
 
@@ -1998,29 +1997,30 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_2___default.a);
       }
     }
   },
-  computed: {
-    filteredContacts: function filteredContacts() {
-      var _this = this;
-
-      // this.loadMore = false;
-      // $('.loader').hide()
-      return this.contacts.filter(function (contact) {
-        if (_this.selectedOption === 'facebook') {
-          return contact.ps_id && contact.first_name.toLowerCase().match(_this.search);
-        } else if (_this.selectedOption === 'text') {
-          return !contact.ps_id && contact.first_name.toLowerCase().match(_this.search);
-        } else if (_this.selectedOption === 'archived') {
-          return contact.archived === 1 && contact.first_name.toLowerCase().match(_this.search);
-        } else {
-          return contact.first_name.toLowerCase().match(_this.search);
-        }
-      });
-    }
+  computed: {// filteredContacts: function () {
+    //     // this.loadMore = false;
+    //     // $('.loader').hide()
+    //     return this.contacts.filter((contact) => {
+    //         if(this.selectedOption === 'facebook') {
+    //             return contact.ps_id && contact.first_name.toLowerCase().match(this.search)
+    //         } else if(this.selectedOption === 'text') {
+    //             return !contact.ps_id && contact.first_name.toLowerCase().match(this.search)
+    //         }else if (this.selectedOption === 'archived'){
+    //             return contact.archived === 1 && contact.first_name.toLowerCase().match(this.search)
+    //         }
+    //         else {
+    //             return contact.first_name.toLowerCase().match(this.search)
+    //         }
+    //     })
+    // }
   },
   mounted: function mounted() {
     this.loadContacts();
   },
   methods: {
+    sortBy: function sortBy(e) {
+      this.filteredContacts(e.target.value);
+    },
     scrollToEnd: function scrollToEnd() {
       var container = document.querySelector('.msg_history');
       var height = container.scrollHeight;
@@ -2037,7 +2037,7 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_2___default.a);
 
     },
     loadContacts: function loadContacts() {
-      var _this2 = this;
+      var _this = this;
 
       var refresh = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
       console.log('page', this.page);
@@ -2054,25 +2054,25 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_2___default.a);
             query: "{\n                         messages(clientId: 1, locationId: 1, page: ".concat(this.page, ", limit: 20){\n                          data{\n                                contact_id\n                                first_name\n                                last_name\n                                body\n                                media_url\n                                message_created_at\n                                deleted_at\n                                type\n                                status\n                                sender\n                                receiver\n                                ps_id\n                                archived\n                                unread_message_count\n                                 }\n                            total\n                            per_page\n                            }\n                        }")
           }
         }).then(function (response) {
-          var _this2$contacts;
+          var _this$contacts;
 
-          _this2.page++; // this.contacts = response.data.data.messages.data
+          _this.page++; // this.contacts = response.data.data.messages.data
 
           var temp = response.data.data.messages.data;
           console.log(response.data.data.messages.data); // console.log('refresh',refresh)
 
           if (refresh === true) {
-            _this2.contacts = [];
+            _this.contacts = [];
           }
 
-          (_this2$contacts = _this2.contacts).push.apply(_this2$contacts, _toConsumableArray(temp));
+          (_this$contacts = _this.contacts).push.apply(_this$contacts, _toConsumableArray(temp));
 
-          if (_this2.contacts.length >= response.data.data.messages.total) {
-            _this2.loadMore = false;
+          if (_this.contacts.length >= response.data.data.messages.total) {
+            _this.loadMore = false;
           }
 
-          if (_this2.loadAll && _this2.loadMore) {
-            _this2.loadContacts();
+          if (_this.loadAll && _this.loadMore) {
+            _this.loadContacts();
           } // response.data.data.messages.data.length < 20 ? (this.loadMore = false) : this.loadMore = true
 
         })["catch"](function (e) {
@@ -2083,27 +2083,47 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_2___default.a);
       }
     },
     archivedContact: function archivedContact() {
+      var _this2 = this;
+
+      axios__WEBPACK_IMPORTED_MODULE_1___default()({
+        url: 'https://1154558724803321-reviews.jenkins.nextpaw.com/graph-api',
+        headers: {
+          Authorization: "Bearer ".concat(this.user.token)
+        },
+        method: 'POST',
+        data: {
+          query: "{\n                        contactArchive(id: ".concat(this.activeIndex, ", clientId: 1, locationId: 1){\n                                    id\n                                    first_name\n                                    last_name\n                                    archived\n                                    error\n                                    message\n                                    }\n                        }")
+        }
+      }).then(function (response) {
+        _this2.page = 0;
+        _this2.loadMore = true;
+
+        _this2.loadContacts(true);
+      })["catch"](function (e) {
+        return console.log(e);
+      }); // this.activeIndex=value
+    },
+    filteredContacts: function filteredContacts(filter) {
       var _this3 = this;
 
-      if (this.loadMore === true) {
-        axios__WEBPACK_IMPORTED_MODULE_1___default()({
-          url: 'https://1154558724803321-reviews.jenkins.nextpaw.com/graph-api',
-          headers: {
-            Authorization: "Bearer ".concat(this.user.token)
-          },
-          method: 'POST',
-          data: {
-            query: "{\n                        contactArchive(id: ".concat(this.activeIndex, ", clientId: 1, locationId: 1){\n                                    id\n                                    first_name\n                                    last_name\n                                    archived\n                                    error\n                                    message\n                                    }\n                        }")
-          }
-        }).then(function (response) {
-          _this3.page = 0;
-          _this3.loadMore = true;
+      var search = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+      axios__WEBPACK_IMPORTED_MODULE_1___default()({
+        url: 'https://1154558724803321-reviews.jenkins.nextpaw.com/graph-api',
+        headers: {
+          Authorization: "Bearer ".concat(this.user.token)
+        },
+        method: 'POST',
+        data: {
+          query: "{\n                    search(clientId: 1, locationId: 1, contacts: 0,\n                            search: ".concat(search, ",           ##optional\n                            filter: \"").concat(filter, "\",           ##all/facebook/text/unread/archive/website\n                            page: 1,\n                            limit: 100){\n                                        data{\n                                            id\n                                            contact_id\n                                            archived\n                                            first_name\n                                            last_name\n                                            body\n                                            media_url\n                                            message_created_at\n                                            deleted_at\n                                            type\n                                            status\n                                            sender\n                                            receiver\n                                            ps_id\n                                            unread_message_count\n                                        }\n                                        total\n                                        per_page\n                            }\n                    }")
+        }
+      }).then(function (response) {
+        _this3.page = 0;
+        _this3.loadMore = true;
 
-          _this3.loadContacts(true);
-        })["catch"](function (e) {
-          return console.log(e);
-        }); // this.activeIndex=value
-      }
+        _this3.loadContacts(true);
+      })["catch"](function (e) {
+        return console.log(e);
+      });
     },
     loadMessage: function loadMessage(value, reload) {
       var _this4 = this;
@@ -38235,38 +38255,12 @@ var render = function() {
                       _c(
                         "select",
                         {
-                          directives: [
-                            {
-                              name: "model",
-                              rawName: "v-model",
-                              value: _vm.selectedOption,
-                              expression: "selectedOption"
-                            }
-                          ],
                           staticClass: "form-control filters",
                           staticStyle: { width: "220px" },
                           attrs: { name: "msg_filter", id: "msg_filter" },
-                          on: {
-                            change: function($event) {
-                              var $$selectedVal = Array.prototype.filter
-                                .call($event.target.options, function(o) {
-                                  return o.selected
-                                })
-                                .map(function(o) {
-                                  var val = "_value" in o ? o._value : o.value
-                                  return val
-                                })
-                              _vm.selectedOption = $event.target.multiple
-                                ? $$selectedVal
-                                : $$selectedVal[0]
-                            }
-                          }
+                          on: { change: _vm.sortBy }
                         },
                         [
-                          _c("option", { attrs: { disabled: "", value: "" } }, [
-                            _vm._v("Please select one")
-                          ]),
-                          _vm._v(" "),
                           _c("option", { attrs: { value: "all" } }, [
                             _vm._v("All")
                           ]),
@@ -38312,6 +38306,7 @@ var render = function() {
                     attrs: { type: "text", placeholder: "Search" },
                     domProps: { value: _vm.search },
                     on: {
+                      change: _vm.sortBy,
                       input: function($event) {
                         if ($event.target.composing) {
                           return
@@ -38354,7 +38349,7 @@ var render = function() {
                   !_vm.contactLoading
                     ? _c(
                         "div",
-                        _vm._l(_vm.filteredContacts, function(contact) {
+                        _vm._l(_vm.contacts, function(contact) {
                           return _c(
                             "div",
                             {
