@@ -13,20 +13,20 @@
                                     <button type="button" class="start_conversation" ><i class="fa fa-plus" aria-hidden="true"></i></button>
                                 </div>
                                 <div class="col-md-8" style="text-align: left;">
-                                    <select v-on:change="sortBy"  class="form-control filters" name="msg_filter" id="msg_filter" style="width: 220px;">
+                                    <select v-on:change="sortBy" v-model="selectedOption" class="form-control filters" name="msg_filter" id="msg_filter" style="width: 220px;">
                                         <option value="all">All</option>
                                         <option value="unread">Unread</option>
                                         <option value="facebook">Facebook</option>
                                         <option value="text">Text</option>
                                         <option value="website">Website</option>
-                                        <option value="archived">Archived</option>
+                                        <option value="archive">Archived</option>
                                     </select>
                                 </div>
                             </div>
 
                             <div class="offset-md-2 srch_bar">
-                                <div class="stylish-input-group">
-                                    <input type="text" v-on:change="sortBy" v-model="search" class="search-bar" placeholder="Search">
+                                <div class="stylish-input-group" >
+                                    <input type="text" v-on:keyup="searchData($event)" v-model="search" class="search-bar" placeholder="Search" >
                                     <span class="input-group-addon">
                                     <button type="button"> <i class="fa fa-search" aria-hidden="true"></i> </button>
                                             </span>
@@ -38,7 +38,7 @@
                     <div v-if="contactLoading" style="display: flex; justify-content: center; align-items: center;">
                         <i class="fa fa-circle-o-notch fa-spin" style="font-size: 45px; color: deepskyblue;"></i>
                     </div>
-                    <div id="inbox_chat" class="inbox_chat" v-if="contacts.length > 0">
+                    <div id="inbox_chat" class="inbox_chat" v-show="contacts.length > 0">
 
                         <div v-if="!contactLoading">
                             <div class="chat_list" v-for="contact in contacts"
@@ -57,11 +57,15 @@
                                 </div>
                             </div>
                         </div>
+                        <div v-if="loadMore" class="load">
+                            <h4>loading...</h4>
+                        </div>
 <!--                        <div style="display: flex; justify-content: center">-->
 <!--                            <button v-if="" class="btn-success" @click="loadContacts">Load More</button>-->
 <!--                        </div>-->
-                        <scroll-loader :loader-method="loadContacts" :loader-disable="!loadMore">
-                        </scroll-loader>
+
+<!--                        <scroll-loader :loader-method="loadContacts" :loader-disable="!loadMore">-->
+<!--                        </scroll-loader>-->
                     </div>
                 </div>
 
@@ -125,59 +129,77 @@
             return {
                 loadMore: true,
                 msgLoading: false,
-                contactLoading:false,
+                contactLoading: false,
+                filter: 'all',
                 activeIndex: 0,
                 loadAll: false,
                 activeTitle: '',
-                page:1,
+                page: 1,
+                filterPage: 1,
                 user: JSON.parse(localStorage.getItem('user')),
                 contacts: [],
                 typedMessage: '',
-                messages:[],
-                errors:[],
-                search:'',
-                selectedOption:''
+                messages: [],
+                errors: [],
+                search: '',
+                selectedOption: '',
+                scrollElm: ''
 
             }
         },
         watch: {
             selectedOption: {
-                handler (n, o) {
+                handler(n, o) {
                     this.search = ''
                 }
             }
         },
         computed: {
-            // filteredContacts: function () {
-            //     // this.loadMore = false;
-            //     // $('.loader').hide()
-            //     return this.contacts.filter((contact) => {
-            //         if(this.selectedOption === 'facebook') {
-            //             return contact.ps_id && contact.first_name.toLowerCase().match(this.search)
-            //         } else if(this.selectedOption === 'text') {
-            //             return !contact.ps_id && contact.first_name.toLowerCase().match(this.search)
-            //         }else if (this.selectedOption === 'archived'){
-            //             return contact.archived === 1 && contact.first_name.toLowerCase().match(this.search)
-            //         }
-            //         else {
-            //             return contact.first_name.toLowerCase().match(this.search)
-            //         }
-            //     })
-            // }
+
         },
         mounted() {
-            this.loadContacts()
+            this.filteredContacts()
+            this.scrollElm = document.querySelector('#inbox_chat')
+            this.loadOnScroll()
         },
         methods: {
-            sortBy(e) {
-                this.filteredContacts(e.target.value)
+            loadOnScroll () {
+                this.scrollElm.addEventListener('scroll', this.scrollListener)
             },
-            scrollToEnd (){
+            scrollListener () {
+                if (this.scrollElm.scrollTop + this.scrollElm.clientHeight >= this.scrollElm.scrollHeight) {
+
+                    if (this.loadMore) {
+                        this.filteredContacts()
+                    } else {
+                        this.loadMore = false
+                        // $('.loader').hide()
+                    }
+                    // this.filteredContacts(this.filter, this.search)
+
+                }
+            },
+            searchData(e) {
+                this.filterPage = 1
+                this.loadMore = true
+                this.search = e.target.value;
+                this.filteredContacts()
+            },
+
+
+            sortBy(e) {
+                this.filter = e.target.value;
+                this.filterPage = 1
+                this.loadMore = true
+                this.filter = e.target.value
+                this.filteredContacts()
+            },
+            scrollToEnd() {
                 let container = document.querySelector('.msg_history');
                 let height = container.scrollHeight;
                 container.scrollTop = height;
             },
-            scrollToTop(){
+            scrollToTop() {
                 var myDiv = document.getElementById('inbox_chat');
                 if (myDiv) {
                     myDiv.scrollTop = 0;
@@ -186,12 +208,11 @@
                 // let container = document.querySelector('.inbox_chat');
                 // let height = container.scrollHeight;
             },
+
+
             loadContacts(refresh = false) {
-                console.log('page',this.page)
-                console.log('loadmore',this.loadMore)
-                if(this.loadMore === true) {
                     axios({
-                        url: 'https://1154558724803321-reviews.jenkins.nextpaw.com/graph-api',
+                        url: 'https://1146270492621681-reviews.jenkins.nextpaw.com/graph-api',
                         headers: {
                             Authorization: `Bearer ${this.user.token}`
                         },
@@ -224,9 +245,11 @@
                         this.page++
                         // this.contacts = response.data.data.messages.data
                         let temp = response.data.data.messages.data;
+                        let totalCount = response.data.data.messages.total
+
                         console.log(response.data.data.messages.data)
                         // console.log('refresh',refresh)
-                        if(refresh === true){
+                        if (refresh === true) {
                             this.contacts = []
                         }
                         this.contacts.push(...temp)
@@ -239,21 +262,18 @@
                         }
                         // response.data.data.messages.data.length < 20 ? (this.loadMore = false) : this.loadMore = true
                     }).catch((e) => console.log(e))
-                } else{
-                    this.loadMore = false
-                    // $('.loader').hide()
-                }
+
             },
 
             archivedContact() {
-                    axios({
-                        url: 'https://1154558724803321-reviews.jenkins.nextpaw.com/graph-api',
-                        headers: {
-                            Authorization: `Bearer ${this.user.token}`
-                        },
-                        method: 'POST',
-                        data: {
-                            query: `{
+                axios({
+                    url: 'https://1146270492621681-reviews.jenkins.nextpaw.com/graph-api',
+                    headers: {
+                        Authorization: `Bearer ${this.user.token}`
+                    },
+                    method: 'POST',
+                    data: {
+                        query: `{
                             contactArchive(id: ${this.activeIndex}, clientId: 1, locationId: 1){
                                         id
                                         first_name
@@ -263,30 +283,38 @@
                                         message
                                         }
                             }`
-                        }
-                    }).then(response => {
-                        this.page = 0
-                        this.loadMore = true
-                        this.loadContacts(true)
-                    }).catch((e) => console.log(e))
-                    // this.activeIndex=value
+                    }
+                }).then(response => {
+                    this.filterPage = 1
+                    this.loadMore = true
+                    this.filteredContacts()
+                }).catch((e) => console.log(e))
+                // this.activeIndex=value
 
             },
 
-            filteredContacts(filter, search = null){
-                axios({
-                    url: 'https://1154558724803321-reviews.jenkins.nextpaw.com/graph-api',
-                    headers: {
-                        Authorization: `Bearer ${this.user.token}`
-                    },
-                    method: 'POST',
-                    data:{
-                        query:`{
+            filteredContacts() {
+                let filterSearch = '';
+                if (this.search === "" || this.search === null) {
+                    filterSearch = null
+                } else {
+                    filterSearch = '"' + this.search + '"'
+                }
+
+                if (this.loadMore === true) {
+                    axios({
+                        url: 'https://1146270492621681-reviews.jenkins.nextpaw.com/graph-api',
+                        headers: {
+                            Authorization: `Bearer ${this.user.token}`
+                        },
+                        method: 'POST',
+                        data: {
+                            query: `{
                         search(clientId: 1, locationId: 1, contacts: 0,
-                                search: ${search},           ##optional
-                                filter: "${filter}",           ##all/facebook/text/unread/archive/website
-                                page: 1,
-                                limit: 100){
+                                search: ${filterSearch},
+                                filter: "${this.filter}",
+                                page: ${this.filterPage},
+                                limit: 20){
                                             data{
                                                 id
                                                 contact_id
@@ -308,12 +336,26 @@
                                             per_page
                                 }
                         }`
-                    }
-                }).then(response =>{
-                    this.page = 0
-                    this.loadMore = true
-                    this.loadContacts(true)
-                }).catch((e) => console.log(e))
+                        }
+                    }).then(response => {
+                        if(this.filterPage === 1) {
+                            this.contacts = []
+                        }
+                        this.filterPage++
+                        let temp1 = response.data.data.search.data;
+                        console.log(response.data.data.search.data);
+                        this.loadMore = true
+                        if (temp1.length > 0) {
+
+                            this.contacts.push(...temp1)
+                        } else {
+                            this.loadMore = false
+                        }
+                        if(this.filterPage === 2 && temp1.length <= 0) {
+                            this.contacts = []
+                        }
+                    }).catch((e) => console.log(e))
+                }
             },
 
 
@@ -323,7 +365,7 @@
                     this.msgLoading = true;
                 }
                 axios({
-                    url: 'https://1154558724803321-reviews.jenkins.nextpaw.com/graph-api',
+                    url: 'https://1146270492621681-reviews.jenkins.nextpaw.com/graph-api',
                     headers: {
                         Authorization: `Bearer ${this.user.token}`
                     },
@@ -352,19 +394,18 @@
                         }`
                     }
                 }).then(response => {
-                        this.msgLoading = false;
-                        this.messages = response.data.data.singleConversion.data.reverse()
-
+                    this.msgLoading = false;
+                    this.messages = response.data.data.singleConversion.data.reverse()
                     setTimeout(() => {
                         this.scrollToEnd()
                     }, 400)
                     let activeContact = this.contacts.filter(function (elem) {
                         if (elem.contact_id == value) return true;
                     });
-                        console.log(activeContact)
-                        // if (activeContact[0].ps_id == 'null')
-                    let contactNum = !activeContact[0].ps_id ? ' | ' +activeContact[0].sender : ''
-                        return this.activeTitle = activeContact[0].first_name + contactNum
+                    console.log(activeContact)
+                    // if (activeContact[0].ps_id == 'null')
+                    let contactNum = !activeContact[0].ps_id ? ' | ' + activeContact[0].sender : ''
+                    return this.activeTitle = activeContact[0].first_name + contactNum
 
                 }).catch((e) => console.log(e));
                 this.activeIndex = value
@@ -379,7 +420,7 @@
             },
             sendMessage: function () {
                 axios({
-                    url: 'https://1154558724803321-reviews.jenkins.nextpaw.com/graph-api',
+                    url: 'https://1146270492621681-reviews.jenkins.nextpaw.com/graph-api',
                     headers: {
                         Authorization: `Bearer ${this.user.token}`
                     },
@@ -400,10 +441,10 @@
                     this.typedMessage = '';
                     setTimeout(() => {
                         this.loadMessage(response.data.data.messageSendMutation.id, 'no');
-                        this.page=1
-                        this.loadMore=true
+                        this.filterPage = 1
+                        this.loadMore = true
                         this.loadAll = true
-                        this.loadContacts(true)
+                        this.filteredContacts()
                         setTimeout(() => {
                             this.scrollToTop()
                         }, 400)
@@ -428,9 +469,6 @@
             },
             trunc(n) {
                 return (n && n.length > 15) ? n.substr(0, 10) + '...' : n
-            },
-            scrollListener(){
-
             }
         }
     }

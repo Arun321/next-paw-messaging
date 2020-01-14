@@ -1967,6 +1967,10 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 //
 //
 //
+//
+//
+//
+//
 
 
 
@@ -1977,17 +1981,20 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_2___default.a);
       loadMore: true,
       msgLoading: false,
       contactLoading: false,
+      filter: 'all',
       activeIndex: 0,
       loadAll: false,
       activeTitle: '',
       page: 1,
+      filterPage: 1,
       user: JSON.parse(localStorage.getItem('user')),
       contacts: [],
       typedMessage: '',
       messages: [],
       errors: [],
       search: '',
-      selectedOption: ''
+      selectedOption: '',
+      scrollElm: ''
     };
   },
   watch: {
@@ -1997,29 +2004,38 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_2___default.a);
       }
     }
   },
-  computed: {// filteredContacts: function () {
-    //     // this.loadMore = false;
-    //     // $('.loader').hide()
-    //     return this.contacts.filter((contact) => {
-    //         if(this.selectedOption === 'facebook') {
-    //             return contact.ps_id && contact.first_name.toLowerCase().match(this.search)
-    //         } else if(this.selectedOption === 'text') {
-    //             return !contact.ps_id && contact.first_name.toLowerCase().match(this.search)
-    //         }else if (this.selectedOption === 'archived'){
-    //             return contact.archived === 1 && contact.first_name.toLowerCase().match(this.search)
-    //         }
-    //         else {
-    //             return contact.first_name.toLowerCase().match(this.search)
-    //         }
-    //     })
-    // }
-  },
+  computed: {},
   mounted: function mounted() {
-    this.loadContacts();
+    this.filteredContacts();
+    this.scrollElm = document.querySelector('#inbox_chat');
+    this.loadOnScroll();
   },
   methods: {
+    loadOnScroll: function loadOnScroll() {
+      this.scrollElm.addEventListener('scroll', this.scrollListener);
+    },
+    scrollListener: function scrollListener() {
+      if (this.scrollElm.scrollTop + this.scrollElm.clientHeight >= this.scrollElm.scrollHeight) {
+        if (this.loadMore) {
+          this.filteredContacts();
+        } else {
+          this.loadMore = false; // $('.loader').hide()
+        } // this.filteredContacts(this.filter, this.search)
+
+      }
+    },
+    searchData: function searchData(e) {
+      this.filterPage = 1;
+      this.loadMore = true;
+      this.search = e.target.value;
+      this.filteredContacts();
+    },
     sortBy: function sortBy(e) {
-      this.filteredContacts(e.target.value);
+      this.filter = e.target.value;
+      this.filterPage = 1;
+      this.loadMore = true;
+      this.filter = e.target.value;
+      this.filteredContacts();
     },
     scrollToEnd: function scrollToEnd() {
       var container = document.querySelector('.msg_history');
@@ -2040,53 +2056,47 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_2___default.a);
       var _this = this;
 
       var refresh = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-      console.log('page', this.page);
-      console.log('loadmore', this.loadMore);
+      axios__WEBPACK_IMPORTED_MODULE_1___default()({
+        url: 'https://1146270492621681-reviews.jenkins.nextpaw.com/graph-api',
+        headers: {
+          Authorization: "Bearer ".concat(this.user.token)
+        },
+        method: 'POST',
+        data: {
+          query: "{\n                         messages(clientId: 1, locationId: 1, page: ".concat(this.page, ", limit: 20){\n                          data{\n                                contact_id\n                                first_name\n                                last_name\n                                body\n                                media_url\n                                message_created_at\n                                deleted_at\n                                type\n                                status\n                                sender\n                                receiver\n                                ps_id\n                                archived\n                                unread_message_count\n                                 }\n                            total\n                            per_page\n                            }\n                        }")
+        }
+      }).then(function (response) {
+        var _this$contacts;
 
-      if (this.loadMore === true) {
-        axios__WEBPACK_IMPORTED_MODULE_1___default()({
-          url: 'https://1154558724803321-reviews.jenkins.nextpaw.com/graph-api',
-          headers: {
-            Authorization: "Bearer ".concat(this.user.token)
-          },
-          method: 'POST',
-          data: {
-            query: "{\n                         messages(clientId: 1, locationId: 1, page: ".concat(this.page, ", limit: 20){\n                          data{\n                                contact_id\n                                first_name\n                                last_name\n                                body\n                                media_url\n                                message_created_at\n                                deleted_at\n                                type\n                                status\n                                sender\n                                receiver\n                                ps_id\n                                archived\n                                unread_message_count\n                                 }\n                            total\n                            per_page\n                            }\n                        }")
-          }
-        }).then(function (response) {
-          var _this$contacts;
+        _this.page++; // this.contacts = response.data.data.messages.data
 
-          _this.page++; // this.contacts = response.data.data.messages.data
+        var temp = response.data.data.messages.data;
+        var totalCount = response.data.data.messages.total;
+        console.log(response.data.data.messages.data); // console.log('refresh',refresh)
 
-          var temp = response.data.data.messages.data;
-          console.log(response.data.data.messages.data); // console.log('refresh',refresh)
+        if (refresh === true) {
+          _this.contacts = [];
+        }
 
-          if (refresh === true) {
-            _this.contacts = [];
-          }
+        (_this$contacts = _this.contacts).push.apply(_this$contacts, _toConsumableArray(temp));
 
-          (_this$contacts = _this.contacts).push.apply(_this$contacts, _toConsumableArray(temp));
+        if (_this.contacts.length >= response.data.data.messages.total) {
+          _this.loadMore = false;
+        }
 
-          if (_this.contacts.length >= response.data.data.messages.total) {
-            _this.loadMore = false;
-          }
+        if (_this.loadAll && _this.loadMore) {
+          _this.loadContacts();
+        } // response.data.data.messages.data.length < 20 ? (this.loadMore = false) : this.loadMore = true
 
-          if (_this.loadAll && _this.loadMore) {
-            _this.loadContacts();
-          } // response.data.data.messages.data.length < 20 ? (this.loadMore = false) : this.loadMore = true
-
-        })["catch"](function (e) {
-          return console.log(e);
-        });
-      } else {
-        this.loadMore = false; // $('.loader').hide()
-      }
+      })["catch"](function (e) {
+        return console.log(e);
+      });
     },
     archivedContact: function archivedContact() {
       var _this2 = this;
 
       axios__WEBPACK_IMPORTED_MODULE_1___default()({
-        url: 'https://1154558724803321-reviews.jenkins.nextpaw.com/graph-api',
+        url: 'https://1146270492621681-reviews.jenkins.nextpaw.com/graph-api',
         headers: {
           Authorization: "Bearer ".concat(this.user.token)
         },
@@ -2095,35 +2105,60 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_2___default.a);
           query: "{\n                        contactArchive(id: ".concat(this.activeIndex, ", clientId: 1, locationId: 1){\n                                    id\n                                    first_name\n                                    last_name\n                                    archived\n                                    error\n                                    message\n                                    }\n                        }")
         }
       }).then(function (response) {
-        _this2.page = 0;
+        _this2.filterPage = 1;
         _this2.loadMore = true;
 
-        _this2.loadContacts(true);
+        _this2.filteredContacts();
       })["catch"](function (e) {
         return console.log(e);
       }); // this.activeIndex=value
     },
-    filteredContacts: function filteredContacts(filter) {
+    filteredContacts: function filteredContacts() {
       var _this3 = this;
 
-      var search = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-      axios__WEBPACK_IMPORTED_MODULE_1___default()({
-        url: 'https://1154558724803321-reviews.jenkins.nextpaw.com/graph-api',
-        headers: {
-          Authorization: "Bearer ".concat(this.user.token)
-        },
-        method: 'POST',
-        data: {
-          query: "{\n                    search(clientId: 1, locationId: 1, contacts: 0,\n                            search: ".concat(search, ",           ##optional\n                            filter: \"").concat(filter, "\",           ##all/facebook/text/unread/archive/website\n                            page: 1,\n                            limit: 100){\n                                        data{\n                                            id\n                                            contact_id\n                                            archived\n                                            first_name\n                                            last_name\n                                            body\n                                            media_url\n                                            message_created_at\n                                            deleted_at\n                                            type\n                                            status\n                                            sender\n                                            receiver\n                                            ps_id\n                                            unread_message_count\n                                        }\n                                        total\n                                        per_page\n                            }\n                    }")
-        }
-      }).then(function (response) {
-        _this3.page = 0;
-        _this3.loadMore = true;
+      var filterSearch = '';
 
-        _this3.loadContacts(true);
-      })["catch"](function (e) {
-        return console.log(e);
-      });
+      if (this.search === "" || this.search === null) {
+        filterSearch = null;
+      } else {
+        filterSearch = '"' + this.search + '"';
+      }
+
+      if (this.loadMore === true) {
+        axios__WEBPACK_IMPORTED_MODULE_1___default()({
+          url: 'https://1146270492621681-reviews.jenkins.nextpaw.com/graph-api',
+          headers: {
+            Authorization: "Bearer ".concat(this.user.token)
+          },
+          method: 'POST',
+          data: {
+            query: "{\n                    search(clientId: 1, locationId: 1, contacts: 0,\n                            search: ".concat(filterSearch, ",\n                            filter: \"").concat(this.filter, "\",\n                            page: ").concat(this.filterPage, ",\n                            limit: 20){\n                                        data{\n                                            id\n                                            contact_id\n                                            archived\n                                            first_name\n                                            last_name\n                                            body\n                                            media_url\n                                            message_created_at\n                                            deleted_at\n                                            type\n                                            status\n                                            sender\n                                            receiver\n                                            ps_id\n                                            unread_message_count\n                                        }\n                                        total\n                                        per_page\n                            }\n                    }")
+          }
+        }).then(function (response) {
+          if (_this3.filterPage === 1) {
+            _this3.contacts = [];
+          }
+
+          _this3.filterPage++;
+          var temp1 = response.data.data.search.data;
+          console.log(response.data.data.search.data);
+          _this3.loadMore = true;
+
+          if (temp1.length > 0) {
+            var _this3$contacts;
+
+            (_this3$contacts = _this3.contacts).push.apply(_this3$contacts, _toConsumableArray(temp1));
+          } else {
+            _this3.loadMore = false;
+          }
+
+          if (_this3.filterPage === 2 && temp1.length <= 0) {
+            _this3.contacts = [];
+          }
+        })["catch"](function (e) {
+          return console.log(e);
+        });
+      }
     },
     loadMessage: function loadMessage(value, reload) {
       var _this4 = this;
@@ -2135,7 +2170,7 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_2___default.a);
       }
 
       axios__WEBPACK_IMPORTED_MODULE_1___default()({
-        url: 'https://1154558724803321-reviews.jenkins.nextpaw.com/graph-api',
+        url: 'https://1146270492621681-reviews.jenkins.nextpaw.com/graph-api',
         headers: {
           Authorization: "Bearer ".concat(this.user.token)
         },
@@ -2174,7 +2209,7 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_2___default.a);
       var _this5 = this;
 
       axios__WEBPACK_IMPORTED_MODULE_1___default()({
-        url: 'https://1154558724803321-reviews.jenkins.nextpaw.com/graph-api',
+        url: 'https://1146270492621681-reviews.jenkins.nextpaw.com/graph-api',
         headers: {
           Authorization: "Bearer ".concat(this.user.token)
         },
@@ -2187,11 +2222,11 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_2___default.a);
         setTimeout(function () {
           _this5.loadMessage(response.data.data.messageSendMutation.id, 'no');
 
-          _this5.page = 1;
+          _this5.filterPage = 1;
           _this5.loadMore = true;
           _this5.loadAll = true;
 
-          _this5.loadContacts(true);
+          _this5.filteredContacts();
 
           setTimeout(function () {
             _this5.scrollToTop();
@@ -2215,8 +2250,7 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_2___default.a);
     },
     trunc: function trunc(n) {
       return n && n.length > 15 ? n.substr(0, 10) + '...' : n;
-    },
-    scrollListener: function scrollListener() {}
+    }
   }
 });
 
@@ -2273,7 +2307,7 @@ __webpack_require__.r(__webpack_exports__);
       var _this = this;
 
       axios__WEBPACK_IMPORTED_MODULE_0___default()({
-        url: 'https://1154558724803321-reviews.jenkins.nextpaw.com/graph-api/secret',
+        url: 'https://1146270492621681-reviews.jenkins.nextpaw.com/graph-api/secret',
         method: 'post',
         data: {
           query: "{login(email:\"monika.kumari@hnrtech.com\", password:\"123456\") {\n                                 id\n                                 first_name\n                                 last_name\n                                 token\n                                 error\n                                 message\n                               }}"
@@ -38255,10 +38289,35 @@ var render = function() {
                       _c(
                         "select",
                         {
+                          directives: [
+                            {
+                              name: "model",
+                              rawName: "v-model",
+                              value: _vm.selectedOption,
+                              expression: "selectedOption"
+                            }
+                          ],
                           staticClass: "form-control filters",
                           staticStyle: { width: "220px" },
                           attrs: { name: "msg_filter", id: "msg_filter" },
-                          on: { change: _vm.sortBy }
+                          on: {
+                            change: [
+                              function($event) {
+                                var $$selectedVal = Array.prototype.filter
+                                  .call($event.target.options, function(o) {
+                                    return o.selected
+                                  })
+                                  .map(function(o) {
+                                    var val = "_value" in o ? o._value : o.value
+                                    return val
+                                  })
+                                _vm.selectedOption = $event.target.multiple
+                                  ? $$selectedVal
+                                  : $$selectedVal[0]
+                              },
+                              _vm.sortBy
+                            ]
+                          }
                         },
                         [
                           _c("option", { attrs: { value: "all" } }, [
@@ -38281,7 +38340,7 @@ var render = function() {
                             _vm._v("Website")
                           ]),
                           _vm._v(" "),
-                          _c("option", { attrs: { value: "archived" } }, [
+                          _c("option", { attrs: { value: "archive" } }, [
                             _vm._v("Archived")
                           ])
                         ]
@@ -38306,7 +38365,9 @@ var render = function() {
                     attrs: { type: "text", placeholder: "Search" },
                     domProps: { value: _vm.search },
                     on: {
-                      change: _vm.sortBy,
+                      keyup: function($event) {
+                        return _vm.searchData($event)
+                      },
                       input: function($event) {
                         if ($event.target.composing) {
                           return
@@ -38341,111 +38402,114 @@ var render = function() {
               )
             : _vm._e(),
           _vm._v(" "),
-          _vm.contacts.length > 0
-            ? _c(
-                "div",
-                { staticClass: "inbox_chat", attrs: { id: "inbox_chat" } },
-                [
-                  !_vm.contactLoading
-                    ? _c(
+          _c(
+            "div",
+            {
+              directives: [
+                {
+                  name: "show",
+                  rawName: "v-show",
+                  value: _vm.contacts.length > 0,
+                  expression: "contacts.length > 0"
+                }
+              ],
+              staticClass: "inbox_chat",
+              attrs: { id: "inbox_chat" }
+            },
+            [
+              !_vm.contactLoading
+                ? _c(
+                    "div",
+                    _vm._l(_vm.contacts, function(contact) {
+                      return _c(
                         "div",
-                        _vm._l(_vm.contacts, function(contact) {
-                          return _c(
-                            "div",
-                            {
-                              staticClass: "chat_list",
-                              class: {
-                                active: contact.contact_id == _vm.activeIndex
-                              },
-                              on: {
-                                click: function($event) {
-                                  return _vm.loadMessage(
-                                    contact.contact_id,
-                                    "yes"
-                                  )
+                        {
+                          staticClass: "chat_list",
+                          class: {
+                            active: contact.contact_id == _vm.activeIndex
+                          },
+                          on: {
+                            click: function($event) {
+                              return _vm.loadMessage(contact.contact_id, "yes")
+                            }
+                          }
+                        },
+                        [
+                          _c("div", { staticClass: "chat_people" }, [
+                            _c("div", { staticClass: "chat_img" }, [
+                              _c("img", {
+                                directives: [
+                                  {
+                                    name: "show",
+                                    rawName: "v-show",
+                                    value: !contact.ps_id,
+                                    expression: "!contact.ps_id"
+                                  }
+                                ],
+                                attrs: {
+                                  src:
+                                    "https://app.nextpaw.com/img/text-msg.png"
                                 }
-                              }
-                            },
-                            [
-                              _c("div", { staticClass: "chat_people" }, [
-                                _c("div", { staticClass: "chat_img" }, [
-                                  _c("img", {
-                                    directives: [
-                                      {
-                                        name: "show",
-                                        rawName: "v-show",
-                                        value: !contact.ps_id,
-                                        expression: "!contact.ps_id"
-                                      }
-                                    ],
-                                    attrs: {
-                                      src:
-                                        "https://app.nextpaw.com/img/text-msg.png"
-                                    }
-                                  }),
-                                  _vm._v(" "),
-                                  _c("img", {
-                                    directives: [
-                                      {
-                                        name: "show",
-                                        rawName: "v-show",
-                                        value: contact.ps_id,
-                                        expression: "contact.ps_id"
-                                      }
-                                    ],
-                                    attrs: {
-                                      src:
-                                        "https://app.nextpaw.com//img/fb-msg.png"
-                                    }
-                                  })
-                                ]),
-                                _vm._v(" "),
-                                _c("div", { staticClass: "chat_ib" }, [
-                                  _c("h5", [
-                                    _vm._v(
-                                      _vm._s(contact.first_name) +
-                                        " " +
-                                        _vm._s(contact.last_name) +
-                                        " "
-                                    ),
-                                    contact.archived === 1
-                                      ? _c("span", { staticClass: "archive" }, [
-                                          _vm._v("Archived")
-                                        ])
-                                      : _vm._e()
-                                  ]),
-                                  _vm._v(" "),
-                                  _c("p", [
-                                    _vm._v(_vm._s(_vm.trunc(contact.body))),
-                                    _c("span", { staticClass: "chat_date" }, [
-                                      _vm._v(
-                                        _vm._s(
-                                          _vm.format_date(
-                                            contact.message_created_at
-                                          )
-                                        )
-                                      )
+                              }),
+                              _vm._v(" "),
+                              _c("img", {
+                                directives: [
+                                  {
+                                    name: "show",
+                                    rawName: "v-show",
+                                    value: contact.ps_id,
+                                    expression: "contact.ps_id"
+                                  }
+                                ],
+                                attrs: {
+                                  src: "https://app.nextpaw.com//img/fb-msg.png"
+                                }
+                              })
+                            ]),
+                            _vm._v(" "),
+                            _c("div", { staticClass: "chat_ib" }, [
+                              _c("h5", [
+                                _vm._v(
+                                  _vm._s(contact.first_name) +
+                                    " " +
+                                    _vm._s(contact.last_name) +
+                                    " "
+                                ),
+                                contact.archived === 1
+                                  ? _c("span", { staticClass: "archive" }, [
+                                      _vm._v("Archived")
                                     ])
-                                  ])
+                                  : _vm._e()
+                              ]),
+                              _vm._v(" "),
+                              _c("p", [
+                                _vm._v(_vm._s(_vm.trunc(contact.body))),
+                                _c("span", { staticClass: "chat_date" }, [
+                                  _vm._v(
+                                    _vm._s(
+                                      _vm.format_date(
+                                        contact.message_created_at
+                                      )
+                                    )
+                                  )
                                 ])
                               ])
-                            ]
-                          )
-                        }),
-                        0
+                            ])
+                          ])
+                        ]
                       )
-                    : _vm._e(),
-                  _vm._v(" "),
-                  _c("scroll-loader", {
-                    attrs: {
-                      "loader-method": _vm.loadContacts,
-                      "loader-disable": !_vm.loadMore
-                    }
-                  })
-                ],
-                1
-              )
-            : _vm._e()
+                    }),
+                    0
+                  )
+                : _vm._e(),
+              _vm._v(" "),
+              _vm.loadMore
+                ? _c("div", { staticClass: "load" }, [
+                    _c("h4", [_vm._v("loading...")])
+                  ])
+                : _vm._e()
+            ]
+          )
         ]),
         _vm._v(" "),
         _c("div", { staticClass: "mesgs" }, [

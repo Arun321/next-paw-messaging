@@ -40,7 +40,7 @@
             login() {
 
                 axios({
-                    url: 'https://1154558724803321-reviews.jenkins.nextpaw.com/graph-api/secret',
+                    url: 'https://1146270492621681-reviews.jenkins.nextpaw.com/graph-api/secret',
                     method: 'post',
                     data: {
                         query: `{login(email:"monika.kumari@hnrtech.com", password:"123456") {
