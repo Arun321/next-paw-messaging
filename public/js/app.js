@@ -1981,7 +1981,7 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_2___default.a);
       loadMore: true,
       msgLoading: false,
       contactLoading: false,
-      filter: 'all',
+      filter: '',
       activeIndex: 0,
       loadAll: false,
       activeTitle: '',
@@ -1998,7 +1998,7 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_2___default.a);
     };
   },
   watch: {
-    selectedOption: {
+    sortBy: {
       handler: function handler(n, o) {
         this.search = '';
       }
@@ -2031,7 +2031,6 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_2___default.a);
       this.filteredContacts();
     },
     sortBy: function sortBy(e) {
-      this.filter = e.target.value;
       this.filterPage = 1;
       this.loadMore = true;
       this.filter = e.target.value;
@@ -2047,53 +2046,10 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_2___default.a);
 
       if (myDiv) {
         myDiv.scrollTop = 0;
-      } // console.log('scrolled')
-      // let container = document.querySelector('.inbox_chat');
-      // let height = container.scrollHeight;
-
-    },
-    loadContacts: function loadContacts() {
-      var _this = this;
-
-      var refresh = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-      axios__WEBPACK_IMPORTED_MODULE_1___default()({
-        url: 'https://1146270492621681-reviews.jenkins.nextpaw.com/graph-api',
-        headers: {
-          Authorization: "Bearer ".concat(this.user.token)
-        },
-        method: 'POST',
-        data: {
-          query: "{\n                         messages(clientId: 1, locationId: 1, page: ".concat(this.page, ", limit: 20){\n                          data{\n                                contact_id\n                                first_name\n                                last_name\n                                body\n                                media_url\n                                message_created_at\n                                deleted_at\n                                type\n                                status\n                                sender\n                                receiver\n                                ps_id\n                                archived\n                                unread_message_count\n                                 }\n                            total\n                            per_page\n                            }\n                        }")
-        }
-      }).then(function (response) {
-        var _this$contacts;
-
-        _this.page++; // this.contacts = response.data.data.messages.data
-
-        var temp = response.data.data.messages.data;
-        var totalCount = response.data.data.messages.total;
-        console.log(response.data.data.messages.data); // console.log('refresh',refresh)
-
-        if (refresh === true) {
-          _this.contacts = [];
-        }
-
-        (_this$contacts = _this.contacts).push.apply(_this$contacts, _toConsumableArray(temp));
-
-        if (_this.contacts.length >= response.data.data.messages.total) {
-          _this.loadMore = false;
-        }
-
-        if (_this.loadAll && _this.loadMore) {
-          _this.loadContacts();
-        } // response.data.data.messages.data.length < 20 ? (this.loadMore = false) : this.loadMore = true
-
-      })["catch"](function (e) {
-        return console.log(e);
-      });
+      }
     },
     archivedContact: function archivedContact() {
-      var _this2 = this;
+      var _this = this;
 
       axios__WEBPACK_IMPORTED_MODULE_1___default()({
         url: 'https://1146270492621681-reviews.jenkins.nextpaw.com/graph-api',
@@ -2105,16 +2061,16 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_2___default.a);
           query: "{\n                        contactArchive(id: ".concat(this.activeIndex, ", clientId: 1, locationId: 1){\n                                    id\n                                    first_name\n                                    last_name\n                                    archived\n                                    error\n                                    message\n                                    }\n                        }")
         }
       }).then(function (response) {
-        _this2.filterPage = 1;
-        _this2.loadMore = true;
+        _this.filterPage = 1;
+        _this.loadMore = true;
 
-        _this2.filteredContacts();
+        _this.filteredContacts();
       })["catch"](function (e) {
         return console.log(e);
       }); // this.activeIndex=value
     },
     filteredContacts: function filteredContacts() {
-      var _this3 = this;
+      var _this2 = this;
 
       var filterSearch = '';
 
@@ -2124,44 +2080,42 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_2___default.a);
         filterSearch = '"' + this.search + '"';
       }
 
-      if (this.loadMore === true) {
-        axios__WEBPACK_IMPORTED_MODULE_1___default()({
-          url: 'https://1146270492621681-reviews.jenkins.nextpaw.com/graph-api',
-          headers: {
-            Authorization: "Bearer ".concat(this.user.token)
-          },
-          method: 'POST',
-          data: {
-            query: "{\n                    search(clientId: 1, locationId: 1, contacts: 0,\n                            search: ".concat(filterSearch, ",\n                            filter: \"").concat(this.filter, "\",\n                            page: ").concat(this.filterPage, ",\n                            limit: 20){\n                                        data{\n                                            id\n                                            contact_id\n                                            archived\n                                            first_name\n                                            last_name\n                                            body\n                                            media_url\n                                            message_created_at\n                                            deleted_at\n                                            type\n                                            status\n                                            sender\n                                            receiver\n                                            ps_id\n                                            unread_message_count\n                                        }\n                                        total\n                                        per_page\n                            }\n                    }")
-          }
-        }).then(function (response) {
-          if (_this3.filterPage === 1) {
-            _this3.contacts = [];
-          }
+      axios__WEBPACK_IMPORTED_MODULE_1___default()({
+        url: 'https://1146270492621681-reviews.jenkins.nextpaw.com/graph-api',
+        headers: {
+          Authorization: "Bearer ".concat(this.user.token)
+        },
+        method: 'POST',
+        data: {
+          query: "{\n                    search(clientId: 1, locationId: 1, contacts: 0,\n                            search: ".concat(filterSearch, ",\n                            filter: \"").concat(this.filter, "\",\n                            page: ").concat(this.filterPage, ",\n                            limit: 15){\n                                        data{\n                                            id\n                                            contact_id\n                                            archived\n                                            first_name\n                                            last_name\n                                            body\n                                            media_url\n                                            message_created_at\n                                            deleted_at\n                                            type\n                                            status\n                                            sender\n                                            receiver\n                                            ps_id\n                                            unread_message_count\n                                        }\n                                        total\n                                        per_page\n                            }\n                    }")
+        }
+      }).then(function (response) {
+        if (_this2.filterPage === 1) {
+          _this2.contacts = [];
+        }
 
-          _this3.filterPage++;
-          var temp1 = response.data.data.search.data;
-          console.log(response.data.data.search.data);
-          _this3.loadMore = true;
+        _this2.filterPage++;
+        var temp1 = response.data.data.search.data;
+        console.log(temp1);
 
-          if (temp1.length > 0) {
-            var _this3$contacts;
+        if (temp1.length > 0) {
+          var _this2$contacts;
 
-            (_this3$contacts = _this3.contacts).push.apply(_this3$contacts, _toConsumableArray(temp1));
-          } else {
-            _this3.loadMore = false;
-          }
+          (_this2$contacts = _this2.contacts).push.apply(_this2$contacts, _toConsumableArray(temp1));
 
-          if (_this3.filterPage === 2 && temp1.length <= 0) {
-            _this3.contacts = [];
-          }
-        })["catch"](function (e) {
-          return console.log(e);
-        });
-      }
+          _this2.loadMore = true;
+        } else {
+          _this2.loadMore = false;
+        } // if(this.filterPage === 2 && temp1.length <= 0) {
+        //     this.contacts = []
+        // }
+
+      })["catch"](function (e) {
+        return console.log(e);
+      });
     },
     loadMessage: function loadMessage(value, reload) {
-      var _this4 = this;
+      var _this3 = this;
 
       this.typedMessage = '';
 
@@ -2179,20 +2133,20 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_2___default.a);
           query: "{\n                             singleConversion(id: ".concat(value, ", clientId: 1, locationId: 1, page: 1, limit: 20){\n                            data {\n                                id\n                                first_name\n                                last_name\n                                contact_id\n                                body\n                                media_url\n                                receiver\n                                sender\n                                contact_created_at\n                                type\n                                status\n                                archived\n                                message_created_at\n                            }\n                            total\n                            per_page\n                        }\n                    }")
         }
       }).then(function (response) {
-        _this4.msgLoading = false;
-        _this4.messages = response.data.data.singleConversion.data.reverse();
+        _this3.msgLoading = false;
+        _this3.messages = response.data.data.singleConversion.data.reverse();
         setTimeout(function () {
-          _this4.scrollToEnd();
+          _this3.scrollToEnd();
         }, 400);
 
-        var activeContact = _this4.contacts.filter(function (elem) {
+        var activeContact = _this3.contacts.filter(function (elem) {
           if (elem.contact_id == value) return true;
         });
 
         console.log(activeContact); // if (activeContact[0].ps_id == 'null')
 
         var contactNum = !activeContact[0].ps_id ? ' | ' + activeContact[0].sender : '';
-        return _this4.activeTitle = activeContact[0].first_name + contactNum;
+        return _this3.activeTitle = activeContact[0].first_name + contactNum;
       })["catch"](function (e) {
         return console.log(e);
       });
@@ -2206,7 +2160,7 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_2___default.a);
       }
     },
     sendMessage: function sendMessage() {
-      var _this5 = this;
+      var _this4 = this;
 
       axios__WEBPACK_IMPORTED_MODULE_1___default()({
         url: 'https://1146270492621681-reviews.jenkins.nextpaw.com/graph-api',
@@ -2218,23 +2172,22 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_2___default.a);
           query: "mutation messageSendMutation\n                    {\n                        messageSendMutation(clientId: 1, locationId: 1, contactId: ".concat(this.activeIndex, ", body: \"").concat(this.typedMessage, "\",\n                       )\n                        {\n                        id\n                        error\n                        message\n                        }\n                    }")
         }
       }).then(function (response) {
-        _this5.typedMessage = '';
+        _this4.typedMessage = '';
         setTimeout(function () {
-          _this5.loadMessage(response.data.data.messageSendMutation.id, 'no');
+          _this4.loadMessage(response.data.data.messageSendMutation.id, 'no');
 
-          _this5.filterPage = 1;
-          _this5.loadMore = true;
-          _this5.loadAll = true;
+          _this4.filterPage = 1;
+          _this4.loadMore = true; // this.loadAll = true
 
-          _this5.filteredContacts();
+          _this4.filteredContacts();
 
           setTimeout(function () {
-            _this5.scrollToTop();
+            _this4.scrollToTop();
           }, 400);
         }, 500);
         console.log(response);
       })["catch"](function (e) {
-        _this5.errors.push(e); // this.activeIndex = value
+        _this4.errors.push(e); // this.activeIndex = value
 
       });
     },

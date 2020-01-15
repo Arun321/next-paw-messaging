@@ -130,7 +130,7 @@
                 loadMore: true,
                 msgLoading: false,
                 contactLoading: false,
-                filter: 'all',
+                filter: '',
                 activeIndex: 0,
                 loadAll: false,
                 activeTitle: '',
@@ -148,7 +148,7 @@
             }
         },
         watch: {
-            selectedOption: {
+            sortBy: {
                 handler(n, o) {
                     this.search = ''
                 }
@@ -184,11 +184,11 @@
                 this.loadMore = true
                 this.search = e.target.value;
                 this.filteredContacts()
+
             },
 
 
             sortBy(e) {
-                this.filter = e.target.value;
                 this.filterPage = 1
                 this.loadMore = true
                 this.filter = e.target.value
@@ -204,66 +204,8 @@
                 if (myDiv) {
                     myDiv.scrollTop = 0;
                 }
-                // console.log('scrolled')
-                // let container = document.querySelector('.inbox_chat');
-                // let height = container.scrollHeight;
             },
 
-
-            loadContacts(refresh = false) {
-                    axios({
-                        url: 'https://1146270492621681-reviews.jenkins.nextpaw.com/graph-api',
-                        headers: {
-                            Authorization: `Bearer ${this.user.token}`
-                        },
-                        method: 'POST',
-                        data: {
-                            query: `{
-                             messages(clientId: 1, locationId: 1, page: ${this.page}, limit: 20){
-                              data{
-                                    contact_id
-                                    first_name
-                                    last_name
-                                    body
-                                    media_url
-                                    message_created_at
-                                    deleted_at
-                                    type
-                                    status
-                                    sender
-                                    receiver
-                                    ps_id
-                                    archived
-                                    unread_message_count
-                                     }
-                                total
-                                per_page
-                                }
-                            }`
-                        }
-                    }).then(response => {
-                        this.page++
-                        // this.contacts = response.data.data.messages.data
-                        let temp = response.data.data.messages.data;
-                        let totalCount = response.data.data.messages.total
-
-                        console.log(response.data.data.messages.data)
-                        // console.log('refresh',refresh)
-                        if (refresh === true) {
-                            this.contacts = []
-                        }
-                        this.contacts.push(...temp)
-
-                        if (this.contacts.length >= response.data.data.messages.total) {
-                            this.loadMore = false
-                        }
-                        if (this.loadAll && this.loadMore) {
-                            this.loadContacts()
-                        }
-                        // response.data.data.messages.data.length < 20 ? (this.loadMore = false) : this.loadMore = true
-                    }).catch((e) => console.log(e))
-
-            },
 
             archivedContact() {
                 axios({
@@ -300,8 +242,6 @@
                 } else {
                     filterSearch = '"' + this.search + '"'
                 }
-
-                if (this.loadMore === true) {
                     axios({
                         url: 'https://1146270492621681-reviews.jenkins.nextpaw.com/graph-api',
                         headers: {
@@ -314,7 +254,7 @@
                                 search: ${filterSearch},
                                 filter: "${this.filter}",
                                 page: ${this.filterPage},
-                                limit: 20){
+                                limit: 15){
                                             data{
                                                 id
                                                 contact_id
@@ -338,26 +278,24 @@
                         }`
                         }
                     }).then(response => {
-                        if(this.filterPage === 1) {
+                        if (this.filterPage === 1) {
                             this.contacts = []
                         }
                         this.filterPage++
                         let temp1 = response.data.data.search.data;
-                        console.log(response.data.data.search.data);
-                        this.loadMore = true
-                        if (temp1.length > 0) {
+                        console.log(temp1)
 
+                        if (temp1.length > 0) {
                             this.contacts.push(...temp1)
+                            this.loadMore = true
                         } else {
                             this.loadMore = false
                         }
-                        if(this.filterPage === 2 && temp1.length <= 0) {
-                            this.contacts = []
-                        }
+                        // if(this.filterPage === 2 && temp1.length <= 0) {
+                        //     this.contacts = []
+                        // }
                     }).catch((e) => console.log(e))
-                }
-            },
-
+                },
 
             loadMessage: function (value, reload) {
                 this.typedMessage = '';
@@ -443,7 +381,7 @@
                         this.loadMessage(response.data.data.messageSendMutation.id, 'no');
                         this.filterPage = 1
                         this.loadMore = true
-                        this.loadAll = true
+                        // this.loadAll = true
                         this.filteredContacts()
                         setTimeout(() => {
                             this.scrollToTop()
