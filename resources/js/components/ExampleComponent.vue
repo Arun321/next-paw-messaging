@@ -1,87 +1,36 @@
 <template>
     <div class="container">
-            <h3 class=" text-center">Messaging</h3>
+        <h3 class=" text-center">Messaging</h3>
         <div class="messaging">
-
-            <div class="inbox_msg">
-                <div class="inbox_people">
-                    <div class="headind_srch">
-                        <div class="row">
-                            <div class="col-md-12 form-group contacts_header plus-icon"
-                                 style="display: inline-flex;padding-left: 0px !important;">
-                                <div class="col-md-2 offset-md-1" style="padding: 0px !important;">
-                                    <button type="button" class="start_conversation" ><i class="fa fa-plus" aria-hidden="true"></i></button>
-                                </div>
-                                <div class="col-md-8" style="text-align: left;">
-                                    <select v-on:change="sortBy" v-model="selectedOption" class="form-control filters" name="msg_filter" id="msg_filter" style="width: 220px;">
-                                        <option value="all">All</option>
-                                        <option value="unread">Unread</option>
-                                        <option value="facebook">Facebook</option>
-                                        <option value="text">Text</option>
-                                        <option value="website">Website</option>
-                                        <option value="archive">Archived</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="offset-md-2 srch_bar">
-                                <div class="stylish-input-group" >
-                                    <input type="text" v-on:keyup="searchData($event)" v-model="search" class="search-bar" placeholder="Search" >
-                                    <span class="input-group-addon">
-                                    <button type="button"> <i class="fa fa-search" aria-hidden="true"></i> </button>
-                                            </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div v-if="contactLoading" style="display: flex; justify-content: center; align-items: center;">
-                        <i class="fa fa-circle-o-notch fa-spin" style="font-size: 45px; color: deepskyblue;"></i>
-                    </div>
-                    <div id="inbox_chat" class="inbox_chat" v-show="contacts.length > 0">
-
-                        <div v-if="!contactLoading">
-                            <div class="chat_list" v-for="contact in contacts"
-                                 v-on:click="loadMessage(contact.contact_id, 'yes')"
-                                 :class="{'active': contact.contact_id == activeIndex}">
-                                <div class="chat_people" >
-                                    <div class="chat_img">
-                                        <img v-show="!contact.ps_id" src="https://app.nextpaw.com/img/text-msg.png">
-                                        <img v-show="contact.ps_id" src="https://app.nextpaw.com//img/fb-msg.png">
-                                    </div>
-                                    <div class="chat_ib">
-                                        <h5>{{contact.first_name}} {{contact.last_name}} <span class="archive" v-if="contact.archived === 1">Archived</span></h5>
-                                        <p>{{ trunc(contact.body) }}<span class="chat_date">{{ format_date(contact.message_created_at) }}</span>
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div v-if="loadMore" class="load">
-                            <h4>loading...</h4>
-                        </div>
-<!--                        <div style="display: flex; justify-content: center">-->
-<!--                            <button v-if="" class="btn-success" @click="loadContacts">Load More</button>-->
-<!--                        </div>-->
-
-<!--                        <scroll-loader :loader-method="loadContacts" :loader-disable="!loadMore">-->
-<!--                        </scroll-loader>-->
-                    </div>
-                </div>
-
-
-                <div class="mesgs">
-                    <div class="sticky">
-                        <div class="col-md-12" >
-                            <div class="toolbar__label current_name text-center" >
-                                <h4>{{ this.activeTitle }}</h4>
-                                <span class="archive-icon" v-on:click="archivedContact" >
-<!--                                    <img class="archive-img" src="https://image.flaticon.com/icons/svg/73/73581.svg" alt="">-->
+            <div style="background-color:#f8f8f8" class="header col-md-12 sticky">
+                <button type="button" class="start_conversation"
+                        data-toggle="modal" data-target="#myModal"><i class="fa fa-plus"
+                                                                      aria-hidden="true"></i>
+                </button>
+                    <div class="toolbar__label current_name text-center">
+                        <h4>{{ this.activeTitle }}</h4>
+                        <span class="archive-icon" v-on:click="archivedContact">
                                     <i class="fa fa-archive" aria-hidden="true"></i>
                                 </span>
-                            </div>
-                        </div>
                     </div>
+
+            </div>
+            <div class="inbox_msg">
+                <div style="width: 40%">
+                    <ListContact id="1" :zeroOrOne="0" :loadMessage="loadMessage"></ListContact>
+                </div>
+
+                <div class="mesgs">
+<!--                    <div class="sticky">-->
+<!--                        <div class="col-md-12">-->
+<!--                            <div class="toolbar__label current_name text-center">-->
+<!--                                <h4>{{ this.activeTitle }}</h4>-->
+<!--                                <span class="archive-icon" v-on:click="archivedContact">-->
+<!--                                    <i class="fa fa-archive" aria-hidden="true"></i>-->
+<!--                                </span>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
                     <div v-if="msgLoading" style="display: flex; justify-content: center; align-items: center;">
                         <i class="fa fa-circle-o-notch fa-spin" style="font-size: 45px; color: blue;"></i>
                     </div>
@@ -91,25 +40,43 @@
                                  :class="messageType(message.type, 'incoming_msg', 'outgoing_msg')">
                                 <div :class="messageType(message.type, 'received_msg', 'sent_msg')">
                                     <div :class="messageType(message.type, 'received_withd_msg', 'sent_withd_msg')">
-                                        <p>{{message.body}}</p>
-                                        <span class="time_date"> {{format_time_date( message.message_created_at) }}</span>
+                                        <p v-if="message.body" class="text-msg">{{message.body}}</p>
+                                        <p v-if="!message.body" class="text-img"><img v-bind:src="message.media_url" /></p>
+                                        <span
+                                            class="time_date"> {{format_time_date( message.message_created_at) }}</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
 
-                        <div class="type_msg" >
-                            <div class="input_msg_write" >
-                                <input type="text"  class="write_msg" placeholder="Type a message" v-model="typedMessage" />
+                        <div class="type_msg">
+                            <div class="input_msg_write">
+                                <input type="text" class="write_msg" placeholder="Type a message"
+                                       v-model="typedMessage"/>
                                 <button class="msg_send_btn" type="button" v-on:click="sendMessage">
                                     <i class="fa fa-paper-plane-o"
                                        aria-hidden="true">
                                     </i>
                                 </button>
+                                <input id="img_upload" type="file" v-on:change="encodeImageFileAsURL" hidden>
+                                <button class="img_send_btn" id="btn_upload" type="file" v-on:click="image">
+                                    <i class="fa fa-paperclip" aria-hidden="true"></i>
+                                </button>
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="myModal" role="dialog">
+            <div class="modal-dialog">
+                <!--          modal content  -->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <ListContact id="2" :zeroOrOne="1" :loadMessage="loadMessage"></ListContact>
                 </div>
             </div>
         </div>
@@ -118,33 +85,36 @@
 
 
 <script>
-    import moment from 'moment';
     import axios from 'axios';
     import ScrollLoader from 'vue-scroll-loader';
+    import AddContact from "./AddContact";
+    import ListContact from "./ListContact";
+    import moment from 'moment';
+
 
     Vue.use(ScrollLoader)
 
     export default {
+        components: {
+            ListContact,
+            AddContact
+        },
         data() {
             return {
-                loadMore: true,
                 msgLoading: false,
                 contactLoading: false,
-                filter: '',
                 activeIndex: 0,
-                loadAll: false,
                 activeTitle: '',
+                filter: 'all',
                 page: 1,
+                allContacts: [],
                 filterPage: 1,
                 user: JSON.parse(localStorage.getItem('user')),
-                contacts: [],
                 typedMessage: '',
                 messages: [],
                 errors: [],
-                search: '',
-                selectedOption: '',
-                scrollElm: ''
-
+                btnUpload: '',
+                msg: ''
             }
         },
         watch: {
@@ -154,58 +124,47 @@
                 }
             }
         },
-        computed: {
-
-        },
         mounted() {
-            this.filteredContacts()
-            this.scrollElm = document.querySelector('#inbox_chat')
-            this.loadOnScroll()
+
         },
         methods: {
-            loadOnScroll () {
-                this.scrollElm.addEventListener('scroll', this.scrollListener)
+            image() {
+                document.getElementById('img_upload').click();
+                // this.btnUpload.addEventListener("click",this.uploadImage)
             },
-            scrollListener () {
-                if (this.scrollElm.scrollTop + this.scrollElm.clientHeight >= this.scrollElm.scrollHeight) {
+            uploadImg(event) {
+                var name = event.target.files[0]
+                console.log(name)
+                // this.btnUpload.addEventListener("click",this.uploadImage)
+            },
+            encodeImageFileAsURL(element) {
+                var file = element.files[0];
+                var reader = new FileReader();
+                reader.onloadend = function () {
+                    console.log('RESULT', reader.result)
+                }
+                reader.readAsDataURL(file);
+            },
 
-                    if (this.loadMore) {
-                        this.filteredContacts()
-                    } else {
-                        this.loadMore = false
-                        // $('.loader').hide()
-                    }
-                    // this.filteredContacts(this.filter, this.search)
-
+            format_time_date(value) {
+                if (value) {
+                    return moment(String(value)).format('MM/DD/YYYY | h:mm a')
                 }
             },
-            searchData(e) {
-                this.filterPage = 1
-                this.loadMore = true
-                this.search = e.target.value;
-                this.filteredContacts()
-
-            },
-
-
-            sortBy(e) {
-                this.filterPage = 1
-                this.loadMore = true
-                this.filter = e.target.value
-                this.filteredContacts()
-            },
-            scrollToEnd() {
-                let container = document.querySelector('.msg_history');
-                let height = container.scrollHeight;
-                container.scrollTop = height;
-            },
             scrollToTop() {
-                var myDiv = document.getElementById('inbox_chat');
+                var myDiv = document.getElementById('inbox_chat' + this.id);
                 if (myDiv) {
                     myDiv.scrollTop = 0;
                 }
             },
 
+
+
+            scrollToEnd() {
+                let container = document.querySelector('.msg_history');
+                let height = container.scrollHeight;
+                container.scrollTop = height;
+            },
 
             archivedContact() {
                 axios({
@@ -235,69 +194,13 @@
 
             },
 
-            filteredContacts() {
-                let filterSearch = '';
-                if (this.search === "" || this.search === null) {
-                    filterSearch = null
+            loadMessage(listContacts, value, reload) {
+                if(listContacts) {
+                    this.allContacts = listContacts;
                 } else {
-                    filterSearch = '"' + this.search + '"'
+                    return false;
                 }
-                    axios({
-                        url: 'https://1146270492621681-reviews.jenkins.nextpaw.com/graph-api',
-                        headers: {
-                            Authorization: `Bearer ${this.user.token}`
-                        },
-                        method: 'POST',
-                        data: {
-                            query: `{
-                        search(clientId: 1, locationId: 1, contacts: 0,
-                                search: ${filterSearch},
-                                filter: "${this.filter}",
-                                page: ${this.filterPage},
-                                limit: 15){
-                                            data{
-                                                id
-                                                contact_id
-                                                archived
-                                                first_name
-                                                last_name
-                                                body
-                                                media_url
-                                                message_created_at
-                                                deleted_at
-                                                type
-                                                status
-                                                sender
-                                                receiver
-                                                ps_id
-                                                unread_message_count
-                                            }
-                                            total
-                                            per_page
-                                }
-                        }`
-                        }
-                    }).then(response => {
-                        if (this.filterPage === 1) {
-                            this.contacts = []
-                        }
-                        this.filterPage++
-                        let temp1 = response.data.data.search.data;
-                        console.log(temp1)
-
-                        if (temp1.length > 0) {
-                            this.contacts.push(...temp1)
-                            this.loadMore = true
-                        } else {
-                            this.loadMore = false
-                        }
-                        // if(this.filterPage === 2 && temp1.length <= 0) {
-                        //     this.contacts = []
-                        // }
-                    }).catch((e) => console.log(e))
-                },
-
-            loadMessage: function (value, reload) {
+                // console.log('test')
                 this.typedMessage = '';
                 if (reload == 'yes') {
                     this.msgLoading = true;
@@ -337,17 +240,20 @@
                     setTimeout(() => {
                         this.scrollToEnd()
                     }, 400)
-                    let activeContact = this.contacts.filter(function (elem) {
+
+                    let activeContact = listContacts.filter(function (elem) {
                         if (elem.contact_id == value) return true;
                     });
-                    console.log(activeContact)
                     // if (activeContact[0].ps_id == 'null')
                     let contactNum = !activeContact[0].ps_id ? ' | ' + activeContact[0].sender : ''
-                    return this.activeTitle = activeContact[0].first_name + contactNum
+                    this.activeTitle = activeContact[0].first_name + contactNum
 
                 }).catch((e) => console.log(e));
-                this.activeIndex = value
+                this.activeIndex = value;
+                return value;
             },
+
+
 
             messageType: function (type, class1, class2) {
                 if (type === 'received') {
@@ -378,35 +284,21 @@
                 }).then(response => {
                     this.typedMessage = '';
                     setTimeout(() => {
-                        this.loadMessage(response.data.data.messageSendMutation.id, 'no');
+                        this.loadMessage(this.allContacts, response.data.data.messageSendMutation.id, 'no');
                         this.filterPage = 1
                         this.loadMore = true
                         // this.loadAll = true
-                        this.filteredContacts()
+                        //this.filteredContacts()
                         setTimeout(() => {
                             this.scrollToTop()
                         }, 400)
-                    }, 500);
+                    }, 1000);
                     console.log(response)
                 })
                     .catch(e => {
                         this.errors.push(e)
                         // this.activeIndex = value
                     })
-            },
-            format_date(value) {
-                if (value) {
-                    return moment(String(value)).format('MM/DD/YYYY')
-                }
-            },
-
-            format_time_date(value) {
-                if (value) {
-                    return moment(String(value)).format('MM/DD/YYYY | h:mm a')
-                }
-            },
-            trunc(n) {
-                return (n && n.length > 15) ? n.substr(0, 10) + '...' : n
             }
         }
     }
@@ -414,9 +306,15 @@
 
 
 <style scoped>
+    .header{
+
+        border: 1px solid #b6b6b6;
+        border-bottom: 0;
+        padding: 8px 22px;
+    }
     .sticky {
-        position: -webkit-sticky;
-        position: sticky;
+        /*position: -webkit-sticky;*/
+        /*position: sticky;*/
         top: 0;
         padding: 5px;
         /*background-color: #cae8ca;*/
@@ -458,7 +356,7 @@
         background: #f8f8f8 none repeat scroll 0 0;
         float: left;
         overflow: hidden;
-        width: 40%;
+        width: 100%;
         border-right: 1px solid #c4c4c4;
     }
 
@@ -466,6 +364,7 @@
         border: 1px solid #c4c4c4;
         clear: both;
         overflow: hidden;
+        border-top: 0;
     }
 
     .top_spac {
@@ -564,7 +463,7 @@
 
     .inbox_chat {
         scroll-behavior: smooth;
-        max-height: 531px;
+        max-height: 520px;
         overflow-y: scroll;
     }
 
@@ -661,6 +560,20 @@
         width: 33px;
     }
 
+    .img_send_btn {
+        background: #05728f none repeat scroll 0 0;
+        border: medium none;
+        border-radius: 50%;
+        color: #fff;
+        cursor: pointer;
+        font-size: 17px;
+        height: 33px;
+        position: absolute;
+        right: 40px;
+        top: 11px;
+        width: 33px;
+    }
+
     .messaging {
         padding: 0 0 50px 0;
     }
@@ -670,12 +583,22 @@
         overflow-y: scroll;
     }
 
-    .chat_date { font-size:13px; float:right; font-weight: bold;color: #4c4c4c;}
+    .chat_date {
+        font-size: 13px;
+        float: right;
+        font-weight: bold;
+        color: #4c4c4c;
+    }
 
-    .archive{font-size:13px; float:right; font-weight: bold;color: #4c4c4c;}
+    .archive {
+        font-size: 13px;
+        float: right;
+        font-weight: bold;
+        color: #4c4c4c;
+    }
 
     .active {
-        background-color: aliceblue ;
+        background-color: aliceblue;
     }
 </style>
 
