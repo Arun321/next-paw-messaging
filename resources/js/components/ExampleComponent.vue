@@ -8,7 +8,7 @@
                                                                       aria-hidden="true"></i>
                 </button>
                     <div class="toolbar__label current_name text-center">
-                        <h4>{{ this.activeTitle }}</h4>
+                        <h4 style="text-align: right;">{{ this.activeTitle }}</h4>
                         <span class="archive-icon" v-on:click="archivedContact">
                                     <i class="fa fa-archive" aria-hidden="true"></i>
                                 </span>
@@ -41,7 +41,7 @@
                                 <div :class="messageType(message.type, 'received_msg', 'sent_msg')">
                                     <div :class="messageType(message.type, 'received_withd_msg', 'sent_withd_msg')">
                                         <p v-if="message.body" class="text-msg">{{message.body}}</p>
-                                        <p v-if="!message.body" class="text-img"><img v-bind:src="message.media_url" /></p>
+                                        <p v-if="message.media_url" class="text-img"><img v-bind:src="message.media_url" /></p>
                                         <span
                                             class="time_date"> {{format_time_date( message.message_created_at) }}</span>
                                     </div>
@@ -50,8 +50,8 @@
                         </div>
 
 
-                        <div class="type_msg">
-                            <div class="input_msg_write">
+                        <div class="type_msg" v-show="activeIndex" style="display: none">
+                            <div class="input_msg_write" >
                                 <input type="text" class="write_msg" placeholder="Type a message"
                                        v-model="typedMessage"/>
                                 <button class="msg_send_btn" type="button" v-on:click="sendMessage">
@@ -60,6 +60,7 @@
                                     </i>
                                 </button>
                                 <input id="img_upload" type="file" v-on:change="encodeImageFileAsURL" hidden>
+
                                 <button class="img_send_btn" id="btn_upload" type="file" v-on:click="image">
                                     <i class="fa fa-paperclip" aria-hidden="true"></i>
                                 </button>
@@ -76,7 +77,7 @@
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal">&times;</button>
                     </div>
-                    <ListContact id="2" :zeroOrOne="1" :loadMessage="loadMessage"></ListContact>
+                    <ListContact id="2"  :zeroOrOne="1"></ListContact>
                 </div>
             </div>
         </div>
@@ -111,9 +112,11 @@
                 filterPage: 1,
                 user: JSON.parse(localStorage.getItem('user')),
                 typedMessage: '',
+                base64Image: '',
                 messages: [],
                 errors: [],
                 btnUpload: '',
+                myCanvas:'',
                 msg: ''
             }
         },
@@ -130,21 +133,22 @@
         methods: {
             image() {
                 document.getElementById('img_upload').click();
-                // this.btnUpload.addEventListener("click",this.uploadImage)
             },
-            uploadImg(event) {
-                var name = event.target.files[0]
-                console.log(name)
-                // this.btnUpload.addEventListener("click",this.uploadImage)
-            },
-            encodeImageFileAsURL(element) {
-                var file = element.files[0];
+            encodeImageFileAsURL(event) {
+                var file = event.target.files[0];
+                console.log(file.name)
                 var reader = new FileReader();
+                let vm = this
                 reader.onloadend = function () {
-                    console.log('RESULT', reader.result)
+                    vm.base64Image = reader.result.split(',')[1]
                 }
                 reader.readAsDataURL(file);
             },
+
+            // uploadCanvasImage(){
+            //     const base64 = myCanvas.toDataURL()
+            //     console.log(base64)
+            // },
 
             format_time_date(value) {
                 if (value) {
@@ -273,6 +277,7 @@
                         query: `mutation messageSendMutation
                         {
                             messageSendMutation(clientId: 1, locationId: 1, contactId: ${this.activeIndex}, body: "${this.typedMessage}",
+                            asset_id: "${this.base64Image}", image_name: "uploadImage"
                            )
                             {
                             id
@@ -600,5 +605,6 @@
     .active {
         background-color: aliceblue;
     }
+
 </style>
 

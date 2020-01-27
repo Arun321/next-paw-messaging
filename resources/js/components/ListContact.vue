@@ -94,9 +94,7 @@
                 selectedOption: '',
                 scrollElm: '',
                 btnUpload: '',
-                msg: ''
-
-
+                msg: '',
             }
         },
         mounted() {
@@ -137,6 +135,8 @@
                 } else {
                     filterSearch = '"' + this.listSearch + '"'
                 }
+
+
                 axios({
                     url: 'https://1146270492621681-reviews.jenkins.nextpaw.com/graph-api',
                     headers: {
@@ -173,6 +173,7 @@
                         }`
                     }
                 }).then(response => {
+
                     if (this.listFilterPage === 1) {
                         this.listContacts = []
                     }
@@ -498,4 +499,9 @@
     .active {
         background-color: aliceblue;
     }
+    div#myModal .filters {
+        display: none;
+    }
+
+
 </style>

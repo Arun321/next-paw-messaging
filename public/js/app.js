@@ -1967,6 +1967,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 
 
 
@@ -1990,9 +1991,11 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_1___default.a);
       filterPage: 1,
       user: JSON.parse(localStorage.getItem('user')),
       typedMessage: '',
+      base64Image: '',
       messages: [],
       errors: [],
       btnUpload: '',
+      myCanvas: '',
       msg: ''
     };
   },
@@ -2006,22 +2009,24 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_1___default.a);
   mounted: function mounted() {},
   methods: {
     image: function image() {
-      document.getElementById('img_upload').click(); // this.btnUpload.addEventListener("click",this.uploadImage)
+      document.getElementById('img_upload').click();
     },
-    uploadImg: function uploadImg(event) {
-      var name = event.target.files[0];
-      console.log(name); // this.btnUpload.addEventListener("click",this.uploadImage)
-    },
-    encodeImageFileAsURL: function encodeImageFileAsURL(element) {
-      var file = element.files[0];
+    encodeImageFileAsURL: function encodeImageFileAsURL(event) {
+      var file = event.target.files[0];
+      console.log(file.name);
       var reader = new FileReader();
+      var vm = this;
 
       reader.onloadend = function () {
-        console.log('RESULT', reader.result);
+        vm.base64Image = reader.result.split(',')[1];
       };
 
       reader.readAsDataURL(file);
     },
+    // uploadCanvasImage(){
+    //     const base64 = myCanvas.toDataURL()
+    //     console.log(base64)
+    // },
     format_time_date: function format_time_date(value) {
       if (value) {
         return moment__WEBPACK_IMPORTED_MODULE_4___default()(String(value)).format('MM/DD/YYYY | h:mm a');
@@ -2120,7 +2125,7 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_1___default.a);
         },
         method: 'POST',
         data: {
-          query: "mutation messageSendMutation\n                    {\n                        messageSendMutation(clientId: 1, locationId: 1, contactId: ".concat(this.activeIndex, ", body: \"").concat(this.typedMessage, "\",\n                       )\n                        {\n                        id\n                        error\n                        message\n                        }\n                    }")
+          query: "mutation messageSendMutation\n                    {\n                        messageSendMutation(clientId: 1, locationId: 1, contactId: ".concat(this.activeIndex, ", body: \"").concat(this.typedMessage, "\",\n                        asset_id: \"").concat(this.base64Image, "\", image_name: \"uploadImage\"\n                       )\n                        {\n                        id\n                        error\n                        message\n                        }\n                    }")
         }
       }).then(function (response) {
         _this3.typedMessage = '';
@@ -2470,7 +2475,7 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 
 // module
-exports.push([module.i, "\n.header[data-v-299e239e]{\n\n    border: 1px solid #b6b6b6;\n    border-bottom: 0;\n    padding: 8px 22px;\n}\n.sticky[data-v-299e239e] {\n    /*position: -webkit-sticky;*/\n    /*position: sticky;*/\n    top: 0;\n    padding: 5px;\n    /*background-color: #cae8ca;*/\n    /*border: 2px solid #c4c4c4;*/\n}\n\n/*.archive-icon {*/\n/*    position: absolute;*/\n/*    right: 0;*/\n/*    font-size: 25px;*/\n/*    margin-top: -10px;*/\n/*}*/\n\n/*.archive-img {*/\n/*    position: absolute;*/\n/*    width: 24px;*/\n/*    right: 0;*/\n/*    top: 5px;*/\n/*}*/\n.fa-archive[data-v-299e239e] {\n    position: absolute;\n    width: 24px;\n    font-size: 18px;\n    right: 0;\n    top: 5px;\n}\n.container[data-v-299e239e] {\n    max-width: 1170px;\n    margin: auto;\n}\nimg[data-v-299e239e] {\n    max-width: 100%;\n}\n.inbox_people[data-v-299e239e] {\n    background: #f8f8f8 none repeat scroll 0 0;\n    float: left;\n    overflow: hidden;\n    width: 100%;\n    border-right: 1px solid #c4c4c4;\n}\n.inbox_msg[data-v-299e239e] {\n    border: 1px solid #c4c4c4;\n    clear: both;\n    overflow: hidden;\n    border-top: 0;\n}\n.top_spac[data-v-299e239e] {\n    margin: 20px 0 0;\n}\n.recent_heading[data-v-299e239e] {\n    float: left;\n    width: 40%;\n}\n.srch_bar[data-v-299e239e] {\n    display: inline-block;\n    text-align: right;\n    width: 60%;\n    padding: 0;\n    outline: 0;\n}\n.headind_srch[data-v-299e239e] {\n    padding: 10px 29px 10px 20px;\n    overflow: hidden;\n    border-bottom: 1px solid #c4c4c4;\n}\n.recent_heading h4[data-v-299e239e] {\n    color: #05728f;\n    font-size: 21px;\n    margin: auto;\n}\n.srch_bar input[data-v-299e239e] {\n    border: 1px solid #cdcdcd;\n    border-width: 0 0 1px 0;\n    width: 80%;\n    padding: 2px 0 4px 6px;\n    background: none;\n    outline: 0;\n}\n.srch_bar .input-group-addon button[data-v-299e239e] {\n    background: rgba(0, 0, 0, 0) none repeat scroll 0 0;\n    border: medium none;\n    padding: 0;\n    color: #707070;\n    font-size: 18px;\n    outline: 0;\n}\n.srch_bar .input-group-addon[data-v-299e239e] {\n    margin: 0 0 0 -27px;\n}\n.chat_ib h5[data-v-299e239e] {\n    font-size: 15px;\n    color: #464646;\n    margin: 0 0 8px 0;\n}\n.chat_ib h5 span[data-v-299e239e] {\n    font-size: 13px;\n    float: right;\n}\n.chat_ib p[data-v-299e239e] {\n    font-size: 14px;\n    color: #989898;\n    margin: auto\n}\n.chat_img[data-v-299e239e] {\n    float: left;\n    width: 11%;\n}\n.chat_ib[data-v-299e239e] {\n    float: left;\n    padding: 0 0 0 15px;\n    width: 88%;\n}\n.chat_people[data-v-299e239e] {\n    overflow: hidden;\n    color: white;\n    clear: both;\n    overflow: scroll;\n}\n.chat_list[data-v-299e239e] {\n    border-bottom: 1px solid #c4c4c4;\n    margin: 0;\n    padding: 18px 16px 10px;\n    overflow-y: scroll;\n}\n.inbox_chat[data-v-299e239e] {\n    scroll-behavior: smooth;\n    max-height: 520px;\n    overflow-y: scroll;\n}\n.active_chat[data-v-299e239e] {\n    background: #ebebeb;\n}\n.incoming_msg_img[data-v-299e239e] {\n    display: inline-block;\n    width: 6%;\n}\n.received_msg[data-v-299e239e] {\n    display: inline-block;\n    padding: 0 0 0 10px;\n    vertical-align: top;\n    width: 92%;\n}\n.received_withd_msg p[data-v-299e239e] {\n    background: #ebebeb none repeat scroll 0 0;\n    border-radius: 3px;\n    color: #646464;\n    font-size: 14px;\n    margin: 0;\n    padding: 5px 10px 5px 12px;\n    width: 100%;\n}\n.time_date[data-v-299e239e] {\n    color: #747474;\n    display: block;\n    font-size: 12px;\n    margin: 8px 0 0;\n}\n.received_withd_msg[data-v-299e239e] {\n    width: 57%;\n}\n.mesgs[data-v-299e239e] {\n    border-left: 1px solid #c4c4c4;\n    float: left;\n    padding: 30px 15px 0 25px;\n    width: 60%;\n}\n.sent_msg p[data-v-299e239e] {\n    background: #05728f none repeat scroll 0 0;\n    border-radius: 3px;\n    font-size: 14px;\n    margin: 0;\n    color: #fff;\n    padding: 5px 10px 5px 12px;\n    width: 100%;\n}\n.outgoing_msg[data-v-299e239e] {\n    overflow: hidden;\n    margin: 26px 0 26px;\n}\n.sent_msg[data-v-299e239e] {\n    float: right;\n    width: 46%;\n}\n.input_msg_write input[data-v-299e239e] {\n    background: rgba(0, 0, 0, 0) none repeat scroll 0 0;\n    border: medium none;\n    color: #4c4c4c;\n    font-size: 15px;\n    min-height: 48px;\n    width: 100%;\n    outline: 0;\n}\n.type_msg[data-v-299e239e] {\n    border-top: 1px solid #c4c4c4;\n    position: relative;\n}\n.msg_send_btn[data-v-299e239e] {\n    background: #05728f none repeat scroll 0 0;\n    border: medium none;\n    border-radius: 50%;\n    color: #fff;\n    cursor: pointer;\n    font-size: 17px;\n    height: 33px;\n    position: absolute;\n    right: 0;\n    top: 11px;\n    width: 33px;\n}\n.img_send_btn[data-v-299e239e] {\n    background: #05728f none repeat scroll 0 0;\n    border: medium none;\n    border-radius: 50%;\n    color: #fff;\n    cursor: pointer;\n    font-size: 17px;\n    height: 33px;\n    position: absolute;\n    right: 40px;\n    top: 11px;\n    width: 33px;\n}\n.messaging[data-v-299e239e] {\n    padding: 0 0 50px 0;\n}\n.msg_history[data-v-299e239e] {\n    height: 516px;\n    overflow-y: scroll;\n}\n.chat_date[data-v-299e239e] {\n    font-size: 13px;\n    float: right;\n    font-weight: bold;\n    color: #4c4c4c;\n}\n.archive[data-v-299e239e] {\n    font-size: 13px;\n    float: right;\n    font-weight: bold;\n    color: #4c4c4c;\n}\n.active[data-v-299e239e] {\n    background-color: aliceblue;\n}\n", ""]);
+exports.push([module.i, "\n.header[data-v-299e239e]{\n\n    border: 1px solid #b6b6b6;\n    border-bottom: 0;\n    padding: 8px 22px;\n}\n.sticky[data-v-299e239e] {\n    /*position: -webkit-sticky;*/\n    /*position: sticky;*/\n    top: 0;\n    padding: 5px;\n    /*background-color: #cae8ca;*/\n    /*border: 2px solid #c4c4c4;*/\n}\n\n/*.archive-icon {*/\n/*    position: absolute;*/\n/*    right: 0;*/\n/*    font-size: 25px;*/\n/*    margin-top: -10px;*/\n/*}*/\n\n/*.archive-img {*/\n/*    position: absolute;*/\n/*    width: 24px;*/\n/*    right: 0;*/\n/*    top: 5px;*/\n/*}*/\n.fa-archive[data-v-299e239e] {\n    position: absolute;\n    width: 24px;\n    font-size: 18px;\n    right: 0;\n    top: 5px;\n}\n.container[data-v-299e239e] {\n    max-width: 1170px;\n    margin: auto;\n}\nimg[data-v-299e239e] {\n    max-width: 100%;\n}\n.inbox_people[data-v-299e239e] {\n    background: #f8f8f8 none repeat scroll 0 0;\n    float: left;\n    overflow: hidden;\n    width: 100%;\n    border-right: 1px solid #c4c4c4;\n}\n.inbox_msg[data-v-299e239e] {\n    border: 1px solid #c4c4c4;\n    clear: both;\n    overflow: hidden;\n    border-top: 0;\n}\n.top_spac[data-v-299e239e] {\n    margin: 20px 0 0;\n}\n.recent_heading[data-v-299e239e] {\n    float: left;\n    width: 40%;\n}\n.srch_bar[data-v-299e239e] {\n    display: inline-block;\n    text-align: right;\n    width: 60%;\n    padding: 0;\n    outline: 0;\n}\n.headind_srch[data-v-299e239e] {\n    padding: 10px 29px 10px 20px;\n    overflow: hidden;\n    border-bottom: 1px solid #c4c4c4;\n}\n.recent_heading h4[data-v-299e239e] {\n    color: #05728f;\n    font-size: 21px;\n    margin: auto;\n}\n.srch_bar input[data-v-299e239e] {\n    border: 1px solid #cdcdcd;\n    border-width: 0 0 1px 0;\n    width: 80%;\n    padding: 2px 0 4px 6px;\n    background: none;\n    outline: 0;\n}\n.srch_bar .input-group-addon button[data-v-299e239e] {\n    background: rgba(0, 0, 0, 0) none repeat scroll 0 0;\n    border: medium none;\n    padding: 0;\n    color: #707070;\n    font-size: 18px;\n    outline: 0;\n}\n.srch_bar .input-group-addon[data-v-299e239e] {\n    margin: 0 0 0 -27px;\n}\n.chat_ib h5[data-v-299e239e] {\n    font-size: 15px;\n    color: #464646;\n    margin: 0 0 8px 0;\n}\n.chat_ib h5 span[data-v-299e239e] {\n    font-size: 13px;\n    float: right;\n}\n.chat_ib p[data-v-299e239e] {\n    font-size: 14px;\n    color: #989898;\n    margin: auto\n}\n.chat_img[data-v-299e239e] {\n    float: left;\n    width: 11%;\n}\n.chat_ib[data-v-299e239e] {\n    float: left;\n    padding: 0 0 0 15px;\n    width: 88%;\n}\n.chat_people[data-v-299e239e] {\n    overflow: hidden;\n    color: white;\n    clear: both;\n    overflow: scroll;\n}\n.chat_list[data-v-299e239e] {\n    border-bottom: 1px solid #c4c4c4;\n    margin: 0;\n    padding: 18px 16px 10px;\n    overflow-y: scroll;\n}\n.inbox_chat[data-v-299e239e] {\n    scroll-behavior: smooth;\n    max-height: 520px;\n    overflow-y: scroll;\n}\n.active_chat[data-v-299e239e] {\n    background: #ebebeb;\n}\n.incoming_msg_img[data-v-299e239e] {\n    display: inline-block;\n    width: 6%;\n}\n.received_msg[data-v-299e239e] {\n    display: inline-block;\n    padding: 0 0 0 10px;\n    vertical-align: top;\n    width: 92%;\n}\n.received_withd_msg p[data-v-299e239e] {\n    background: #ebebeb none repeat scroll 0 0;\n    border-radius: 3px;\n    color: #646464;\n    font-size: 14px;\n    margin: 0;\n    padding: 5px 10px 5px 12px;\n    width: 100%;\n}\n.time_date[data-v-299e239e] {\n    color: #747474;\n    display: block;\n    font-size: 12px;\n    margin: 8px 0 0;\n}\n.received_withd_msg[data-v-299e239e] {\n    width: 57%;\n}\n.mesgs[data-v-299e239e] {\n    border-left: 1px solid #c4c4c4;\n    float: left;\n    padding: 30px 15px 0 25px;\n    width: 60%;\n}\n.sent_msg p[data-v-299e239e] {\n    background: #05728f none repeat scroll 0 0;\n    border-radius: 3px;\n    font-size: 14px;\n    margin: 0;\n    color: #fff;\n    padding: 5px 10px 5px 12px;\n    width: 100%;\n}\n.outgoing_msg[data-v-299e239e] {\n    overflow: hidden;\n    margin: 26px 0 26px;\n}\n.sent_msg[data-v-299e239e] {\n    float: right;\n    width: 46%;\n}\n.input_msg_write input[data-v-299e239e] {\n    background: rgba(0, 0, 0, 0) none repeat scroll 0 0;\n    border: medium none;\n    color: #4c4c4c;\n    font-size: 15px;\n    min-height: 48px;\n    width: 100%;\n    outline: 0;\n}\n.type_msg[data-v-299e239e] {\n    border-top: 1px solid #c4c4c4;\n    position: relative;\n}\n.msg_send_btn[data-v-299e239e] {\n    background: #05728f none repeat scroll 0 0;\n    border: medium none;\n    border-radius: 50%;\n    color: #fff;\n    cursor: pointer;\n    font-size: 17px;\n    height: 33px;\n    position: absolute;\n    right: 0;\n    top: 11px;\n    width: 33px;\n}\n.img_send_btn[data-v-299e239e] {\n    background: #05728f none repeat scroll 0 0;\n    border: medium none;\n    border-radius: 50%;\n    color: #fff;\n    cursor: pointer;\n    font-size: 17px;\n    height: 33px;\n    position: absolute;\n    right: 40px;\n    top: 11px;\n    width: 33px;\n}\n.messaging[data-v-299e239e] {\n    padding: 0 0 50px 0;\n}\n.msg_history[data-v-299e239e] {\n    height: 516px;\n    overflow-y: scroll;\n}\n.chat_date[data-v-299e239e] {\n    font-size: 13px;\n    float: right;\n    font-weight: bold;\n    color: #4c4c4c;\n}\n.archive[data-v-299e239e] {\n    font-size: 13px;\n    float: right;\n    font-weight: bold;\n    color: #4c4c4c;\n}\n.active[data-v-299e239e] {\n    background-color: aliceblue;\n}\n\n", ""]);
 
 // exports
 
@@ -2489,7 +2494,7 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 
 // module
-exports.push([module.i, "\n.sticky[data-v-7e581787] {\n    position: -webkit-sticky;\n    position: sticky;\n    top: 0;\n    padding: 5px;\n    /*background-color: #cae8ca;*/\n    /*border: 2px solid #c4c4c4;*/\n}\n\n/*.archive-icon {*/\n/*    position: absolute;*/\n/*    right: 0;*/\n/*    font-size: 25px;*/\n/*    margin-top: -10px;*/\n/*}*/\n\n/*.archive-img {*/\n/*    position: absolute;*/\n/*    width: 24px;*/\n/*    right: 0;*/\n/*    top: 5px;*/\n/*}*/\n.fa-archive[data-v-7e581787] {\n    position: absolute;\n    width: 24px;\n    font-size: 18px;\n    right: 0;\n    top: 5px;\n}\n.container[data-v-7e581787] {\n    max-width: 1170px;\n    margin: auto;\n}\nimg[data-v-7e581787] {\n    max-width: 100%;\n}\n.inbox_people[data-v-7e581787] {\n    background: #f8f8f8 none repeat scroll 0 0;\n    float: left;\n    overflow: hidden;\n    width: 100%;\n    border-right: 1px solid #c4c4c4;\n}\n.inbox_msg[data-v-7e581787] {\n    border: 1px solid #c4c4c4;\n    clear: both;\n    overflow: hidden;\n}\n.top_spac[data-v-7e581787] {\n    margin: 20px 0 0;\n}\n.recent_heading[data-v-7e581787] {\n    float: left;\n    width: 40%;\n}\n.srch_bar[data-v-7e581787] {\n    display: inline-block;\n    text-align: right;\n    width: 60%;\n    padding: 0;\n    outline: 0;\n}\n.headind_srch[data-v-7e581787] {\n    padding: 10px 29px 10px 20px;\n    overflow: hidden;\n    border-bottom: 1px solid #c4c4c4;\n}\n.recent_heading h4[data-v-7e581787] {\n    color: #05728f;\n    font-size: 21px;\n    margin: auto;\n}\n.srch_bar input[data-v-7e581787] {\n    border: 1px solid #cdcdcd;\n    border-width: 0 0 1px 0;\n    width: 80%;\n    padding: 2px 0 4px 6px;\n    background: none;\n    outline: 0;\n}\n.srch_bar .input-group-addon button[data-v-7e581787] {\n    background: rgba(0, 0, 0, 0) none repeat scroll 0 0;\n    border: medium none;\n    padding: 0;\n    color: #707070;\n    font-size: 18px;\n    outline: 0;\n}\n.srch_bar .input-group-addon[data-v-7e581787] {\n    margin: 0 0 0 -27px;\n}\n.chat_ib h5[data-v-7e581787] {\n    font-size: 15px;\n    color: #464646;\n    margin: 0 0 8px 0;\n}\n.chat_ib h5 span[data-v-7e581787] {\n    font-size: 13px;\n    float: right;\n}\n.chat_ib p[data-v-7e581787] {\n    font-size: 14px;\n    color: #989898;\n    margin: auto\n}\n.chat_img[data-v-7e581787] {\n    float: left;\n    width: 11%;\n}\n.chat_ib[data-v-7e581787] {\n    float: left;\n    padding: 0 0 0 15px;\n    width: 88%;\n}\n.chat_people[data-v-7e581787] {\n    overflow: hidden;\n    color: white;\n    clear: both;\n    overflow: scroll;\n}\n.chat_list[data-v-7e581787] {\n    border-bottom: 1px solid #c4c4c4;\n    margin: 0;\n    padding: 18px 16px 10px;\n    overflow-y: scroll;\n}\n.inbox_chat[data-v-7e581787] {\n    scroll-behavior: smooth;\n    max-height: 520px;\n    overflow-y: scroll;\n}\n.active_chat[data-v-7e581787] {\n    background: #ebebeb;\n}\n.incoming_msg_img[data-v-7e581787] {\n    display: inline-block;\n    width: 6%;\n}\n.received_msg[data-v-7e581787] {\n    display: inline-block;\n    padding: 0 0 0 10px;\n    vertical-align: top;\n    width: 92%;\n}\n.received_withd_msg p[data-v-7e581787] {\n    background: #ebebeb none repeat scroll 0 0;\n    border-radius: 3px;\n    color: #646464;\n    font-size: 14px;\n    margin: 0;\n    padding: 5px 10px 5px 12px;\n    width: 100%;\n}\n.time_date[data-v-7e581787] {\n    color: #747474;\n    display: block;\n    font-size: 12px;\n    margin: 8px 0 0;\n}\n.received_withd_msg[data-v-7e581787] {\n    width: 57%;\n}\n.mesgs[data-v-7e581787] {\n    border-left: 1px solid #c4c4c4;\n    float: left;\n    padding: 30px 15px 0 25px;\n    width: 60%;\n}\n.sent_msg p[data-v-7e581787] {\n    background: #05728f none repeat scroll 0 0;\n    border-radius: 3px;\n    font-size: 14px;\n    margin: 0;\n    color: #fff;\n    padding: 5px 10px 5px 12px;\n    width: 100%;\n}\n.outgoing_msg[data-v-7e581787] {\n    overflow: hidden;\n    margin: 26px 0 26px;\n}\n.sent_msg[data-v-7e581787] {\n    float: right;\n    width: 46%;\n}\n.input_msg_write input[data-v-7e581787] {\n    background: rgba(0, 0, 0, 0) none repeat scroll 0 0;\n    border: medium none;\n    color: #4c4c4c;\n    font-size: 15px;\n    min-height: 48px;\n    width: 100%;\n    outline: 0;\n}\n.type_msg[data-v-7e581787] {\n    border-top: 1px solid #c4c4c4;\n    position: relative;\n}\n.msg_send_btn[data-v-7e581787] {\n    background: #05728f none repeat scroll 0 0;\n    border: medium none;\n    border-radius: 50%;\n    color: #fff;\n    cursor: pointer;\n    font-size: 17px;\n    height: 33px;\n    position: absolute;\n    right: 0;\n    top: 11px;\n    width: 33px;\n}\n.img_send_btn[data-v-7e581787] {\n    background: #05728f none repeat scroll 0 0;\n    border: medium none;\n    border-radius: 50%;\n    color: #fff;\n    cursor: pointer;\n    font-size: 17px;\n    height: 33px;\n    position: absolute;\n    right: 40px;\n    top: 11px;\n    width: 33px;\n}\n.messaging[data-v-7e581787] {\n    padding: 0 0 50px 0;\n}\n.msg_history[data-v-7e581787] {\n    height: 516px;\n    overflow-y: scroll;\n}\n.chat_date[data-v-7e581787] {\n    font-size: 13px;\n    float: right;\n    font-weight: bold;\n    color: #4c4c4c;\n}\n.archive[data-v-7e581787] {\n    font-size: 13px;\n    float: right;\n    font-weight: bold;\n    color: #4c4c4c;\n}\n.active[data-v-7e581787] {\n    background-color: aliceblue;\n}\n", ""]);
+exports.push([module.i, "\n.sticky[data-v-7e581787] {\n    position: -webkit-sticky;\n    position: sticky;\n    top: 0;\n    padding: 5px;\n    /*background-color: #cae8ca;*/\n    /*border: 2px solid #c4c4c4;*/\n}\n\n/*.archive-icon {*/\n/*    position: absolute;*/\n/*    right: 0;*/\n/*    font-size: 25px;*/\n/*    margin-top: -10px;*/\n/*}*/\n\n/*.archive-img {*/\n/*    position: absolute;*/\n/*    width: 24px;*/\n/*    right: 0;*/\n/*    top: 5px;*/\n/*}*/\n.fa-archive[data-v-7e581787] {\n    position: absolute;\n    width: 24px;\n    font-size: 18px;\n    right: 0;\n    top: 5px;\n}\n.container[data-v-7e581787] {\n    max-width: 1170px;\n    margin: auto;\n}\nimg[data-v-7e581787] {\n    max-width: 100%;\n}\n.inbox_people[data-v-7e581787] {\n    background: #f8f8f8 none repeat scroll 0 0;\n    float: left;\n    overflow: hidden;\n    width: 100%;\n    border-right: 1px solid #c4c4c4;\n}\n.inbox_msg[data-v-7e581787] {\n    border: 1px solid #c4c4c4;\n    clear: both;\n    overflow: hidden;\n}\n.top_spac[data-v-7e581787] {\n    margin: 20px 0 0;\n}\n.recent_heading[data-v-7e581787] {\n    float: left;\n    width: 40%;\n}\n.srch_bar[data-v-7e581787] {\n    display: inline-block;\n    text-align: right;\n    width: 60%;\n    padding: 0;\n    outline: 0;\n}\n.headind_srch[data-v-7e581787] {\n    padding: 10px 29px 10px 20px;\n    overflow: hidden;\n    border-bottom: 1px solid #c4c4c4;\n}\n.recent_heading h4[data-v-7e581787] {\n    color: #05728f;\n    font-size: 21px;\n    margin: auto;\n}\n.srch_bar input[data-v-7e581787] {\n    border: 1px solid #cdcdcd;\n    border-width: 0 0 1px 0;\n    width: 80%;\n    padding: 2px 0 4px 6px;\n    background: none;\n    outline: 0;\n}\n.srch_bar .input-group-addon button[data-v-7e581787] {\n    background: rgba(0, 0, 0, 0) none repeat scroll 0 0;\n    border: medium none;\n    padding: 0;\n    color: #707070;\n    font-size: 18px;\n    outline: 0;\n}\n.srch_bar .input-group-addon[data-v-7e581787] {\n    margin: 0 0 0 -27px;\n}\n.chat_ib h5[data-v-7e581787] {\n    font-size: 15px;\n    color: #464646;\n    margin: 0 0 8px 0;\n}\n.chat_ib h5 span[data-v-7e581787] {\n    font-size: 13px;\n    float: right;\n}\n.chat_ib p[data-v-7e581787] {\n    font-size: 14px;\n    color: #989898;\n    margin: auto\n}\n.chat_img[data-v-7e581787] {\n    float: left;\n    width: 11%;\n}\n.chat_ib[data-v-7e581787] {\n    float: left;\n    padding: 0 0 0 15px;\n    width: 88%;\n}\n.chat_people[data-v-7e581787] {\n    overflow: hidden;\n    color: white;\n    clear: both;\n    overflow: scroll;\n}\n.chat_list[data-v-7e581787] {\n    border-bottom: 1px solid #c4c4c4;\n    margin: 0;\n    padding: 18px 16px 10px;\n    overflow-y: scroll;\n}\n.inbox_chat[data-v-7e581787] {\n    scroll-behavior: smooth;\n    max-height: 520px;\n    overflow-y: scroll;\n}\n.active_chat[data-v-7e581787] {\n    background: #ebebeb;\n}\n.incoming_msg_img[data-v-7e581787] {\n    display: inline-block;\n    width: 6%;\n}\n.received_msg[data-v-7e581787] {\n    display: inline-block;\n    padding: 0 0 0 10px;\n    vertical-align: top;\n    width: 92%;\n}\n.received_withd_msg p[data-v-7e581787] {\n    background: #ebebeb none repeat scroll 0 0;\n    border-radius: 3px;\n    color: #646464;\n    font-size: 14px;\n    margin: 0;\n    padding: 5px 10px 5px 12px;\n    width: 100%;\n}\n.time_date[data-v-7e581787] {\n    color: #747474;\n    display: block;\n    font-size: 12px;\n    margin: 8px 0 0;\n}\n.received_withd_msg[data-v-7e581787] {\n    width: 57%;\n}\n.mesgs[data-v-7e581787] {\n    border-left: 1px solid #c4c4c4;\n    float: left;\n    padding: 30px 15px 0 25px;\n    width: 60%;\n}\n.sent_msg p[data-v-7e581787] {\n    background: #05728f none repeat scroll 0 0;\n    border-radius: 3px;\n    font-size: 14px;\n    margin: 0;\n    color: #fff;\n    padding: 5px 10px 5px 12px;\n    width: 100%;\n}\n.outgoing_msg[data-v-7e581787] {\n    overflow: hidden;\n    margin: 26px 0 26px;\n}\n.sent_msg[data-v-7e581787] {\n    float: right;\n    width: 46%;\n}\n.input_msg_write input[data-v-7e581787] {\n    background: rgba(0, 0, 0, 0) none repeat scroll 0 0;\n    border: medium none;\n    color: #4c4c4c;\n    font-size: 15px;\n    min-height: 48px;\n    width: 100%;\n    outline: 0;\n}\n.type_msg[data-v-7e581787] {\n    border-top: 1px solid #c4c4c4;\n    position: relative;\n}\n.msg_send_btn[data-v-7e581787] {\n    background: #05728f none repeat scroll 0 0;\n    border: medium none;\n    border-radius: 50%;\n    color: #fff;\n    cursor: pointer;\n    font-size: 17px;\n    height: 33px;\n    position: absolute;\n    right: 0;\n    top: 11px;\n    width: 33px;\n}\n.img_send_btn[data-v-7e581787] {\n    background: #05728f none repeat scroll 0 0;\n    border: medium none;\n    border-radius: 50%;\n    color: #fff;\n    cursor: pointer;\n    font-size: 17px;\n    height: 33px;\n    position: absolute;\n    right: 40px;\n    top: 11px;\n    width: 33px;\n}\n.messaging[data-v-7e581787] {\n    padding: 0 0 50px 0;\n}\n.msg_history[data-v-7e581787] {\n    height: 516px;\n    overflow-y: scroll;\n}\n.chat_date[data-v-7e581787] {\n    font-size: 13px;\n    float: right;\n    font-weight: bold;\n    color: #4c4c4c;\n}\n.archive[data-v-7e581787] {\n    font-size: 13px;\n    float: right;\n    font-weight: bold;\n    color: #4c4c4c;\n}\n.active[data-v-7e581787] {\n    background-color: aliceblue;\n}\ndiv#myModal .filters[data-v-7e581787] {\n    display: none;\n}\n\n\n", ""]);
 
 // exports
 
@@ -38527,7 +38532,9 @@ var render = function() {
             "div",
             { staticClass: "toolbar__label current_name text-center" },
             [
-              _c("h4", [_vm._v(_vm._s(this.activeTitle))]),
+              _c("h4", { staticStyle: { "text-align": "right" } }, [
+                _vm._v(_vm._s(this.activeTitle))
+              ]),
               _vm._v(" "),
               _c(
                 "span",
@@ -38621,7 +38628,7 @@ var render = function() {
                                     ])
                                   : _vm._e(),
                                 _vm._v(" "),
-                                !message.body
+                                message.media_url
                                   ? _c("p", { staticClass: "text-img" }, [
                                       _c("img", {
                                         attrs: { src: message.media_url }
@@ -38649,66 +38656,81 @@ var render = function() {
                   0
                 ),
                 _vm._v(" "),
-                _c("div", { staticClass: "type_msg" }, [
-                  _c("div", { staticClass: "input_msg_write" }, [
-                    _c("input", {
-                      directives: [
-                        {
-                          name: "model",
-                          rawName: "v-model",
-                          value: _vm.typedMessage,
-                          expression: "typedMessage"
-                        }
-                      ],
-                      staticClass: "write_msg",
-                      attrs: { type: "text", placeholder: "Type a message" },
-                      domProps: { value: _vm.typedMessage },
-                      on: {
-                        input: function($event) {
-                          if ($event.target.composing) {
-                            return
-                          }
-                          _vm.typedMessage = $event.target.value
-                        }
+                _c(
+                  "div",
+                  {
+                    directives: [
+                      {
+                        name: "show",
+                        rawName: "v-show",
+                        value: _vm.activeIndex,
+                        expression: "activeIndex"
                       }
-                    }),
-                    _vm._v(" "),
-                    _c(
-                      "button",
-                      {
-                        staticClass: "msg_send_btn",
-                        attrs: { type: "button" },
-                        on: { click: _vm.sendMessage }
-                      },
-                      [
-                        _c("i", {
-                          staticClass: "fa fa-paper-plane-o",
-                          attrs: { "aria-hidden": "true" }
-                        })
-                      ]
-                    ),
-                    _vm._v(" "),
-                    _c("input", {
-                      attrs: { id: "img_upload", type: "file", hidden: "" },
-                      on: { change: _vm.encodeImageFileAsURL }
-                    }),
-                    _vm._v(" "),
-                    _c(
-                      "button",
-                      {
-                        staticClass: "img_send_btn",
-                        attrs: { id: "btn_upload", type: "file" },
-                        on: { click: _vm.image }
-                      },
-                      [
-                        _c("i", {
-                          staticClass: "fa fa-paperclip",
-                          attrs: { "aria-hidden": "true" }
-                        })
-                      ]
-                    )
-                  ])
-                ])
+                    ],
+                    staticClass: "type_msg",
+                    staticStyle: { display: "none" }
+                  },
+                  [
+                    _c("div", { staticClass: "input_msg_write" }, [
+                      _c("input", {
+                        directives: [
+                          {
+                            name: "model",
+                            rawName: "v-model",
+                            value: _vm.typedMessage,
+                            expression: "typedMessage"
+                          }
+                        ],
+                        staticClass: "write_msg",
+                        attrs: { type: "text", placeholder: "Type a message" },
+                        domProps: { value: _vm.typedMessage },
+                        on: {
+                          input: function($event) {
+                            if ($event.target.composing) {
+                              return
+                            }
+                            _vm.typedMessage = $event.target.value
+                          }
+                        }
+                      }),
+                      _vm._v(" "),
+                      _c(
+                        "button",
+                        {
+                          staticClass: "msg_send_btn",
+                          attrs: { type: "button" },
+                          on: { click: _vm.sendMessage }
+                        },
+                        [
+                          _c("i", {
+                            staticClass: "fa fa-paper-plane-o",
+                            attrs: { "aria-hidden": "true" }
+                          })
+                        ]
+                      ),
+                      _vm._v(" "),
+                      _c("input", {
+                        attrs: { id: "img_upload", type: "file", hidden: "" },
+                        on: { change: _vm.encodeImageFileAsURL }
+                      }),
+                      _vm._v(" "),
+                      _c(
+                        "button",
+                        {
+                          staticClass: "img_send_btn",
+                          attrs: { id: "btn_upload", type: "file" },
+                          on: { click: _vm.image }
+                        },
+                        [
+                          _c("i", {
+                            staticClass: "fa fa-paperclip",
+                            attrs: { "aria-hidden": "true" }
+                          })
+                        ]
+                      )
+                    ])
+                  ]
+                )
               ])
             : _vm._e()
         ])
@@ -38726,9 +38748,7 @@ var render = function() {
             [
               _vm._m(1),
               _vm._v(" "),
-              _c("ListContact", {
-                attrs: { id: "2", zeroOrOne: 1, loadMessage: _vm.loadMessage }
-              })
+              _c("ListContact", { attrs: { id: "2", zeroOrOne: 1 } })
             ],
             1
           )
