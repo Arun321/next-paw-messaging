@@ -1,16 +1,25 @@
 <template>
-    <!--    modal-->
-    <div class="modal fade" id="myModal" role="dialog">
-        <div class="modal-dialog">
-            <!--          modal content  -->
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                </div>
-                <ListContact></ListContact>
-            </div>
-        </div>
-    </div>
+<!--    &lt;!&ndash;    modal&ndash;&gt;-->
+<!--    <div class="modal fade" id="myModalImage" role="dialog">-->
+<!--        <div class="modal-dialog">-->
+<!--            &lt;!&ndash;          modal content  &ndash;&gt;-->
+<!--            <div class="modal-content">-->
+<!--                <div class="modal-header">-->
+<!--                    <button type="button" class="close" data-dismiss="modal">&times;</button>-->
+<!--                </div>-->
+<!--                <div class="modal-body">-->
+<!--                    <div class="col-md-12">-->
+<!--                        <input type="text" class="form-text" id="attachment-text-input" placeholder="Enter Caption">-->
+<!--                    </div>-->
+<!--                    <div class="col-md-12">-->
+<!--                        <input type="submit" value="upload">-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--                <div class="modal-footer">-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
 </template>
 
 <script>

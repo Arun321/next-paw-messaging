@@ -4,6 +4,8 @@
  * building robust, powerful web applications using Vue and Laravel.
  */
 
+import {store} from "./store/store";
+
 require('./bootstrap');
 
 window.Vue = require('vue');
@@ -29,5 +31,6 @@ Vue.component('login-component', require('./components/LoginComponent.vue').defa
  */
 
 const app = new Vue({
+    store: store,
     el: '#app',
 });

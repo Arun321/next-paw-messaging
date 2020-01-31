@@ -7,6 +7,7 @@
                         data-toggle="modal" data-target="#myModal"><i class="fa fa-plus"
                                                                       aria-hidden="true"></i>
                 </button>
+                <AddContact></AddContact>
                     <div class="toolbar__label current_name text-center">
                         <h4 style="text-align: right;">{{ this.activeTitle }}</h4>
                         <span class="archive-icon" v-on:click="archivedContact">
@@ -61,7 +62,7 @@
                                 </button>
                                 <input id="img_upload" type="file" v-on:change="encodeImageFileAsURL" hidden>
 
-                                <button class="img_send_btn" id="btn_upload" type="file" v-on:click="image">
+                                <button class="img_send_btn" id="btn_upload" type="file" v-on:click="image"  >
                                     <i class="fa fa-paperclip" aria-hidden="true"></i>
                                 </button>
                             </div>
@@ -77,10 +78,11 @@
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal">&times;</button>
                     </div>
-                    <ListContact id="2"  :zeroOrOne="1"></ListContact>
+                    <ListContact id="2"  :zeroOrOne="1" ></ListContact>
                 </div>
             </div>
         </div>
+        <!--    modal-->
     </div>
 </template>
 
@@ -91,6 +93,7 @@
     import AddContact from "./AddContact";
     import ListContact from "./ListContact";
     import moment from 'moment';
+    import {mapActions} from 'vuex'
 
 
     Vue.use(ScrollLoader)
@@ -112,6 +115,7 @@
                 filterPage: 1,
                 user: JSON.parse(localStorage.getItem('user')),
                 typedMessage: '',
+                imageName: '',
                 base64Image: '',
                 messages: [],
                 errors: [],
@@ -131,30 +135,28 @@
 
         },
         methods: {
+            ...mapActions('listStore', ['TRIGGER_FILTERED_CONTACTS_ACTION']),
             image() {
                 document.getElementById('img_upload').click();
             },
             encodeImageFileAsURL(event) {
                 var file = event.target.files[0];
-                console.log(file.name)
                 var reader = new FileReader();
                 let vm = this
                 reader.onloadend = function () {
                     vm.base64Image = reader.result.split(',')[1]
+                    vm.imageName = file.name
                 }
                 reader.readAsDataURL(file);
             },
 
-            // uploadCanvasImage(){
-            //     const base64 = myCanvas.toDataURL()
-            //     console.log(base64)
-            // },
-
             format_time_date(value) {
                 if (value) {
                     return moment(String(value)).format('MM/DD/YYYY | h:mm a')
+
                 }
             },
+
             scrollToTop() {
                 var myDiv = document.getElementById('inbox_chat' + this.id);
                 if (myDiv) {
@@ -192,7 +194,7 @@
                 }).then(response => {
                     this.filterPage = 1
                     this.loadMore = true
-                    this.filteredContacts()
+                    this.TRIGGER_FILTERED_CONTACTS_ACTION()
                 }).catch((e) => console.log(e))
                 // this.activeIndex=value
 
@@ -204,7 +206,6 @@
                 } else {
                     return false;
                 }
-                // console.log('test')
                 this.typedMessage = '';
                 if (reload == 'yes') {
                     this.msgLoading = true;
@@ -232,6 +233,7 @@
                                     status
                                     archived
                                     message_created_at
+
                                 }
                                 total
                                 per_page
@@ -249,8 +251,10 @@
                         if (elem.contact_id == value) return true;
                     });
                     // if (activeContact[0].ps_id == 'null')
+
                     let contactNum = !activeContact[0].ps_id ? ' | ' + activeContact[0].sender : ''
                     this.activeTitle = activeContact[0].first_name + contactNum
+
 
                 }).catch((e) => console.log(e));
                 this.activeIndex = value;
@@ -267,17 +271,10 @@
                 }
             },
             sendMessage: function () {
-                axios({
-                    url: 'https://1146270492621681-reviews.jenkins.nextpaw.com/graph-api',
-                    headers: {
-                        Authorization: `Bearer ${this.user.token}`
-                    },
-                    method: 'POST',
-                    data: {
-                        query: `mutation messageSendMutation
+                let axiosQuery = `mutation messageSendMutation
                         {
                             messageSendMutation(clientId: 1, locationId: 1, contactId: ${this.activeIndex}, body: "${this.typedMessage}",
-                            asset_id: "${this.base64Image}", image_name: "uploadImage"
+                            asset_id: "${this.base64Image}", image_name: "${this.imageName}"
                            )
                             {
                             id
@@ -285,20 +282,41 @@
                             message
                             }
                         }`
+                if (!this.base64Image) {
+                    axiosQuery = `mutation messageSendMutation
+                        {
+                            messageSendMutation(clientId: 1, locationId: 1, contactId: ${this.activeIndex}, body: "${this.typedMessage}"
+                           )
+                            {
+                            id
+                            error
+                            message
+                            }
+                        }`
+                }
+                axios({
+                    url: 'https://1146270492621681-reviews.jenkins.nextpaw.com/graph-api',
+                    headers: {
+                        Authorization: `Bearer ${this.user.token}`
+                    },
+                    method: 'POST',
+                    data: {
+                        query: axiosQuery
                     }
                 }).then(response => {
                     this.typedMessage = '';
                     setTimeout(() => {
+                        console.log('send', response.data.data.messageSendMutation.id)
                         this.loadMessage(this.allContacts, response.data.data.messageSendMutation.id, 'no');
                         this.filterPage = 1
                         this.loadMore = true
+                        this.TRIGGER_FILTERED_CONTACTS_ACTION();
                         // this.loadAll = true
-                        //this.filteredContacts()
+                        // this.filteredContacts()
                         setTimeout(() => {
                             this.scrollToTop()
                         }, 400)
                     }, 1000);
-                    console.log(response)
                 })
                     .catch(e => {
                         this.errors.push(e)

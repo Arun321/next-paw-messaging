@@ -60,6 +60,7 @@
 
 <script>
     import moment from 'moment';
+    import {mapState} from 'vuex'
     export default {
         name: "ListContact",
         props: {
@@ -76,9 +77,12 @@
                 type: Number
             }
         },
+        computed: {
+            ...mapState('listStore', ['triggerFilteredContacts'])
+        },
         data() {
             return {
-                listLoadMore: true,
+                listLoadMore: false,
                 listContactLoading: false,
                 listFilter: '',
                 listActiveIndex: 0,
@@ -97,12 +101,30 @@
                 msg: '',
             }
         },
+
         mounted() {
             this.filteredContacts()
             this.scrollElm = document.querySelector('#inbox_chat' + this.id)
             this.loadOnScroll()
         },
+        watch: {
+            triggerFilteredContacts: {
+                handler (n, o) {
+                    this.listFilterPage = 1
+                    this.filteredContacts()
+                    setTimeout(() => {
+                        this.scrollToTop()
+                    }, 400)
+                }
+            }
+        },
         methods:{
+            scrollToTop() {
+                var myDiv = document.getElementById('inbox_chat1');
+                if (myDiv) {
+                    myDiv.scrollTop = 0;
+                }
+            },
             loadOnScroll() {
                 this.scrollElm.addEventListener('scroll', this.scrollListener)
             },
@@ -179,7 +201,6 @@
                     }
                     this.listFilterPage++
                     let temp1 = response.data.data.search.data;
-                    console.log(temp1)
 
                     if (temp1.length > 0) {
                         this.listContacts.push(...temp1)
@@ -197,13 +218,10 @@
             format_date(value) {
                 if (value) {
                     return moment(String(value)).format('MM/DD/YYYY')
+
                 }
             },
-            format_time_date(value) {
-                if (value) {
-                    return moment(String(value)).format('MM/DD/YYYY | h:mm a')
-                }
-            },
+
             trunc(n) {
                 return (n && n.length > 15) ? n.substr(0, 10) + '...' : n
             }
