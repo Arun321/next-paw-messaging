@@ -22,16 +22,6 @@
                 </div>
 
                 <div class="mesgs">
-<!--                    <div class="sticky">-->
-<!--                        <div class="col-md-12">-->
-<!--                            <div class="toolbar__label current_name text-center">-->
-<!--                                <h4>{{ this.activeTitle }}</h4>-->
-<!--                                <span class="archive-icon" v-on:click="archivedContact">-->
-<!--                                    <i class="fa fa-archive" aria-hidden="true"></i>-->
-<!--                                </span>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                    </div>-->
                     <div v-if="msgLoading" style="display: flex; justify-content: center; align-items: center;">
                         <i class="fa fa-circle-o-notch fa-spin" style="font-size: 45px; color: blue;"></i>
                     </div>
@@ -60,11 +50,18 @@
                                        aria-hidden="true">
                                     </i>
                                 </button>
-                                <input id="img_upload" type="file" v-on:change="encodeImageFileAsURL" hidden>
 
-                                <button class="img_send_btn" id="btn_upload" type="file" v-on:click="image"  >
-                                    <i class="fa fa-paperclip" aria-hidden="true"></i>
+<!--                                <input id="img_upload" type="file" v-on:change="encodeImageFileAsURL" hidden>-->
+<!--                                <button class="img_send_btn" id="btn_upload" type="file" v-on:click="image"  data-toggle="modal" data-target="#myModalImage">-->
+<!--                                    <i class="fa fa-paperclip" aria-hidden="true"></i>-->
+<!--                                </button>-->
+
+
+                                <button class="img_send_btn" id="btn_upload"
+                                        v-on:click="image">
+                                    <i class="fa fa-paperclip" aria-hidden="true" ></i>
                                 </button>
+
                             </div>
                         </div>
                     </div>
@@ -83,6 +80,30 @@
             </div>
         </div>
         <!--    modal-->
+        <div class="modal fade" id="myModalImage" role="dialog">
+            <div class="modal-dialog">
+                <!--          modal content  -->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="base-image-input">
+                            <img v-bind:src="imagePreview" class="preview-image" >
+                            <input type="file" id="img_upload" class="file-input" v-on:change="encodeImageFileAsURL">
+                        </div>
+                        <div>
+                            <input type="text" class="form-text" id="attachment-text-input"
+                                   placeholder="Enter Caption" v-model="typedMessage" ><br>
+                            <input type="submit" class="caption" value="upload" v-on:click="sendMessage">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 </template>
 
@@ -116,6 +137,7 @@
                 user: JSON.parse(localStorage.getItem('user')),
                 typedMessage: '',
                 imageName: '',
+                imagePreview:'https://image.shutterstock.com/image-vector/ui-image-placeholder-wireframes-apps-260nw-1037719204.jpg',
                 base64Image: '',
                 messages: [],
                 errors: [],
@@ -131,24 +153,26 @@
                 }
             }
         },
-        mounted() {
-
-        },
         methods: {
             ...mapActions('listStore', ['TRIGGER_FILTERED_CONTACTS_ACTION']),
             image() {
                 document.getElementById('img_upload').click();
             },
+
             encodeImageFileAsURL(event) {
                 var file = event.target.files[0];
                 var reader = new FileReader();
                 let vm = this
+
                 reader.onloadend = function () {
                     vm.base64Image = reader.result.split(',')[1]
                     vm.imageName = file.name
+                    vm.imagePreview = reader.result;
+                    $('#myModalImage').modal('show')
                 }
                 reader.readAsDataURL(file);
             },
+
 
             format_time_date(value) {
                 if (value) {
@@ -316,6 +340,7 @@
                         setTimeout(() => {
                             this.scrollToTop()
                         }, 400)
+                        $('#myModalImage').modal('hide')
                     }, 1000);
                 })
                     .catch(e => {
@@ -329,8 +354,35 @@
 
 
 <style scoped>
-    .header{
+    .base-image-input {
+        display: block;
+        width: 300px;
+        height: 200px;
+        cursor: pointer;
+        background-size: cover;
+        background-position: center center;
+    }
+    .caption{
 
+    }
+    .placeholder {
+        background: #F0F0F0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #333;
+        font-size: 18px;
+        font-family: Helvetica;
+    }
+    .placeholder:hover {
+        background: #E0E0E0;
+    }
+    .file-input {
+        display: none;
+    }
+    .header{
         border: 1px solid #b6b6b6;
         border-bottom: 0;
         padding: 8px 22px;

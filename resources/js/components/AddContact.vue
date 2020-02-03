@@ -1,5 +1,5 @@
 <template>
-<!--    &lt;!&ndash;    modal&ndash;&gt;-->
+    <!--    modal-->
 <!--    <div class="modal fade" id="myModalImage" role="dialog">-->
 <!--        <div class="modal-dialog">-->
 <!--            &lt;!&ndash;          modal content  &ndash;&gt;-->
