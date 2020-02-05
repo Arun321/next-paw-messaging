@@ -2005,8 +2005,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
-//
-//
 
 
 
@@ -2038,7 +2036,8 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_1___default.a);
       errors: [],
       btnUpload: '',
       myCanvas: '',
-      msg: ''
+      msg: '',
+      state: ''
     };
   },
   watch: {
@@ -2078,6 +2077,13 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_1___default.a);
         myDiv.scrollTop = 0;
       }
     },
+    scrollMessagesTop: function scrollMessagesTop() {
+      var myDiv = document.getElementById('msg_history');
+
+      if (myDiv) {
+        myDiv.scrollTop = myDiv.scrollHeight;
+      }
+    },
     scrollToEnd: function scrollToEnd() {
       var container = document.querySelector('.msg_history');
       var height = container.scrollHeight;
@@ -2087,7 +2093,7 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_1___default.a);
       var _this = this;
 
       axios__WEBPACK_IMPORTED_MODULE_0___default()({
-        url: 'https://1146270492621681-reviews.jenkins.nextpaw.com/graph-api',
+        url: 'https://1159496042235434-reviews.jenkins.nextpaw.com/graph-api',
         headers: {
           Authorization: "Bearer ".concat(this.user.token)
         },
@@ -2120,7 +2126,7 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_1___default.a);
       }
 
       axios__WEBPACK_IMPORTED_MODULE_0___default()({
-        url: 'https://1146270492621681-reviews.jenkins.nextpaw.com/graph-api',
+        url: 'https://1159496042235434-reviews.jenkins.nextpaw.com/graph-api',
         headers: {
           Authorization: "Bearer ".concat(this.user.token)
         },
@@ -2146,6 +2152,24 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_1___default.a);
       this.activeIndex = value;
       return value;
     },
+    addMessage: function addMessage(message, contactId) {
+      var image = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+      return {
+        id: 100197,
+        first_name: "Unknown",
+        last_name: null,
+        contact_id: contactId,
+        body: message,
+        media_url: image,
+        receiver: "9478004467",
+        sender: "2157097384",
+        contact_created_at: "2020-01-21 07:10:53",
+        type: "sent",
+        status: "SENT",
+        archived: 0,
+        message_created_at: "2020-02-03 08:05:30"
+      };
+    },
     messageType: function messageType(type, class1, class2) {
       if (type === 'received') {
         return class1;
@@ -2156,6 +2180,16 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_1___default.a);
     sendMessage: function sendMessage() {
       var _this3 = this;
 
+      if (!this.base64Image) {
+        this.messages.push(this.addMessage(this.typedMessage, this.activeIndex));
+      } else {
+        this.messages.push(this.addMessage(this.typedMessage, this.activeIndex, this.imagePreview));
+      }
+
+      setTimeout(function () {
+        _this3.scrollMessagesTop();
+      }, 400);
+      $('#myModalImage').modal('hide');
       var axiosQuery = "mutation messageSendMutation\n                    {\n                        messageSendMutation(clientId: 1, locationId: 1, contactId: ".concat(this.activeIndex, ", body: \"").concat(this.typedMessage, "\",\n                        asset_id: \"").concat(this.base64Image, "\", image_name: \"").concat(this.imageName, "\"\n                       )\n                        {\n                        id\n                        error\n                        message\n                        }\n                    }");
 
       if (!this.base64Image) {
@@ -2163,7 +2197,7 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_1___default.a);
       }
 
       axios__WEBPACK_IMPORTED_MODULE_0___default()({
-        url: 'https://1146270492621681-reviews.jenkins.nextpaw.com/graph-api',
+        url: 'https://1159496042235434-reviews.jenkins.nextpaw.com/graph-api',
         headers: {
           Authorization: "Bearer ".concat(this.user.token)
         },
@@ -2172,9 +2206,10 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_1___default.a);
           query: axiosQuery
         }
       }).then(function (response) {
-        _this3.typedMessage = '';
         setTimeout(function () {
           console.log('send', response.data.data.messageSendMutation.id);
+          _this3.state = response.data.data.messageSendMutation.error;
+          console.log(_this3.state);
 
           _this3.loadMessage(_this3.allContacts, response.data.data.messageSendMutation.id, 'no');
 
@@ -2182,18 +2217,19 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_1___default.a);
           _this3.loadMore = true;
 
           _this3.TRIGGER_FILTERED_CONTACTS_ACTION(); // this.loadAll = true
-          // this.filteredContacts()
 
 
           setTimeout(function () {
             _this3.scrollToTop();
           }, 400);
-          $('#myModalImage').modal('hide');
         }, 1000);
       })["catch"](function (e) {
         _this3.errors.push(e); // this.activeIndex = value
 
       });
+      this.typedMessage = '';
+      this.imagePreview = '';
+      this.base64Image = '';
     }
   })
 });
@@ -2226,7 +2262,6 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-//
 //
 //
 //
@@ -2388,7 +2423,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       }
 
       axios({
-        url: 'https://1146270492621681-reviews.jenkins.nextpaw.com/graph-api',
+        url: 'https://1159496042235434-reviews.jenkins.nextpaw.com/graph-api',
         headers: {
           Authorization: "Bearer ".concat(this.listUser.token)
         },
@@ -38678,6 +38713,15 @@ var render = function() {
                                   ? _c("p", { staticClass: "text-img" }, [
                                       _c("img", {
                                         attrs: { src: message.media_url }
+                                      })
+                                    ])
+                                  : _vm._e(),
+                                _vm._v(" "),
+                                message.status == "SENT"
+                                  ? _c("p", [
+                                      _c("i", {
+                                        staticClass: "fa fa-check-circle",
+                                        attrs: { "aria-hidden": "true" }
                                       })
                                     ])
                                   : _vm._e(),

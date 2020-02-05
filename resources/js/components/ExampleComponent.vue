@@ -33,8 +33,8 @@
                                     <div :class="messageType(message.type, 'received_withd_msg', 'sent_withd_msg')">
                                         <p v-if="message.body" class="text-msg">{{message.body}}</p>
                                         <p v-if="message.media_url" class="text-img"><img v-bind:src="message.media_url" /></p>
-                                        <span
-                                            class="time_date"> {{format_time_date( message.message_created_at) }}</span>
+                                        <p v-if='message.status == "SENT"'><i class="fa fa-check-circle" aria-hidden="true"></i></p>
+                                        <span class="time_date"> {{format_time_date( message.message_created_at) }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -61,7 +61,6 @@
                                         v-on:click="image">
                                     <i class="fa fa-paperclip" aria-hidden="true" ></i>
                                 </button>
-
                             </div>
                         </div>
                     </div>
@@ -103,7 +102,6 @@
                 </div>
             </div>
         </div>
-
     </div>
 </template>
 
@@ -143,7 +141,8 @@
                 errors: [],
                 btnUpload: '',
                 myCanvas:'',
-                msg: ''
+                msg: '',
+                state: ''
             }
         },
         watch: {
@@ -163,7 +162,6 @@
                 var file = event.target.files[0];
                 var reader = new FileReader();
                 let vm = this
-
                 reader.onloadend = function () {
                     vm.base64Image = reader.result.split(',')[1]
                     vm.imageName = file.name
@@ -188,6 +186,13 @@
                 }
             },
 
+            scrollMessagesTop() {
+                var myDiv = document.getElementById('msg_history');
+                if (myDiv) {
+                    myDiv.scrollTop = myDiv.scrollHeight
+                }
+            },
+
 
 
             scrollToEnd() {
@@ -198,7 +203,7 @@
 
             archivedContact() {
                 axios({
-                    url: 'https://1146270492621681-reviews.jenkins.nextpaw.com/graph-api',
+                    url: 'https://1159496042235434-reviews.jenkins.nextpaw.com/graph-api',
                     headers: {
                         Authorization: `Bearer ${this.user.token}`
                     },
@@ -235,7 +240,7 @@
                     this.msgLoading = true;
                 }
                 axios({
-                    url: 'https://1146270492621681-reviews.jenkins.nextpaw.com/graph-api',
+                    url: 'https://1159496042235434-reviews.jenkins.nextpaw.com/graph-api',
                     headers: {
                         Authorization: `Bearer ${this.user.token}`
                     },
@@ -285,7 +290,24 @@
                 return value;
             },
 
-
+            addMessage(message, contactId,image = null)
+            {
+                return {
+                    id: 100197,
+                    first_name: "Unknown",
+                    last_name: null,
+                    contact_id: contactId,
+                    body: message,
+                    media_url: image,
+                    receiver: "9478004467",
+                    sender: "2157097384",
+                    contact_created_at: "2020-01-21 07:10:53",
+                    type: "sent",
+                    status: "SENT",
+                    archived: 0,
+                    message_created_at: "2020-02-03 08:05:30"
+                }
+            },
 
             messageType: function (type, class1, class2) {
                 if (type === 'received') {
@@ -294,7 +316,18 @@
                     return class2;
                 }
             },
+
             sendMessage: function () {
+                if(!this.base64Image){
+                    this.messages.push(this.addMessage(this.typedMessage, this.activeIndex));
+                } else{
+                    this.messages.push(this.addMessage(this.typedMessage, this.activeIndex,this.imagePreview));
+                }
+
+                    setTimeout(() => {
+                        this.scrollMessagesTop()
+                    }, 400);
+                $('#myModalImage').modal('hide')
                 let axiosQuery = `mutation messageSendMutation
                         {
                             messageSendMutation(clientId: 1, locationId: 1, contactId: ${this.activeIndex}, body: "${this.typedMessage}",
@@ -319,7 +352,7 @@
                         }`
                 }
                 axios({
-                    url: 'https://1146270492621681-reviews.jenkins.nextpaw.com/graph-api',
+                    url: 'https://1159496042235434-reviews.jenkins.nextpaw.com/graph-api',
                     headers: {
                         Authorization: `Bearer ${this.user.token}`
                     },
@@ -328,25 +361,27 @@
                         query: axiosQuery
                     }
                 }).then(response => {
-                    this.typedMessage = '';
                     setTimeout(() => {
                         console.log('send', response.data.data.messageSendMutation.id)
+                        this.state = response.data.data.messageSendMutation.error
+                        console.log(this.state)
                         this.loadMessage(this.allContacts, response.data.data.messageSendMutation.id, 'no');
                         this.filterPage = 1
                         this.loadMore = true
                         this.TRIGGER_FILTERED_CONTACTS_ACTION();
                         // this.loadAll = true
-                        // this.filteredContacts()
                         setTimeout(() => {
                             this.scrollToTop()
                         }, 400)
-                        $('#myModalImage').modal('hide')
                     }, 1000);
                 })
                     .catch(e => {
                         this.errors.push(e)
                         // this.activeIndex = value
                     })
+                this.typedMessage = '';
+                this.imagePreview = ''
+                this.base64Image = ''
             }
         }
     }

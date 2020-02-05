@@ -16,14 +16,13 @@
                         </select>
                     </div>
                 </div>
-
                 <div class="offset-md-2 srch_bar">
                     <div class="stylish-input-group">
                         <input type="text" v-on:keyup="searchData($event)" v-model="listSearch"
                                class="search-bar" placeholder="Search">
                         <span class="input-group-addon">
                                     <button type="button"> <i class="fa fa-search" aria-hidden="true"></i> </button>
-                                            </span>
+                        </span>
                     </div>
                 </div>
             </div>
@@ -160,7 +159,7 @@
 
 
                 axios({
-                    url: 'https://1146270492621681-reviews.jenkins.nextpaw.com/graph-api',
+                    url: 'https://1159496042235434-reviews.jenkins.nextpaw.com/graph-api',
                     headers: {
                         Authorization: `Bearer ${this.listUser.token}`
                     },
