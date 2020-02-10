@@ -2005,6 +2005,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
+//
 
 
 
@@ -2037,7 +2039,8 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_1___default.a);
       btnUpload: '',
       myCanvas: '',
       msg: '',
-      state: ''
+      state: '',
+      currentDate: ''
     };
   },
   watch: {
@@ -2067,7 +2070,19 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_1___default.a);
     },
     format_time_date: function format_time_date(value) {
       if (value) {
-        return moment__WEBPACK_IMPORTED_MODULE_4___default()(String(value)).format('MM/DD/YYYY | h:mm a');
+        var dt = moment__WEBPACK_IMPORTED_MODULE_4___default()(String(value)).format('MM/DD/YYYY');
+
+        if (this.currentDate !== dt) {
+          this.currentDate = dt;
+          return moment__WEBPACK_IMPORTED_MODULE_4___default()(String(value)).format('MM/DD/YYYY');
+        }
+
+        return '';
+      }
+    },
+    format_time: function format_time(value) {
+      if (value) {
+        return moment__WEBPACK_IMPORTED_MODULE_4___default()(String(value)).format('h:mm a');
       }
     },
     scrollToTop: function scrollToTop() {
@@ -2165,7 +2180,7 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_1___default.a);
         sender: "2157097384",
         contact_created_at: "2020-01-21 07:10:53",
         type: "sent",
-        status: "SENT",
+        status: "LOAD",
         archived: 0,
         message_created_at: "2020-02-03 08:05:30"
       };
@@ -2207,7 +2222,6 @@ Vue.use(vue_scroll_loader__WEBPACK_IMPORTED_MODULE_1___default.a);
         }
       }).then(function (response) {
         setTimeout(function () {
-          console.log('send', response.data.data.messageSendMutation.id);
           _this3.state = response.data.data.messageSendMutation.error;
           console.log(_this3.state);
 
@@ -38703,6 +38717,17 @@ var render = function() {
                                 )
                               },
                               [
+                                _c("span", { staticClass: "time_date" }, [
+                                  _vm._v(
+                                    " " +
+                                      _vm._s(
+                                        _vm.format_time_date(
+                                          message.message_created_at
+                                        )
+                                      )
+                                  )
+                                ]),
+                                _vm._v(" "),
                                 message.body
                                   ? _c("p", { staticClass: "text-msg" }, [
                                       _vm._v(_vm._s(message.body))
@@ -38726,11 +38751,15 @@ var render = function() {
                                     ])
                                   : _vm._e(),
                                 _vm._v(" "),
+                                message.status == "LOAD"
+                                  ? _c("p", [_vm._v("loading")])
+                                  : _vm._e(),
+                                _vm._v(" "),
                                 _c("span", { staticClass: "time_date" }, [
                                   _vm._v(
                                     " " +
                                       _vm._s(
-                                        _vm.format_time_date(
+                                        _vm.format_time(
                                           message.message_created_at
                                         )
                                       )

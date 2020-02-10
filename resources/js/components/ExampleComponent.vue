@@ -12,7 +12,7 @@
                         <h4 style="text-align: right;">{{ this.activeTitle }}</h4>
                         <span class="archive-icon" v-on:click="archivedContact">
                                     <i class="fa fa-archive" aria-hidden="true"></i>
-                                </span>
+                        </span>
                     </div>
 
             </div>
@@ -31,10 +31,12 @@
                                  :class="messageType(message.type, 'incoming_msg', 'outgoing_msg')">
                                 <div :class="messageType(message.type, 'received_msg', 'sent_msg')">
                                     <div :class="messageType(message.type, 'received_withd_msg', 'sent_withd_msg')">
-                                        <p v-if="message.body" class="text-msg">{{message.body}}</p>
-                                        <p v-if="message.media_url" class="text-img"><img v-bind:src="message.media_url" /></p>
-                                        <p v-if='message.status == "SENT"'><i class="fa fa-check-circle" aria-hidden="true"></i></p>
                                         <span class="time_date"> {{format_time_date( message.message_created_at) }}</span>
+                                        <p v-if='message.body' class="text-msg">{{message.body}}</p>
+                                        <p v-if="message.media_url" class="text-img" ><img v-bind:src="message.media_url" /></p>
+                                        <p v-if='message.status == "SENT"'><i class="fa fa-check-circle" aria-hidden="true"></i></p>
+                                        <p v-if='message.status == "LOAD"'>loading</p>
+                                        <span class="time_date"> {{format_time( message.message_created_at) }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -142,7 +144,9 @@
                 btnUpload: '',
                 myCanvas:'',
                 msg: '',
-                state: ''
+                state:'',
+                currentDate:''
+
             }
         },
         watch: {
@@ -174,10 +178,22 @@
 
             format_time_date(value) {
                 if (value) {
-                    return moment(String(value)).format('MM/DD/YYYY | h:mm a')
-
+                    let dt = moment(String(value)).format('MM/DD/YYYY');
+                    if(this.currentDate !== dt) {
+                        this.currentDate = dt;
+                        return moment(String(value)).format('MM/DD/YYYY')
+                    }
+                    return '';
                 }
             },
+
+            format_time(value) {
+                if (value) {
+                    return moment(String(value)).format('h:mm a')
+                }
+            },
+
+
 
             scrollToTop() {
                 var myDiv = document.getElementById('inbox_chat' + this.id);
@@ -303,7 +319,7 @@
                     sender: "2157097384",
                     contact_created_at: "2020-01-21 07:10:53",
                     type: "sent",
-                    status: "SENT",
+                    status: "LOAD",
                     archived: 0,
                     message_created_at: "2020-02-03 08:05:30"
                 }
@@ -362,7 +378,6 @@
                     }
                 }).then(response => {
                     setTimeout(() => {
-                        console.log('send', response.data.data.messageSendMutation.id)
                         this.state = response.data.data.messageSendMutation.error
                         console.log(this.state)
                         this.loadMessage(this.allContacts, response.data.data.messageSendMutation.id, 'no');
