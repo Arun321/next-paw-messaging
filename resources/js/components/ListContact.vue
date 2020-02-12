@@ -156,8 +156,6 @@
                 } else {
                     filterSearch = '"' + this.listSearch + '"'
                 }
-
-
                 axios({
                     url: 'https://1159496042235434-reviews.jenkins.nextpaw.com/graph-api',
                     headers: {

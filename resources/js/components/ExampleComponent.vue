@@ -27,16 +27,20 @@
                     </div>
                     <div v-if="!msgLoading">
                         <div id="msg_history" class="msg_history">
-                            <div v-for="message in messages"
-                                 :class="messageType(message.type, 'incoming_msg', 'outgoing_msg')">
-                                <div :class="messageType(message.type, 'received_msg', 'sent_msg')">
-                                    <div :class="messageType(message.type, 'received_withd_msg', 'sent_withd_msg')">
-                                        <span class="time_date"> {{format_time_date( message.message_created_at) }}</span>
-                                        <p v-if='message.body' class="text-msg">{{message.body}}</p>
-                                        <p v-if="message.media_url" class="text-img" ><img v-bind:src="message.media_url" /></p>
-                                        <p v-if='message.status == "SENT"'><i class="fa fa-check-circle" aria-hidden="true"></i></p>
-                                        <p v-if='message.status == "LOAD"'>loading</p>
-                                        <span class="time_date"> {{format_time( message.message_created_at) }}</span>
+                            <div v-for="(dated, index) in datedMessages"
+                                 :key="index">
+                                <div class="group-date text-center">
+                                    <span class="date">{{dated.dt}}</span>
+                                </div>
+                                <div v-for="(message, ind) in dated.arr" :key="ind" :class="messageType(message.type, 'incoming_msg', 'outgoing_msg')">
+                                    <div :class="messageType(message.type, 'received_msg', 'sent_msg')">
+                                        <div :class="messageType(message.type, 'received_withd_msg', 'sent_withd_msg')">
+                                            <p v-if='message.body' class="text-msg">{{message.body}}</p>
+                                            <p v-if="message.media_url" class="text-img" ><img v-bind:src="message.media_url" /></p>
+                                            <p v-if='message.status == "SENT"'><i class="fa fa-check-circle" aria-hidden="true"></i></p>
+                                            <p v-if='message.status == "LOAD"'>loading</p>
+                                            <span class="time_date text-right"> {{format_time( message.message_created_at) }}</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -144,9 +148,7 @@
                 btnUpload: '',
                 myCanvas:'',
                 msg: '',
-                state:'',
-                currentDate:''
-
+                state:''
             }
         },
         watch: {
@@ -154,6 +156,24 @@
                 handler(n, o) {
                     this.search = ''
                 }
+            }
+        },
+        computed: {
+            datedMessages () {
+                let dupDates = this.messages.map((item => {
+                    return item.message_created_at.split(' ')[0]
+                }))
+                let uniq = [...new Set(dupDates)];
+                let grouping = uniq.map(uniqItem => {
+                    let ret = this.messages.filter(msg => {
+                        return msg.message_created_at.split(' ')[0] === uniqItem
+                    })
+                    return {
+                        dt: uniqItem,
+                        arr: ret
+                    }
+                })
+                return grouping
             }
         },
         methods: {
@@ -175,25 +195,11 @@
                 reader.readAsDataURL(file);
             },
 
-
-            format_time_date(value) {
-                if (value) {
-                    let dt = moment(String(value)).format('MM/DD/YYYY');
-                    if(this.currentDate !== dt) {
-                        this.currentDate = dt;
-                        return moment(String(value)).format('MM/DD/YYYY')
-                    }
-                    return '';
-                }
-            },
-
             format_time(value) {
                 if (value) {
                     return moment(String(value)).format('h:mm a')
                 }
             },
-
-
 
             scrollToTop() {
                 var myDiv = document.getElementById('inbox_chat' + this.id);
@@ -209,7 +215,15 @@
                 }
             },
 
-
+            // format_time_date(value) {
+            //     let dt = moment(String(value)).format('MM/DD/YYYY');
+            //     if(this.currentDate !== dt) {
+            //         this.currentDate = dt;
+            //         return moment(String(value)).format('MM/DD/YYYY')
+            //     }else{
+            //         return '';
+            //     }
+            // },
 
             scrollToEnd() {
                 let container = document.querySelector('.msg_history');
@@ -339,7 +353,6 @@
                 } else{
                     this.messages.push(this.addMessage(this.typedMessage, this.activeIndex,this.imagePreview));
                 }
-
                     setTimeout(() => {
                         this.scrollMessagesTop()
                     }, 400);
@@ -404,6 +417,10 @@
 
 
 <style scoped>
+    .date{
+        max-width: 500px;
+        padding-right:35px;
+    }
     .base-image-input {
         display: block;
         width: 300px;
@@ -411,9 +428,6 @@
         cursor: pointer;
         background-size: cover;
         background-position: center center;
-    }
-    .caption{
-
     }
     .placeholder {
         background: #F0F0F0;
@@ -623,6 +637,7 @@
         display: block;
         font-size: 12px;
         margin: 8px 0 0;
+        font-weight: bold;
     }
 
     .received_withd_msg {
