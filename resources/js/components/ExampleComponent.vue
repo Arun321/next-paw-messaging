@@ -9,13 +9,13 @@
                 </button>
                 <AddContact></AddContact>
                     <div class="toolbar__label current_name text-center">
-                        <h4 style="text-align: right;">{{ this.activeTitle }}</h4>
+                        <h4 style="text-align: right;" class="col-md-9 offset-md-1 ">{{ this.activeTitle }}</h4>
                         <span class="archive-icon" v-on:click="archivedContact">
-                                    <i class="fa fa-archive" aria-hidden="true"></i>
+                            <i class="fa fa-archive" aria-hidden="true"></i>
                         </span>
                     </div>
-
             </div>
+
             <div class="inbox_msg">
                 <div style="width: 40%">
                     <ListContact id="1" :zeroOrOne="0" :loadMessage="loadMessage"></ListContact>
@@ -37,34 +37,29 @@
                                         <div :class="messageType(message.type, 'received_withd_msg', 'sent_withd_msg')">
                                             <p v-if='message.body' class="text-msg">{{message.body}}</p>
                                             <p v-if="message.media_url" class="text-img" ><img v-bind:src="message.media_url" /></p>
-                                            <p v-if='message.status == "SENT"'><i class="fa fa-check-circle" aria-hidden="true"></i></p>
-                                            <p v-if='message.status == "LOAD"'>loading</p>
-                                            <span class="time_date text-right"> {{format_time( message.message_created_at) }}</span>
+                                            <p v-if='message.status == "SENT"' class="text-right"><i class="fa fa-check-circle" aria-hidden="true" style="float: left"></i>
+                                                <span class="time_date text-right" style="display:inline"> {{format_time( message.message_created_at) }}</span>
+                                            </p>
+                                            <p v-if='message.status == "LOAD"'><i class="fa fa-spinner" aria-hidden="true"></i></p>
+
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-
                         <div class="type_msg" v-show="activeIndex" style="display: none">
                             <div class="input_msg_write" >
-                                <input type="text" class="write_msg" placeholder="Type a message"
+                                <input type="text" class="write_msg" placeholder="Type a message..."
                                        v-model="typedMessage"/>
-                                <button class="msg_send_btn" type="button" v-on:click="sendMessage">
+                                <button class="msg_send_btn" type="button" v-if="typedMessage" v-on:click="sendMessage">
                                     <i class="fa fa-paper-plane-o"
                                        aria-hidden="true">
                                     </i>
                                 </button>
 
-<!--                                <input id="img_upload" type="file" v-on:change="encodeImageFileAsURL" hidden>-->
-<!--                                <button class="img_send_btn" id="btn_upload" type="file" v-on:click="image"  data-toggle="modal" data-target="#myModalImage">-->
-<!--                                    <i class="fa fa-paperclip" aria-hidden="true"></i>-->
-<!--                                </button>-->
-
-
                                 <button class="img_send_btn" id="btn_upload"
-                                        v-on:click="image">
+                                        v-on:click="image" >
                                     <i class="fa fa-paperclip" aria-hidden="true" ></i>
                                 </button>
                             </div>
@@ -305,15 +300,12 @@
                     setTimeout(() => {
                         this.scrollToEnd()
                     }, 400)
-
                     let activeContact = listContacts.filter(function (elem) {
                         if (elem.contact_id == value) return true;
                     });
                     // if (activeContact[0].ps_id == 'null')
-
                     let contactNum = !activeContact[0].ps_id ? ' | ' + activeContact[0].sender : ''
                     this.activeTitle = activeContact[0].first_name + contactNum
-
 
                 }).catch((e) => console.log(e));
                 this.activeIndex = value;
@@ -392,7 +384,6 @@
                 }).then(response => {
                     setTimeout(() => {
                         this.state = response.data.data.messageSendMutation.error
-                        console.log(this.state)
                         this.loadMessage(this.allContacts, response.data.data.messageSendMutation.id, 'no');
                         this.filterPage = 1
                         this.loadMore = true
@@ -419,7 +410,15 @@
 <style scoped>
     .date{
         max-width: 500px;
-        padding-right:35px;
+    }
+    .group-date{
+        background: #71B20C none repeat scroll 0 0;
+        border-radius: 3px;
+        font-size: 14px;
+        color: #fff;
+        padding: 5px 10px;
+        width: 20%;
+        margin: 0 auto;
     }
     .base-image-input {
         display: block;
@@ -623,9 +622,9 @@
     }
 
     .received_withd_msg p {
-        background: #ebebeb none repeat scroll 0 0;
+        background: #144579c9 none repeat scroll 0 0;
         border-radius: 3px;
-        color: #646464;
+        color: #FFFFFF;
         font-size: 14px;
         margin: 0;
         padding: 5px 10px 5px 12px;
@@ -633,7 +632,7 @@
     }
 
     .time_date {
-        color: #747474;
+        color: #ffffff;
         display: block;
         font-size: 12px;
         margin: 8px 0 0;
@@ -652,7 +651,7 @@
     }
 
     .sent_msg p {
-        background: #05728f none repeat scroll 0 0;
+        background: #39A7DE none repeat scroll 0 0;
         border-radius: 3px;
         font-size: 14px;
         margin: 0;
@@ -661,7 +660,7 @@
         width: 100%;
     }
 
-    .outgoing_msg {
+    .outgoing_msg,.incoming_msg {
         overflow: hidden;
         margin: 26px 0 26px;
     }
@@ -687,21 +686,7 @@
     }
 
     .msg_send_btn {
-        background: #05728f none repeat scroll 0 0;
-        border: medium none;
-        border-radius: 50%;
-        color: #fff;
-        cursor: pointer;
-        font-size: 17px;
-        height: 33px;
-        position: absolute;
-        right: 0;
-        top: 11px;
-        width: 33px;
-    }
-
-    .img_send_btn {
-        background: #05728f none repeat scroll 0 0;
+        background: #71B20C none repeat scroll 0 0;
         border: medium none;
         border-radius: 50%;
         color: #fff;
@@ -710,6 +695,20 @@
         height: 33px;
         position: absolute;
         right: 40px;
+        top: 11px;
+        width: 33px;
+    }
+
+    .img_send_btn {
+        background: #71B20C none repeat scroll 0 0;
+        border: medium none;
+        border-radius: 50%;
+        color: #fff;
+        cursor: pointer;
+        font-size: 17px;
+        height: 33px;
+        position: absolute;
+        right: 0px;
         top: 11px;
         width: 33px;
     }
@@ -738,7 +737,7 @@
     }
 
     .active {
-        background-color: aliceblue;
+        background-color: #39A7DE;
     }
 
 </style>

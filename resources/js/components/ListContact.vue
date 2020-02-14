@@ -16,12 +16,12 @@
                         </select>
                     </div>
                 </div>
-                <div class="offset-md-2 srch_bar">
-                    <div class="stylish-input-group">
+                <div class="col-md-12 srch_bar">
+                    <div class="stylish-input-group offset-md-3">
                         <input type="text" v-on:keyup="searchData($event)" v-model="listSearch"
                                class="search-bar" placeholder="Search">
                         <span class="input-group-addon">
-                                    <button type="button"> <i class="fa fa-search" aria-hidden="true"></i> </button>
+                            <button type="button"> <i class="fa fa-search" aria-hidden="true"></i> </button>
                         </span>
                     </div>
                 </div>
@@ -44,7 +44,7 @@
                             <h5>{{contact.first_name}} {{contact.last_name}} <span class="archive"
                                                                                    v-if="contact.archived === 1">Archived</span>
                             </h5>
-                            <p>{{ trunc(contact.body) }}<span class="chat_date">{{ format_date(contact.message_created_at) }}</span>
+                            <p style="color: black">{{ trunc(contact.body) }}<span class="chat_date">{{ format_date(contact.message_created_at) }}</span>
                             </p>
                         </div>
                     </div>
@@ -201,6 +201,8 @@
 
                     if (temp1.length > 0) {
                         this.listContacts.push(...temp1)
+                        // console.log(response.data.data.search.data[0].id)
+                        // this.loadMessage(this.allContacts, response.data.data.search.data[0].id, 'no');
                         this.listLoadMore = true
                     } else {
                         this.listLoadMore = false
@@ -293,8 +295,8 @@
 
     .srch_bar {
         display: inline-block;
-        text-align: right;
-        width: 60%;
+        /*text-align: right;*/
+        width: 220px;
         padding: 0;
         outline: 0;
     }
@@ -314,7 +316,7 @@
     .srch_bar input {
         border: 1px solid #cdcdcd;
         border-width: 0 0 1px 0;
-        width: 80%;
+        width: 220px;
         padding: 2px 0 4px 6px;
         background: none;
         outline: 0;
@@ -512,7 +514,7 @@
     }
 
     .active {
-        background-color: aliceblue;
+        background-color: #39A7DE;
     }
     div#myModal .filters {
         display: none;
