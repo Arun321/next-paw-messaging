@@ -32,9 +32,9 @@
         </div>
         <div v-bind:id="'inbox_chat' + id" class="inbox_chat" v-show="listContacts.length > 0">
             <div v-if="!listContactLoading">
-                <div class="chat_list" v-for="contact in listContacts"
-                     v-on:click="listActiveIndex = loadMessage(listContacts, contact.contact_id, 'yes')"
-                     :class="{'active': contact.contact_id == listActiveIndex}">
+                <div class="chat_list" v-for="(contact,index) in listContacts"
+                     v-on:click="listActiveIndex=loadMessage(listContacts, contact.contact_id, 'yes')"
+                     :class="{'active': contact.contact_id === listActiveIndex || (listActiveIndex === 0 && index === 0)}">
                     <div class="chat_people">
                         <div class="chat_img">
                             <img v-show="!contact.ps_id" src="https://app.nextpaw.com/img/text-msg.png">
@@ -44,14 +44,17 @@
                             <h5>{{contact.first_name}} {{contact.last_name}} <span class="archive"
                                                                                    v-if="contact.archived === 1">Archived</span>
                             </h5>
-                            <p style="color: black">{{ trunc(contact.body) }}<span class="chat_date">{{ format_date(contact.message_created_at) }}</span>
+                            <p style="color: black" class="msg-body" v-if='contact.status == "SENT"'>
+                                {{ trunc(contact.body) }}
+                                <i class="fa fa-check-circle" aria-hidden="true" style="float: left"></i>
+                                <span class="chat_date">{{ format_date(contact.message_created_at) }}</span>
                             </p>
                         </div>
                     </div>
                 </div>
             </div>
             <div v-if="listLoadMore" class="load">
-                <h4>loading...</h4>
+                <i class="fa fa-spinner fa-spin" style="font-size: 18px"></i>
             </div>
         </div>
     </div>
@@ -98,10 +101,13 @@
                 scrollElm: '',
                 btnUpload: '',
                 msg: '',
+                loadContact:'',
+                isLoading: false
             }
         },
 
         mounted() {
+            console.log('mounted');
             this.filteredContacts()
             this.scrollElm = document.querySelector('#inbox_chat' + this.id)
             this.loadOnScroll()
@@ -119,16 +125,20 @@
         },
         methods:{
             scrollToTop() {
+                console.log('scrollToTop');
                 var myDiv = document.getElementById('inbox_chat1');
                 if (myDiv) {
                     myDiv.scrollTop = 0;
                 }
             },
             loadOnScroll() {
+                console.log('loadOnScroll');
                 this.scrollElm.addEventListener('scroll', this.scrollListener)
             },
             scrollListener() {
+                console.log('scrollListener');
                 if (this.scrollElm.scrollTop + this.scrollElm.clientHeight >= this.scrollElm.scrollHeight) {
+                    console.log(this.listLoadMore)
                     if (this.listLoadMore) {
                         this.filteredContacts()
                     } else {
@@ -137,27 +147,35 @@
                 }
             },
             searchData(e) {
+                console.log('searchDate');
                 this.listFilterPage = 1
                 this.listLoadMore = true
                 this.listSearch = e.target.value;
                 this.filteredContacts()
-
             },
             sortBy(e) {
+                console.log('sortBy');
                 this.listFilterPage = 1
                 this.listLoadMore = true
                 this.listFilter = e.target.value
+                this.loadMessage(this.listContacts, 0,'no')
                 this.filteredContacts()
             },
             filteredContacts() {
+                console.log('filteredContacts');
+                if(this.isLoading) {
+                    return false;
+                }
+                this.isLoading = true;
                 let filterSearch = '';
                 if (this.listSearch === "" || this.listSearch === null) {
                     filterSearch = null
                 } else {
-                    filterSearch = '"' + this.listSearch + '"'
+                    filterSearch = '"' + this.listSearch + '"';
+                    filterSearch = filterSearch.replace(/\s/g, '')
                 }
                 axios({
-                    url: 'https://1159496042235434-reviews.jenkins.nextpaw.com/graph-api',
+                    url: 'https://app.nextpaw.com/graph-api',
                     headers: {
                         Authorization: `Bearer ${this.listUser.token}`
                     },
@@ -192,32 +210,37 @@
                         }`
                     }
                 }).then(response => {
-
                     if (this.listFilterPage === 1) {
                         this.listContacts = []
                     }
-                    this.listFilterPage++
+                    console.log(this.listFilterPage)
+                    // this.listFilterPage++
                     let temp1 = response.data.data.search.data;
-
                     if (temp1.length > 0) {
+                        console.log(this.listContacts.length)
                         this.listContacts.push(...temp1)
-                        // console.log(response.data.data.search.data[0].id)
-                        // this.loadMessage(this.allContacts, response.data.data.search.data[0].id, 'no');
-                        this.listLoadMore = true
+                        if (this.listFilterPage === 1) {
+                            this.loadMessage(this.listContacts,response.data.data.search.data[0].contact_id,'no')
+                        }
+                        if (temp1.length < 15) {
+                               this.listLoadMore = false
+                        }
+                        // this.listLoadMore = true
                     } else {
+                        this.listActiveIndex = 0;
                         this.listLoadMore = false
                     }
-                    // if(this.filterPage === 2 && temp1.length <= 0) {
-                    //     this.contacts = []
-                    // }
-                }).catch((e) => console.log(e))
+                    this.listFilterPage++
+                    this.isLoading = false
+                }).catch((e) => {
+                    this.isLoading = false
+                    console.log(e)
+                })
             },
-
 
             format_date(value) {
                 if (value) {
                     return moment(String(value)).format('MM/DD/YYYY')
-
                 }
             },
 
@@ -237,6 +260,9 @@
         /*background-color: #cae8ca;*/
         /*border: 2px solid #c4c4c4;*/
     }
+    .load{
+        text-align: center;
+    }
 
     /*.archive-icon {*/
     /*    position: absolute;*/
@@ -251,7 +277,16 @@
     /*    right: 0;*/
     /*    top: 5px;*/
     /*}*/
-
+    .fa-check-circle{
+        position: relative;
+        top: 4px;
+        right: 5px;
+    }
+    .msg-body{
+        font-size: 14px;
+        margin: auto;
+        padding-left: 9px;
+    }
     .fa-archive {
         position: absolute;
         width: 24px;
@@ -401,7 +436,7 @@
 
     .received_withd_msg p {
         background: #ebebeb none repeat scroll 0 0;
-        border-radius: 3px;
+        /*border-radius: 3px;*/
         color: #646464;
         font-size: 14px;
         margin: 0;

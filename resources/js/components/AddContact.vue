@@ -1,5 +1,5 @@
 <template>
-    <!--    modal-->
+<!--        modal-->
 <!--    <div class="modal fade" id="myModalImage" role="dialog">-->
 <!--        <div class="modal-dialog">-->
 <!--            &lt;!&ndash;          modal content  &ndash;&gt;-->
@@ -20,6 +20,7 @@
 <!--            </div>-->
 <!--        </div>-->
 <!--    </div>-->
+
 </template>
 
 <script>

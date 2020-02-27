@@ -3,17 +3,18 @@
         <h3 class=" text-center">Messaging</h3>
         <div class="messaging">
             <div style="background-color:#f8f8f8" class="header col-md-12 sticky">
-                <button type="button" class="start_conversation"
-                        data-toggle="modal" data-target="#myModal"><i class="fa fa-plus"
-                                                                      aria-hidden="true"></i>
+                <button type="button" class="start_conversation" @click="openMyModal"><i class="fa fa-plus"
+                                                                                         aria-hidden="true"></i>
                 </button>
+<!--                <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#addNewContact" style="margin-left: 130px;">NEW CONTACT</button>-->
                 <AddContact></AddContact>
-                    <div class="toolbar__label current_name text-center">
-                        <h4 style="text-align: right;" class="col-md-9 offset-md-1 ">{{ this.activeTitle }}</h4>
-                        <span class="archive-icon" v-on:click="archivedContact">
+                <contact></contact>
+                <div class="toolbar__label current_name text-center">
+                    <h4 style="text-align: right;" class="col-md-9 offset-md-1 ">{{ this.activeTitle }}</h4>
+                    <span class="archive-icon" v-on:click="archivedContact">
                             <i class="fa fa-archive" aria-hidden="true"></i>
                         </span>
-                    </div>
+                </div>
             </div>
 
             <div class="inbox_msg">
@@ -34,14 +35,13 @@
                                 </div>
                                 <div v-for="(message, ind) in dated.arr" :key="ind" :class="messageType(message.type, 'incoming_msg', 'outgoing_msg')">
                                     <div :class="messageType(message.type, 'received_msg', 'sent_msg')">
-                                        <div :class="messageType(message.type, 'received_withd_msg', 'sent_withd_msg')">
+                                        <div id="msg" :class="messageType(message.type, 'received_withd_msg', 'sent_withd_msg')">
                                             <p v-if='message.body' class="text-msg">{{message.body}}</p>
                                             <p v-if="message.media_url" class="text-img" ><img v-bind:src="message.media_url" /></p>
                                             <p v-if='message.status == "SENT"' class="text-right"><i class="fa fa-check-circle" aria-hidden="true" style="float: left"></i>
                                                 <span class="time_date text-right" style="display:inline"> {{format_time( message.message_created_at) }}</span>
                                             </p>
                                             <p v-if='message.status == "LOAD"'><i class="fa fa-spinner" aria-hidden="true"></i></p>
-
                                         </div>
                                     </div>
                                 </div>
@@ -51,13 +51,12 @@
                         <div class="type_msg" v-show="activeIndex" style="display: none">
                             <div class="input_msg_write" >
                                 <input type="text" class="write_msg" placeholder="Type a message..."
-                                       v-model="typedMessage"/>
+                                       v-model="typedMessage" v-on:keyup.enter="sendMessage"/>
                                 <button class="msg_send_btn" type="button" v-if="typedMessage" v-on:click="sendMessage">
                                     <i class="fa fa-paper-plane-o"
                                        aria-hidden="true">
                                     </i>
                                 </button>
-
                                 <button class="img_send_btn" id="btn_upload"
                                         v-on:click="image" >
                                     <i class="fa fa-paperclip" aria-hidden="true" ></i>
@@ -68,14 +67,21 @@
                 </div>
             </div>
         </div>
-        <div class="modal fade" id="myModal" role="dialog">
+        <div class="modal fade" id="myModal" role="dialog" v-if="showMyModal">
             <div class="modal-dialog">
                 <!--          modal content  -->
                 <div class="modal-content">
                     <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <div>
+                            <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#addNewContact" style="margin-left: 150px">
+                                NEW CONTACT
+                            </button>
+                        </div>
+                        <div>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
                     </div>
-                    <ListContact id="2"  :zeroOrOne="1" ></ListContact>
+                    <ListContact id="2"  :zeroOrOne="1" :loadMessage="loadMessage"></ListContact>
                 </div>
             </div>
         </div>
@@ -91,10 +97,11 @@
                         <div class="base-image-input">
                             <img v-bind:src="imagePreview" class="preview-image" >
                             <input type="file" id="img_upload" class="file-input" v-on:change="encodeImageFileAsURL">
+                            <span>{{ this.imageName }}</span>
                         </div>
                         <div>
-                            <input type="text" class="form-text" id="attachment-text-input"
-                                   placeholder="Enter Caption" v-model="typedMessage" ><br>
+                            <input type="text" class="form-text" id="attachment-image-text-input"
+                                   placeholder="Type Caption" v-model="typedMessage" ><br>
                             <input type="submit" class="caption" value="upload" v-on:click="sendMessage">
                         </div>
                     </div>
@@ -114,12 +121,14 @@
     import ListContact from "./ListContact";
     import moment from 'moment';
     import {mapActions} from 'vuex'
+    import Contact from "./Contact";
 
 
     Vue.use(ScrollLoader)
 
     export default {
         components: {
+            Contact,
             ListContact,
             AddContact
         },
@@ -143,18 +152,21 @@
                 btnUpload: '',
                 myCanvas:'',
                 msg: '',
-                state:''
+                state:'',
+                showMyModal: 0
             }
         },
         watch: {
             sortBy: {
                 handler(n, o) {
+                    console.log('sortByWatch');
                     this.search = ''
                 }
             }
         },
         computed: {
             datedMessages () {
+                console.log('datedMessages');
                 let dupDates = this.messages.map((item => {
                     return item.message_created_at.split(' ')[0]
                 }))
@@ -173,11 +185,19 @@
         },
         methods: {
             ...mapActions('listStore', ['TRIGGER_FILTERED_CONTACTS_ACTION']),
+            openMyModal () {
+                this.showMyModal = 1
+                setTimeout(() => {
+                    $('#myModal').modal('show')
+                }, 100)
+            },
+
             image() {
                 document.getElementById('img_upload').click();
             },
 
             encodeImageFileAsURL(event) {
+                console.log('encodeImageFileAsURL');
                 var file = event.target.files[0];
                 var reader = new FileReader();
                 let vm = this
@@ -197,6 +217,7 @@
             },
 
             scrollToTop() {
+                console.log('scrollToTop');
                 var myDiv = document.getElementById('inbox_chat' + this.id);
                 if (myDiv) {
                     myDiv.scrollTop = 0;
@@ -204,31 +225,24 @@
             },
 
             scrollMessagesTop() {
+                console.log('scrollMessagesTop');
                 var myDiv = document.getElementById('msg_history');
                 if (myDiv) {
                     myDiv.scrollTop = myDiv.scrollHeight
                 }
             },
 
-            // format_time_date(value) {
-            //     let dt = moment(String(value)).format('MM/DD/YYYY');
-            //     if(this.currentDate !== dt) {
-            //         this.currentDate = dt;
-            //         return moment(String(value)).format('MM/DD/YYYY')
-            //     }else{
-            //         return '';
-            //     }
-            // },
-
             scrollToEnd() {
+                console.log('scrollToEnd');
                 let container = document.querySelector('.msg_history');
                 let height = container.scrollHeight;
                 container.scrollTop = height;
             },
 
             archivedContact() {
+                console.log('archivedContact');
                 axios({
-                    url: 'https://1159496042235434-reviews.jenkins.nextpaw.com/graph-api',
+                    url: 'https://app.nextpaw.com/graph-api',
                     headers: {
                         Authorization: `Bearer ${this.user.token}`
                     },
@@ -251,10 +265,10 @@
                     this.TRIGGER_FILTERED_CONTACTS_ACTION()
                 }).catch((e) => console.log(e))
                 // this.activeIndex=value
-
             },
 
             loadMessage(listContacts, value, reload) {
+                console.log('loadMessage');
                 if(listContacts) {
                     this.allContacts = listContacts;
                 } else {
@@ -264,8 +278,15 @@
                 if (reload == 'yes') {
                     this.msgLoading = true;
                 }
+                if(value === 0) {
+                    this.messages = [];
+                    this.msgLoading = false;
+                    this.activeTitle = '';
+                    this.activeIndex = value;
+                    return value;
+                }
                 axios({
-                    url: 'https://1159496042235434-reviews.jenkins.nextpaw.com/graph-api',
+                    url: 'https://app.nextpaw.com/graph-api',
                     headers: {
                         Authorization: `Bearer ${this.user.token}`
                     },
@@ -287,7 +308,6 @@
                                     status
                                     archived
                                     message_created_at
-
                                 }
                                 total
                                 per_page
@@ -297,6 +317,7 @@
                 }).then(response => {
                     this.msgLoading = false;
                     this.messages = response.data.data.singleConversion.data.reverse()
+                    // console.log(this.messages)
                     setTimeout(() => {
                         this.scrollToEnd()
                     }, 400)
@@ -304,16 +325,17 @@
                         if (elem.contact_id == value) return true;
                     });
                     // if (activeContact[0].ps_id == 'null')
-                    let contactNum = !activeContact[0].ps_id ? ' | ' + activeContact[0].sender : ''
-                    this.activeTitle = activeContact[0].first_name + contactNum
-
+                    if (activeContact[0]) {
+                        let contactNum = !activeContact[0].ps_id ? ' | ' + activeContact[0].sender : ''
+                        this.activeTitle = activeContact[0].first_name + contactNum
+                    }
                 }).catch((e) => console.log(e));
-                this.activeIndex = value;
+                this.activeIndex = value
                 return value;
             },
 
-            addMessage(message, contactId,image = null)
-            {
+            addMessage(message, contactId,image = null) {
+                console.log('addMessage');
                 return {
                     id: 100197,
                     first_name: "Unknown",
@@ -340,6 +362,7 @@
             },
 
             sendMessage: function () {
+                console.log('sendMessage');
                 if(!this.base64Image){
                     this.messages.push(this.addMessage(this.typedMessage, this.activeIndex));
                 } else{
@@ -371,9 +394,9 @@
                             message
                             }
                         }`
-                }
+                    }
                 axios({
-                    url: 'https://1159496042235434-reviews.jenkins.nextpaw.com/graph-api',
+                    url: 'https://app.nextpaw.com/graph-api',
                     headers: {
                         Authorization: `Bearer ${this.user.token}`
                     },
@@ -388,14 +411,15 @@
                         this.filterPage = 1
                         this.loadMore = true
                         this.TRIGGER_FILTERED_CONTACTS_ACTION();
+
                         // this.loadAll = true
                         setTimeout(() => {
                             this.scrollToTop()
                         }, 400)
                     }, 1000);
-                })
-                    .catch(e => {
+                }).catch(e => {
                         this.errors.push(e)
+
                         // this.activeIndex = value
                     })
                 this.typedMessage = '';
@@ -419,6 +443,11 @@
         padding: 5px 10px;
         width: 20%;
         margin: 0 auto;
+    }
+    #msg
+    {
+        border-radius: 5px;
+        overflow: hidden;
     }
     .base-image-input {
         display: block;
@@ -623,7 +652,7 @@
 
     .received_withd_msg p {
         background: #144579c9 none repeat scroll 0 0;
-        border-radius: 3px;
+        /*border-radius: 3px;*/
         color: #FFFFFF;
         font-size: 14px;
         margin: 0;
@@ -652,7 +681,8 @@
 
     .sent_msg p {
         background: #39A7DE none repeat scroll 0 0;
-        border-radius: 3px;
+
+        /*border-radius: 3px;*/
         font-size: 14px;
         margin: 0;
         color: #fff;
@@ -676,7 +706,7 @@
         color: #4c4c4c;
         font-size: 15px;
         min-height: 48px;
-        width: 100%;
+        width: 85%;
         outline: 0;
     }
 
