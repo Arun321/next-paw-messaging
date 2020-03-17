@@ -38,9 +38,8 @@
         },
         methods: {
             login() {
-
                 axios({
-                    url: 'https://1146270492621681-reviews.jenkins.nextpaw.com/graph-api/secret',
+                    url: 'https://app.nextpaw.com/graph-api/secret',
                     method: 'post',
                     data: {
                         query: `{login(email:"monika.kumari@hnrtech.com", password:"123456") {
@@ -56,8 +55,10 @@
                     .catch((e) => console.log(e));
             },
             loginSuccessful(res) {
-
+                console.log("loginSuccess")
+                console.log(res)
                 let data = res.data.data.login;
+
                 data = {
                     first_name: data.first_name,
                     last_name: data.last_name,

@@ -44,10 +44,13 @@
                             <h5>{{contact.first_name}} {{contact.last_name}} <span class="archive"
                                                                                    v-if="contact.archived === 1">Archived</span>
                             </h5>
-                            <p style="color: black" class="msg-body" v-if='contact.status == "SENT"'>
+                            <p style="color: black" class="msg-body" v-if='contact.status == "SENT"' >
                                 {{ trunc(contact.body) }}
                                 <i class="fa fa-check-circle" aria-hidden="true" style="float: left"></i>
                                 <span class="chat_date">{{ format_date(contact.message_created_at) }}</span>
+                                <span class="image" v-if="contact.media_url!=null">
+                                    <i class="fa fa-picture-o" aria-hidden="true"></i>
+                                </span>
                             </p>
                         </div>
                     </div>
@@ -153,6 +156,7 @@
                 this.listSearch = e.target.value;
                 this.filteredContacts()
             },
+
             sortBy(e) {
                 console.log('sortBy');
                 this.listFilterPage = 1
@@ -161,6 +165,7 @@
                 this.loadMessage(this.listContacts, 0,'no')
                 this.filteredContacts()
             },
+
             filteredContacts() {
                 console.log('filteredContacts');
                 if(this.isLoading) {
@@ -225,8 +230,9 @@
                         if (temp1.length < 15) {
                                this.listLoadMore = false
                         }
-                        // this.listLoadMore = true
-                    } else {
+                     this.listLoadMore = true
+                    }
+                    else {
                         this.listActiveIndex = 0;
                         this.listLoadMore = false
                     }

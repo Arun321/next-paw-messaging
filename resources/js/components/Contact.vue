@@ -1,56 +1,44 @@
 <template>
-    <!--        modal-->
-    <div class="modal fade" id="addNewContact" role="dialog">
-        <div class="modal-dialog">
-            <!--          modal content  -->
+    <div class="modal fade" id="addNewContact" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
-                <div class="card new-contact">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <div class="modal-header border-bottom-0">
+                    <h5 class="modal-title" id="exampleModalLabel">Add Contact</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>First Name</label>
-                                <input type="text" name="firstname" class="form-control change-field" value required>
-                            </div>
+                <form>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="firstname">First Name</label>
+                            <input type="text" class="form-control" id="firstname" aria-describedby="emailHelp" placeholder="First Name">
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Last Name</label>
-                                <input type="text" name="lastname" class="form-control change-field" value required>
-                            </div>
+                        <div class="form-group">
+                            <label for="lastname">Last Name</label>
+                            <input type="text" class="form-control" id="lastname" placeholder="Last Name">
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Mobile Phone</label>
-                                <input type="text" name="phone" id="phone" class="form-control input- medium change-field" value required>
-                            </div>
+                        <div class="form-group">
+                            <label for="MobilePhone">Mobile Phone</label>
+                            <input type="text" class="form-control" id="MobilePhone" placeholder="Mobile Phone">
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Email Address</label>
-                                <input type="email" name="email" class="form-control change-field" value required>
-                            </div>
+                        <div class="form-group">
+                            <label for="EmailAddress">Email Address</label>
+                            <input type="email" class="form-control" id="EmailAddress" placeholder="Email Address">
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Pets Name</label>
-                                <input type="pet_name" name="pet_name" class="form-control change-field" value required>
-                            </div>
+                        <div class="form-group">
+                            <label for="PetsName">Pets Name</label>
+                            <input type="text" class="form-control" id="PetsName" placeholder="Pets Name">
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Pets Birthday</label>
-                                <input type="text" name="pet_birthday" id="pet_birthday" class="form-control change-field invite-date-font" value readonly="readonly">
-                            </div>
+                        <div class="form-group date">
+                            <label for="petdate">Pets Birthday</label>
+                            <input type="date" class="form-control" name="date" id="petdate" placeholder="dd.mm.yyyy">
                         </div>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <input type="hidden" id="save-url" name="save-url" value="">
-                    <button></button>
-                </div>
+                    <div class="modal-footer border-top-0 d-flex justify-content-center">
+                        <button type="submit" class="btn btn-success">Save</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -58,7 +46,10 @@
 
 <script>
     export default {
-        name: "Contact"
+        name: "Contact",
+        methods: {
+
+        }
     }
 </script>
 
@@ -69,5 +60,4 @@
     /*    width: 50px;*/
     /*    height: 50px;*/
     /*}*/
-
 </style>

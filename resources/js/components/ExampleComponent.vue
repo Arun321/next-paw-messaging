@@ -3,9 +3,14 @@
         <h3 class=" text-center">Messaging</h3>
         <div class="messaging">
             <div style="background-color:#f8f8f8" class="header col-md-12 sticky">
-                <button type="button" class="start_conversation" @click="openMyModal"><i class="fa fa-plus"
-                                                                                         aria-hidden="true"></i>
-                </button>
+<!--                <button type="button" class="start_conversation" @click="openMyModal"><i class="fa fa-address-book-o" aria-hidden="true"></i>-->
+<!--                </button>-->
+                <div class="modal__button">
+                    <button type="button" class="button" @click="openMyModal">
+                        All Contacts
+                    </button>
+                </div>
+
 <!--                <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#addNewContact" style="margin-left: 130px;">NEW CONTACT</button>-->
                 <AddContact></AddContact>
                 <contact></contact>
@@ -37,7 +42,8 @@
                                     <div :class="messageType(message.type, 'received_msg', 'sent_msg')">
                                         <div id="msg" :class="messageType(message.type, 'received_withd_msg', 'sent_withd_msg')">
                                             <p v-if='message.body' class="text-msg">{{message.body}}</p>
-                                            <p v-if="message.media_url" class="text-img" ><img v-bind:src="message.media_url" /></p>
+                                            <p v-if="message.media_url" class="text-img"  ><img v-bind:src="message.media_url" @click="openDialog(ind)" />
+                                            </p>
                                             <p v-if='message.status == "SENT"' class="text-right"><i class="fa fa-check-circle" aria-hidden="true" style="float: left"></i>
                                                 <span class="time_date text-right" style="display:inline"> {{format_time( message.message_created_at) }}</span>
                                             </p>
@@ -52,7 +58,7 @@
                             <div class="input_msg_write" >
                                 <input type="text" class="write_msg" placeholder="Type a message..."
                                        v-model="typedMessage" v-on:keyup.enter="sendMessage"/>
-                                <button class="msg_send_btn" type="button" v-if="typedMessage" v-on:click="sendMessage">
+                                <button class="msg_send_btn" type="button" v-if="typedMessage.trim()" v-on:click="sendMessage">
                                     <i class="fa fa-paper-plane-o"
                                        aria-hidden="true">
                                     </i>
@@ -85,7 +91,7 @@
                 </div>
             </div>
         </div>
-        <!--    modal-->
+        <!--IMAGE MODAL-->
         <div class="modal fade" id="myModalImage" role="dialog">
             <div class="modal-dialog">
                 <!--          modal content  -->
@@ -102,10 +108,26 @@
                         <div>
                             <input type="text" class="form-text" id="attachment-image-text-input"
                                    placeholder="Type Caption" v-model="typedMessage" ><br>
-                            <input type="submit" class="caption" value="upload" v-on:click="sendMessage">
+                            <input type="submit" data-max-size="24" class="caption" value="upload" v-on:click="sendMessage">
                         </div>
                     </div>
                     <div class="modal-footer">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- IMAGE VIEW MODAL -->
+        <div class="modal fade" id="myModalViewImage" role="dialog">
+            <div class="modal-dialog">
+                <!--          modal content  -->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div>
+                            <img img v-bind:src="messages.length > 0 ? messages[imgCount].media_url : ''">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -122,9 +144,12 @@
     import moment from 'moment';
     import {mapActions} from 'vuex'
     import Contact from "./Contact";
+    import VueSweetalert2 from 'vue-sweetalert2';
+    import 'sweetalert2/dist/sweetalert2.min.css';
 
 
     Vue.use(ScrollLoader)
+    Vue.use(VueSweetalert2)
 
     export default {
         components: {
@@ -138,6 +163,7 @@
                 contactLoading: false,
                 activeIndex: 0,
                 activeTitle: '',
+                imgCount: 1,
                 filter: 'all',
                 page: 1,
                 allContacts: [],
@@ -153,7 +179,10 @@
                 myCanvas:'',
                 msg: '',
                 state:'',
-                showMyModal: 0
+                errorMsg:'',
+                showMyModal: 0,
+                archived:'',
+                fullWidthImage: false
             }
         },
         watch: {
@@ -190,6 +219,10 @@
                 setTimeout(() => {
                     $('#myModal').modal('show')
                 }, 100)
+            },
+            openDialog(count) {
+                this.imgCount = count
+                $('#myModalViewImage').modal('show')
             },
 
             image() {
@@ -241,6 +274,14 @@
 
             archivedContact() {
                 console.log('archivedContact');
+                // console.log(this.activeIndex);
+                // this.$swal('User has been archived successfully','','success');
+                if(this.archived === 1){
+                    this.$swal('User has been unarchived successfully','','success');
+                }
+                else if (!this.archived){
+                    this.$swal('User has been archived successfully','','success');
+                }
                 axios({
                     url: 'https://app.nextpaw.com/graph-api',
                     headers: {
@@ -260,6 +301,8 @@
                             }`
                     }
                 }).then(response => {
+                    this.archived = response.data.data.contactArchive.archived;
+                    // console.log(this.archived)
                     this.filterPage = 1
                     this.loadMore = true
                     this.TRIGGER_FILTERED_CONTACTS_ACTION()
@@ -317,6 +360,7 @@
                 }).then(response => {
                     this.msgLoading = false;
                     this.messages = response.data.data.singleConversion.data.reverse()
+                    console.log(this.messages)
                     // console.log(this.messages)
                     setTimeout(() => {
                         this.scrollToEnd()
@@ -358,6 +402,15 @@
                     return class1;
                 } else {
                     return class2;
+                }
+            },
+
+            errorMessages(){
+                if (this.state === "7"){
+                    this.$swal(this.errorMsg)
+                }
+                if (this.state === "12"){
+                    this.$swal(this.errorMsg)
                 }
             },
 
@@ -407,6 +460,10 @@
                 }).then(response => {
                     setTimeout(() => {
                         this.state = response.data.data.messageSendMutation.error
+                        console.log(this.state)
+                        this.errorMsg = response.data.data.messageSendMutation.message
+                        console.log(this.errorMsg)
+                        this.errorMessages()
                         this.loadMessage(this.allContacts, response.data.data.messageSendMutation.id, 'no');
                         this.filterPage = 1
                         this.loadMore = true
@@ -435,6 +492,29 @@
     .date{
         max-width: 500px;
     }
+    img:hover {
+        cursor: pointer;
+    }
+
+    .button{
+        cursor: pointer;
+        background: #17a2b8;
+        border: 0;
+        border-radius: 50px;
+        color: #ffffff;
+        padding: 12px 60px;
+        font-weight: 700;
+        font-size: 12px;
+        outline: 0;
+        text-transform: uppercase;
+        /*margin: 0 auto;*/
+        display: table;
+        margin-left: 10%;
+    }
+    .button:hover{
+        filter: brightness(95%);
+    }
+
     .group-date{
         background: #71B20C none repeat scroll 0 0;
         border-radius: 3px;
