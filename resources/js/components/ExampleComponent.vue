@@ -42,7 +42,7 @@
                                     <div :class="messageType(message.type, 'received_msg', 'sent_msg')">
                                         <div id="msg" :class="messageType(message.type, 'received_withd_msg', 'sent_withd_msg')">
                                             <p v-if='message.body' class="text-msg">{{message.body}}</p>
-                                            <p v-if="message.media_url" class="text-img"  ><img v-bind:src="message.media_url" @click="openDialog(ind)" />
+                                            <p v-if="message.media_url" class="text-img"  ><img v-bind:src="message.media_url" />
                                             </p>
                                             <p v-if='message.status == "SENT"' class="text-right"><i class="fa fa-check-circle" aria-hidden="true" style="float: left"></i>
                                                 <span class="time_date text-right" style="display:inline"> {{format_time( message.message_created_at) }}</span>
@@ -126,7 +126,7 @@
                     </div>
                     <div class="modal-body">
                         <div>
-                            <img img v-bind:src="messages.length > 0 ? messages[imgCount].media_url : ''">
+<!--                            <img img v-bind:src="messages.length > 0 ? messages[imgCount].media_url : ''">-->
                         </div>
                     </div>
                 </div>
@@ -220,10 +220,11 @@
                     $('#myModal').modal('show')
                 }, 100)
             },
-            openDialog(count) {
-                this.imgCount = count
-                $('#myModalViewImage').modal('show')
-            },
+
+            // openDialog(count) {
+            //     this.imgCount = count
+            //     $('#myModalViewImage').modal('show')
+            // },
 
             image() {
                 document.getElementById('img_upload').click();

@@ -1929,9 +1929,53 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "Contact",
-  methods: {}
+  data: function data() {
+    return {
+      submitUser: JSON.parse(localStorage.getItem('user')),
+      firstName: '',
+      lastName: '',
+      mobilePhone: '',
+      emailAddress: null,
+      petsName: null,
+      petsBirthday: null,
+      submitData: '',
+      submitError: '',
+      errorInfo: ''
+    };
+  },
+  methods: {
+    submitForm: function submitForm() {
+      var _this = this;
+
+      axios({
+        url: 'https://app.nextpaw.com/graph-api',
+        headers: {
+          Authorization: "Bearer ".concat(this.submitUser.token)
+        },
+        method: 'POST',
+        data: {
+          query: "mutation contactMutation{\n                            contactMutation(\n                                            first_name: \"allen\",\n                                            last_name: \"jane\",\n                                            email: \"allenjane@gmail.com\",\n                                            mobile_number: \"8976543452\",\n                                            pet_name: ".concat(this.petsName, ",\n                                            pet_birthday: ").concat(this.petsBirthday, ",\n                                            operations: \"create\",\n                                            clientId: 1,\n                                            locationId: 1\n                                            ){\n                                               first_name\n                                               last_name\n                                               email\n                                               mobile_number\n                                               error\n                                               message\n                                               }\n                             }")
+        }
+      }).then(function (response) {
+        _this.submitData = response.data.data.contactMutation;
+        console.log(_this.submitData);
+        _this.submitError = response.data.data.contactMutation.error;
+        console.log(_this.submitError);
+        _this.errorInfo = response.data.data.contactMutation.message;
+
+        if (_this.submitError === "1" || _this.submitError === "0") {
+          _this.$swal(_this.errorInfo);
+        }
+      })["catch"](function (e) {
+        return console.log(e);
+      });
+    }
+  }
 });
 
 /***/ }),
@@ -2194,10 +2238,10 @@ Vue.use(vue_sweetalert2__WEBPACK_IMPORTED_MODULE_7__["default"]);
         $('#myModal').modal('show');
       }, 100);
     },
-    openDialog: function openDialog(count) {
-      this.imgCount = count;
-      $('#myModalViewImage').modal('show');
-    },
+    // openDialog(count) {
+    //     this.imgCount = count
+    //     $('#myModalViewImage').modal('show')
+    // },
     image: function image() {
       document.getElementById('img_upload').click();
     },
@@ -2755,7 +2799,7 @@ __webpack_require__.r(__webpack_exports__);
         url: 'https://app.nextpaw.com/graph-api/secret',
         method: 'post',
         data: {
-          query: "{login(email:\"monika.kumari@hnrtech.com\", password:\"123456\") {\n                                 id\n                                 first_name\n                                 last_name\n                                 token\n                                 error\n                                 message\n                               }}"
+          query: "{login(email:\"testing.nextpawindia@gmail.com\", password:\"123456\") {\n                                 id\n                                 first_name\n                                 last_name\n                                 token\n                                 error\n                                 message\n                               }}"
         }
       }).then(function (response) {
         return _this.loginSuccessful(response);
@@ -2836,7 +2880,7 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 
 // module
-exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n/*.new-contact {*/\n/*    border-radius: 50%;*/\n/*    box-shadow: 0 0 0 0.35rem #FFF;*/\n/*    width: 50px;*/\n/*    height: 50px;*/\n/*}*/\n", ""]);
+exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n/*.new-contact {*/\n/*    border-radius: 50%;*/\n/*    box-shadow: 0 0 0 0.35rem #FFF;*/\n/*    width: 50px;*/\n/*    height: 50px;*/\n/*}*/\n", ""]);
 
 // exports
 
@@ -41987,63 +42031,40 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _vm._m(0)
-}
-var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c(
-      "div",
-      {
-        staticClass: "modal fade",
-        attrs: {
-          id: "addNewContact",
-          tabindex: "-1",
-          role: "dialog",
-          "aria-labelledby": "exampleModalLabel",
-          "aria-hidden": "true"
-        }
-      },
-      [
-        _c(
-          "div",
-          {
-            staticClass: "modal-dialog modal-dialog-centered",
-            attrs: { role: "document" }
-          },
-          [
-            _c("div", { staticClass: "modal-content" }, [
-              _c("div", { staticClass: "modal-header border-bottom-0" }, [
-                _c(
-                  "h5",
-                  {
-                    staticClass: "modal-title",
-                    attrs: { id: "exampleModalLabel" }
-                  },
-                  [_vm._v("Add Contact")]
-                ),
-                _vm._v(" "),
-                _c(
-                  "button",
-                  {
-                    staticClass: "close",
-                    attrs: {
-                      type: "button",
-                      "data-dismiss": "modal",
-                      "aria-label": "Close"
-                    }
-                  },
-                  [
-                    _c("span", { attrs: { "aria-hidden": "true" } }, [
-                      _vm._v("×")
-                    ])
-                  ]
-                )
-              ]),
-              _vm._v(" "),
-              _c("form", [
+  return _c(
+    "div",
+    {
+      staticClass: "modal fade",
+      attrs: {
+        id: "addNewContact",
+        tabindex: "-1",
+        role: "dialog",
+        "aria-labelledby": "exampleModalLabel",
+        "aria-hidden": "true"
+      }
+    },
+    [
+      _c(
+        "div",
+        {
+          staticClass: "modal-dialog modal-dialog-centered",
+          attrs: { role: "document" }
+        },
+        [
+          _c("div", { staticClass: "modal-content" }, [
+            _vm._m(0),
+            _vm._v(" "),
+            _c(
+              "form",
+              {
+                on: {
+                  submit: function($event) {
+                    $event.preventDefault()
+                    return _vm.submitForm($event)
+                  }
+                }
+              },
+              [
                 _c("div", { staticClass: "modal-body" }, [
                   _c("div", { staticClass: "form-group" }, [
                     _c("label", { attrs: { for: "firstname" } }, [
@@ -42051,12 +42072,29 @@ var staticRenderFns = [
                     ]),
                     _vm._v(" "),
                     _c("input", {
+                      directives: [
+                        {
+                          name: "model",
+                          rawName: "v-model",
+                          value: _vm.firstName,
+                          expression: "firstName"
+                        }
+                      ],
                       staticClass: "form-control",
                       attrs: {
                         type: "text",
                         id: "firstname",
                         "aria-describedby": "emailHelp",
                         placeholder: "First Name"
+                      },
+                      domProps: { value: _vm.firstName },
+                      on: {
+                        input: function($event) {
+                          if ($event.target.composing) {
+                            return
+                          }
+                          _vm.firstName = $event.target.value
+                        }
                       }
                     })
                   ]),
@@ -42067,11 +42105,28 @@ var staticRenderFns = [
                     ]),
                     _vm._v(" "),
                     _c("input", {
+                      directives: [
+                        {
+                          name: "model",
+                          rawName: "v-model",
+                          value: _vm.lastName,
+                          expression: "lastName"
+                        }
+                      ],
                       staticClass: "form-control",
                       attrs: {
                         type: "text",
                         id: "lastname",
                         placeholder: "Last Name"
+                      },
+                      domProps: { value: _vm.lastName },
+                      on: {
+                        input: function($event) {
+                          if ($event.target.composing) {
+                            return
+                          }
+                          _vm.lastName = $event.target.value
+                        }
                       }
                     })
                   ]),
@@ -42082,82 +42137,224 @@ var staticRenderFns = [
                     ]),
                     _vm._v(" "),
                     _c("input", {
+                      directives: [
+                        {
+                          name: "model",
+                          rawName: "v-model",
+                          value: _vm.mobilePhone,
+                          expression: "mobilePhone"
+                        }
+                      ],
                       staticClass: "form-control",
                       attrs: {
                         type: "text",
                         id: "MobilePhone",
                         placeholder: "Mobile Phone"
+                      },
+                      domProps: { value: _vm.mobilePhone },
+                      on: {
+                        input: function($event) {
+                          if ($event.target.composing) {
+                            return
+                          }
+                          _vm.mobilePhone = $event.target.value
+                        }
                       }
                     })
                   ]),
                   _vm._v(" "),
-                  _c("div", { staticClass: "form-group" }, [
-                    _c("label", { attrs: { for: "EmailAddress" } }, [
-                      _vm._v("Email Address")
-                    ]),
-                    _vm._v(" "),
-                    _c("input", {
-                      staticClass: "form-control",
-                      attrs: {
-                        type: "email",
-                        id: "EmailAddress",
-                        placeholder: "Email Address"
-                      }
-                    })
-                  ]),
+                  _c(
+                    "div",
+                    { staticClass: "form-group" },
+                    [
+                      _c("label", { attrs: { for: "EmailAddress" } }, [
+                        _vm._v("Email Address")
+                      ]),
+                      _vm._v(" "),
+                      _c("input", {
+                        directives: [
+                          {
+                            name: "model",
+                            rawName: "v-model",
+                            value: _vm.emailAddress,
+                            expression: "emailAddress"
+                          }
+                        ],
+                        staticClass: "form-control",
+                        attrs: {
+                          type: "email",
+                          id: "EmailAddress",
+                          placeholder: "Email Address"
+                        },
+                        domProps: { value: _vm.emailAddress },
+                        on: {
+                          input: function($event) {
+                            if ($event.target.composing) {
+                              return
+                            }
+                            _vm.emailAddress = $event.target.value
+                          }
+                        }
+                      }),
+                      _vm._v(" "),
+                      _c(
+                        "medium",
+                        {
+                          staticClass: "form-text text-muted",
+                          attrs: { id: "emailOptional" }
+                        },
+                        [_vm._v("(Optional)")]
+                      )
+                    ],
+                    1
+                  ),
                   _vm._v(" "),
-                  _c("div", { staticClass: "form-group" }, [
-                    _c("label", { attrs: { for: "PetsName" } }, [
-                      _vm._v("Pets Name")
-                    ]),
-                    _vm._v(" "),
-                    _c("input", {
-                      staticClass: "form-control",
-                      attrs: {
-                        type: "text",
-                        id: "PetsName",
-                        placeholder: "Pets Name"
-                      }
-                    })
-                  ]),
+                  _c(
+                    "div",
+                    { staticClass: "form-group" },
+                    [
+                      _c("label", { attrs: { for: "PetsName" } }, [
+                        _vm._v("Pets Name")
+                      ]),
+                      _vm._v(" "),
+                      _c("input", {
+                        directives: [
+                          {
+                            name: "model",
+                            rawName: "v-model",
+                            value: _vm.petsName,
+                            expression: "petsName"
+                          }
+                        ],
+                        staticClass: "form-control",
+                        attrs: {
+                          type: "text",
+                          id: "PetsName",
+                          placeholder: "Pets Name"
+                        },
+                        domProps: { value: _vm.petsName },
+                        on: {
+                          input: function($event) {
+                            if ($event.target.composing) {
+                              return
+                            }
+                            _vm.petsName = $event.target.value
+                          }
+                        }
+                      }),
+                      _vm._v(" "),
+                      _c(
+                        "medium",
+                        {
+                          staticClass: "form-text text-muted",
+                          attrs: { id: "nameOptional" }
+                        },
+                        [_vm._v("(Optional)")]
+                      )
+                    ],
+                    1
+                  ),
                   _vm._v(" "),
-                  _c("div", { staticClass: "form-group date" }, [
-                    _c("label", { attrs: { for: "petdate" } }, [
-                      _vm._v("Pets Birthday")
-                    ]),
-                    _vm._v(" "),
-                    _c("input", {
-                      staticClass: "form-control",
-                      attrs: {
-                        type: "date",
-                        name: "date",
-                        id: "petdate",
-                        placeholder: "dd.mm.yyyy"
-                      }
-                    })
-                  ])
+                  _c(
+                    "div",
+                    { staticClass: "form-group date" },
+                    [
+                      _c("label", { attrs: { for: "petdate" } }, [
+                        _vm._v("Pets Birthday")
+                      ]),
+                      _vm._v(" "),
+                      _c("input", {
+                        directives: [
+                          {
+                            name: "model",
+                            rawName: "v-model",
+                            value: _vm.petsBirthday,
+                            expression: "petsBirthday"
+                          }
+                        ],
+                        staticClass: "form-control",
+                        attrs: {
+                          type: "date",
+                          name: "date",
+                          id: "petdate",
+                          placeholder: "dd.mm.yyyy"
+                        },
+                        domProps: { value: _vm.petsBirthday },
+                        on: {
+                          input: function($event) {
+                            if ($event.target.composing) {
+                              return
+                            }
+                            _vm.petsBirthday = $event.target.value
+                          }
+                        }
+                      }),
+                      _vm._v(" "),
+                      _c(
+                        "medium",
+                        {
+                          staticClass: "form-text text-muted",
+                          attrs: { id: "dateOptional" }
+                        },
+                        [_vm._v("(Optional)")]
+                      )
+                    ],
+                    1
+                  )
                 ]),
                 _vm._v(" "),
-                _c(
-                  "div",
-                  {
-                    staticClass:
-                      "modal-footer border-top-0 d-flex justify-content-center"
-                  },
-                  [
-                    _c(
-                      "button",
-                      {
-                        staticClass: "btn btn-success",
-                        attrs: { type: "submit" }
-                      },
-                      [_vm._v("Save")]
-                    )
-                  ]
-                )
-              ])
-            ])
-          ]
+                _vm._m(1)
+              ]
+            )
+          ])
+        ]
+      )
+    ]
+  )
+}
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "modal-header border-bottom-0" }, [
+      _c(
+        "h5",
+        { staticClass: "modal-title", attrs: { id: "exampleModalLabel" } },
+        [_vm._v("Add Contact")]
+      ),
+      _vm._v(" "),
+      _c(
+        "button",
+        {
+          staticClass: "close",
+          attrs: {
+            type: "button",
+            "data-dismiss": "modal",
+            "aria-label": "Close"
+          }
+        },
+        [_c("span", { attrs: { "aria-hidden": "true" } }, [_vm._v("×")])]
+      )
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c(
+      "div",
+      {
+        staticClass: "modal-footer border-top-0 d-flex justify-content-center"
+      },
+      [
+        _c(
+          "button",
+          {
+            staticClass: "btn btn-success",
+            attrs: { type: "submit", value: "Add Contact" }
+          },
+          [_vm._v("Save")]
         )
       ]
     )
@@ -42337,12 +42534,7 @@ var render = function() {
                                       message.media_url
                                         ? _c("p", { staticClass: "text-img" }, [
                                             _c("img", {
-                                              attrs: { src: message.media_url },
-                                              on: {
-                                                click: function($event) {
-                                                  return _vm.openDialog(ind)
-                                                }
-                                              }
+                                              attrs: { src: message.media_url }
                                             })
                                           ])
                                         : _vm._e(),
@@ -42604,34 +42796,7 @@ var render = function() {
       ]
     ),
     _vm._v(" "),
-    _c(
-      "div",
-      {
-        staticClass: "modal fade",
-        attrs: { id: "myModalViewImage", role: "dialog" }
-      },
-      [
-        _c("div", { staticClass: "modal-dialog" }, [
-          _c("div", { staticClass: "modal-content" }, [
-            _vm._m(2),
-            _vm._v(" "),
-            _c("div", { staticClass: "modal-body" }, [
-              _c("div", [
-                _c("img", {
-                  attrs: {
-                    img: "",
-                    src:
-                      _vm.messages.length > 0
-                        ? _vm.messages[_vm.imgCount].media_url
-                        : ""
-                  }
-                })
-              ])
-            ])
-          ])
-        ])
-      ]
-    )
+    _vm._m(2)
   ])
 }
 var staticRenderFns = [
@@ -42691,16 +42856,31 @@ var staticRenderFns = [
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "modal-header" }, [
-      _c(
-        "button",
-        {
-          staticClass: "close",
-          attrs: { type: "button", "data-dismiss": "modal" }
-        },
-        [_vm._v("×")]
-      )
-    ])
+    return _c(
+      "div",
+      {
+        staticClass: "modal fade",
+        attrs: { id: "myModalViewImage", role: "dialog" }
+      },
+      [
+        _c("div", { staticClass: "modal-dialog" }, [
+          _c("div", { staticClass: "modal-content" }, [
+            _c("div", { staticClass: "modal-header" }, [
+              _c(
+                "button",
+                {
+                  staticClass: "close",
+                  attrs: { type: "button", "data-dismiss": "modal" }
+                },
+                [_vm._v("×")]
+              )
+            ]),
+            _vm._v(" "),
+            _c("div", { staticClass: "modal-body" }, [_c("div")])
+          ])
+        ])
+      ]
+    )
   }
 ]
 render._withStripped = true
