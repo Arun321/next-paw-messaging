@@ -1932,20 +1932,23 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "Contact",
   data: function data() {
     return {
       submitUser: JSON.parse(localStorage.getItem('user')),
-      firstName: '',
-      lastName: '',
-      mobilePhone: '',
-      emailAddress: null,
-      petsName: null,
-      petsBirthday: null,
-      submitData: '',
-      submitError: '',
-      errorInfo: ''
+      Users: {
+        firstName: '',
+        lastName: '',
+        mobilePhone: '',
+        emailAddress: '',
+        petsName: null,
+        petsBirthday: null,
+        submitData: '',
+        submitError: '',
+        errorInfo: ''
+      }
     };
   },
   methods: {
@@ -1959,13 +1962,12 @@ __webpack_require__.r(__webpack_exports__);
         },
         method: 'POST',
         data: {
-          query: "mutation contactMutation{\n                            contactMutation(\n                                            first_name: \"allen\",\n                                            last_name: \"jane\",\n                                            email: \"allenjane@gmail.com\",\n                                            mobile_number: \"8976543452\",\n                                            pet_name: ".concat(this.petsName, ",\n                                            pet_birthday: ").concat(this.petsBirthday, ",\n                                            operations: \"create\",\n                                            clientId: 1,\n                                            locationId: 1\n                                            ){\n                                               first_name\n                                               last_name\n                                               email\n                                               mobile_number\n                                               error\n                                               message\n                                               }\n                             }")
+          query: "mutation contactMutation{\n                            contactMutation(\n                                            first_name:\"".concat(this.Users.firstName, "\",\n                                            last_name: \"").concat(this.Users.lastName, "\",\n                                            email: \"").concat(this.Users.emailAddress, "\",\n                                            mobile_number: \"").concat(this.Users.mobilePhone, "\",\n                                            pet_name: \"").concat(this.Users.petsName, "\",\n                                            pet_birthday: \"").concat(this.Users.petsBirthday, "\",\n                                            operations: \"create\",\n                                            clientId: 1,\n                                            locationId: 1\n                                            ){\n                                               first_name\n                                               last_name\n                                               email\n                                               mobile_number\n                                               error\n                                               message\n                                               }\n                             }")
         }
       }).then(function (response) {
         _this.submitData = response.data.data.contactMutation;
         console.log(_this.submitData);
         _this.submitError = response.data.data.contactMutation.error;
-        console.log(_this.submitError);
         _this.errorInfo = response.data.data.contactMutation.message;
 
         if (_this.submitError === "1" || _this.submitError === "0") {
@@ -1974,6 +1976,12 @@ __webpack_require__.r(__webpack_exports__);
       })["catch"](function (e) {
         return console.log(e);
       });
+      this.Users.firstName = '';
+      this.Users.lastName = '';
+      this.Users.emailAddress = '';
+      this.Users.mobilePhone = '';
+      this.Users.petsName = '';
+      this.Users.petsBirthday = '';
     }
   }
 });
@@ -2154,6 +2162,7 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 //
 //
 //
+//
 
 
 
@@ -2196,7 +2205,10 @@ Vue.use(vue_sweetalert2__WEBPACK_IMPORTED_MODULE_7__["default"]);
       errorMsg: '',
       showMyModal: 0,
       archived: '',
-      fullWidthImage: false
+      msgArchived: '',
+      fullWidthImage: false,
+      msgStatus: '',
+      archivedMessg: ''
     };
   },
   watch: {
@@ -2211,7 +2223,7 @@ Vue.use(vue_sweetalert2__WEBPACK_IMPORTED_MODULE_7__["default"]);
     datedMessages: function datedMessages() {
       var _this = this;
 
-      console.log('datedMessages');
+      // console.log('datedMessages');
       var dupDates = this.messages.map(function (item) {
         return item.message_created_at.split(' ')[0];
       });
@@ -2246,7 +2258,7 @@ Vue.use(vue_sweetalert2__WEBPACK_IMPORTED_MODULE_7__["default"]);
       document.getElementById('img_upload').click();
     },
     encodeImageFileAsURL: function encodeImageFileAsURL(event) {
-      console.log('encodeImageFileAsURL');
+      // console.log('encodeImageFileAsURL');
       var file = event.target.files[0];
       var reader = new FileReader();
       var vm = this;
@@ -2266,7 +2278,7 @@ Vue.use(vue_sweetalert2__WEBPACK_IMPORTED_MODULE_7__["default"]);
       }
     },
     scrollToTop: function scrollToTop() {
-      console.log('scrollToTop');
+      // console.log('scrollToTop');
       var myDiv = document.getElementById('inbox_chat' + this.id);
 
       if (myDiv) {
@@ -2274,7 +2286,7 @@ Vue.use(vue_sweetalert2__WEBPACK_IMPORTED_MODULE_7__["default"]);
       }
     },
     scrollMessagesTop: function scrollMessagesTop() {
-      console.log('scrollMessagesTop');
+      // console.log('scrollMessagesTop');
       var myDiv = document.getElementById('msg_history');
 
       if (myDiv) {
@@ -2282,23 +2294,22 @@ Vue.use(vue_sweetalert2__WEBPACK_IMPORTED_MODULE_7__["default"]);
       }
     },
     scrollToEnd: function scrollToEnd() {
-      console.log('scrollToEnd');
+      // console.log('scrollToEnd');
       var container = document.querySelector('.msg_history');
       var height = container.scrollHeight;
       container.scrollTop = height;
     },
-    archivedContact: function archivedContact() {
-      var _this2 = this;
-
-      console.log('archivedContact'); // console.log(this.activeIndex);
-      // this.$swal('User has been archived successfully','','success');
-
+    archivedAlert: function archivedAlert() {
       if (this.archived === 1) {
         this.$swal('User has been unarchived successfully', '', 'success');
       } else if (!this.archived) {
         this.$swal('User has been archived successfully', '', 'success');
       }
+    },
+    archivedContact: function archivedContact() {
+      var _this2 = this;
 
+      this.archivedAlert();
       axios__WEBPACK_IMPORTED_MODULE_0___default()({
         url: 'https://app.nextpaw.com/graph-api',
         headers: {
@@ -2322,8 +2333,7 @@ Vue.use(vue_sweetalert2__WEBPACK_IMPORTED_MODULE_7__["default"]);
     loadMessage: function loadMessage(listContacts, value, reload) {
       var _this3 = this;
 
-      console.log('loadMessage');
-
+      // console.log('loadMessage');
       if (listContacts) {
         this.allContacts = listContacts;
       } else {
@@ -2355,8 +2365,8 @@ Vue.use(vue_sweetalert2__WEBPACK_IMPORTED_MODULE_7__["default"]);
         }
       }).then(function (response) {
         _this3.msgLoading = false;
-        _this3.messages = response.data.data.singleConversion.data.reverse();
-        console.log(_this3.messages); // console.log(this.messages)
+        _this3.messages = response.data.data.singleConversion.data.reverse(); // this.msgArchived = response.data.data.singleConversion.data[0].archived;
+        // this.msgStatus = response.data.data.singleConversion.data[0].status;
 
         setTimeout(function () {
           _this3.scrollToEnd();
@@ -2371,13 +2381,16 @@ Vue.use(vue_sweetalert2__WEBPACK_IMPORTED_MODULE_7__["default"]);
         }
       })["catch"](function (e) {
         return console.log(e);
-      });
+      }); // if (this.msgArchived === 1 && this.msgStatus === 'SENT'){
+      //     this.archivedMessage()
+      // }
+
       this.activeIndex = value;
       return value;
     },
     addMessage: function addMessage(message, contactId) {
       var image = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-      console.log('addMessage');
+      // console.log('addMessage');
       return {
         id: 100197,
         first_name: "Unknown",
@@ -2413,8 +2426,7 @@ Vue.use(vue_sweetalert2__WEBPACK_IMPORTED_MODULE_7__["default"]);
     sendMessage: function sendMessage() {
       var _this4 = this;
 
-      console.log('sendMessage');
-
+      // console.log('sendMessage');
       if (!this.base64Image) {
         this.messages.push(this.addMessage(this.typedMessage, this.activeIndex));
       } else {
@@ -2443,9 +2455,7 @@ Vue.use(vue_sweetalert2__WEBPACK_IMPORTED_MODULE_7__["default"]);
       }).then(function (response) {
         setTimeout(function () {
           _this4.state = response.data.data.messageSendMutation.error;
-          console.log(_this4.state);
           _this4.errorMsg = response.data.data.messageSendMutation.message;
-          console.log(_this4.errorMsg);
 
           _this4.errorMessages();
 
@@ -2608,7 +2618,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     };
   },
   mounted: function mounted() {
-    console.log('mounted');
+    // console.log('mounted');
     this.filteredContacts();
     this.scrollElm = document.querySelector('#inbox_chat' + this.id);
     this.loadOnScroll();
@@ -2628,7 +2638,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   },
   methods: {
     scrollToTop: function scrollToTop() {
-      console.log('scrollToTop');
+      // console.log('scrollToTop');
       var myDiv = document.getElementById('inbox_chat1');
 
       if (myDiv) {
@@ -2636,15 +2646,13 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       }
     },
     loadOnScroll: function loadOnScroll() {
-      console.log('loadOnScroll');
+      // console.log('loadOnScroll');
       this.scrollElm.addEventListener('scroll', this.scrollListener);
     },
     scrollListener: function scrollListener() {
-      console.log('scrollListener');
-
+      // console.log('scrollListener');
       if (this.scrollElm.scrollTop + this.scrollElm.clientHeight >= this.scrollElm.scrollHeight) {
-        console.log(this.listLoadMore);
-
+        // console.log(this.listLoadMore)
         if (this.listLoadMore) {
           this.filteredContacts();
         } else {
@@ -2653,14 +2661,14 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       }
     },
     searchData: function searchData(e) {
-      console.log('searchDate');
+      // console.log('searchDate');
       this.listFilterPage = 1;
       this.listLoadMore = true;
       this.listSearch = e.target.value;
       this.filteredContacts();
     },
     sortBy: function sortBy(e) {
-      console.log('sortBy');
+      // console.log('sortBy');
       this.listFilterPage = 1;
       this.listLoadMore = true;
       this.listFilter = e.target.value;
@@ -2670,8 +2678,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     filteredContacts: function filteredContacts() {
       var _this2 = this;
 
-      console.log('filteredContacts');
-
+      // console.log('filteredContacts');
       if (this.isLoading) {
         return false;
       }
@@ -2698,17 +2705,16 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       }).then(function (response) {
         if (_this2.listFilterPage === 1) {
           _this2.listContacts = [];
-        }
+        } // console.log(this.listFilterPage)
+        // this.listFilterPage++
 
-        console.log(_this2.listFilterPage); // this.listFilterPage++
 
         var temp1 = response.data.data.search.data;
 
         if (temp1.length > 0) {
           var _this2$listContacts;
 
-          console.log(_this2.listContacts.length);
-
+          // console.log(this.listContacts.length)
           (_this2$listContacts = _this2.listContacts).push.apply(_this2$listContacts, _toConsumableArray(temp1));
 
           if (_this2.listFilterPage === 1) {
@@ -2880,7 +2886,7 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 
 // module
-exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n/*.new-contact {*/\n/*    border-radius: 50%;*/\n/*    box-shadow: 0 0 0 0.35rem #FFF;*/\n/*    width: 50px;*/\n/*    height: 50px;*/\n/*}*/\n", ""]);
+exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n/*.new-contact {*/\n/*    border-radius: 50%;*/\n/*    box-shadow: 0 0 0 0.35rem #FFF;*/\n/*    width: 50px;*/\n/*    height: 50px;*/\n/*}*/\n", ""]);
 
 // exports
 
@@ -2899,7 +2905,7 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 
 // module
-exports.push([module.i, "\n.date[data-v-299e239e]{\n    max-width: 500px;\n}\nimg[data-v-299e239e]:hover {\n    cursor: pointer;\n}\n.button[data-v-299e239e]{\n    cursor: pointer;\n    background: #17a2b8;\n    border: 0;\n    border-radius: 50px;\n    color: #ffffff;\n    padding: 12px 60px;\n    font-weight: 700;\n    font-size: 12px;\n    outline: 0;\n    text-transform: uppercase;\n    /*margin: 0 auto;*/\n    display: table;\n    margin-left: 10%;\n}\n.button[data-v-299e239e]:hover{\n    -webkit-filter: brightness(95%);\n            filter: brightness(95%);\n}\n.group-date[data-v-299e239e]{\n    background: #71B20C none repeat scroll 0 0;\n    border-radius: 3px;\n    font-size: 14px;\n    color: #fff;\n    padding: 5px 10px;\n    width: 20%;\n    margin: 0 auto;\n}\n#msg[data-v-299e239e]\n{\n    border-radius: 5px;\n    overflow: hidden;\n}\n.base-image-input[data-v-299e239e] {\n    display: block;\n    width: 300px;\n    height: 200px;\n    cursor: pointer;\n    background-size: cover;\n    background-position: center center;\n}\n.placeholder[data-v-299e239e] {\n    background: #F0F0F0;\n    width: 100%;\n    height: 100%;\n    display: -webkit-box;\n    display: flex;\n    -webkit-box-pack: center;\n            justify-content: center;\n    -webkit-box-align: center;\n            align-items: center;\n    color: #333;\n    font-size: 18px;\n    font-family: Helvetica;\n}\n.placeholder[data-v-299e239e]:hover {\n    background: #E0E0E0;\n}\n.file-input[data-v-299e239e] {\n    display: none;\n}\n.header[data-v-299e239e]{\n    border: 1px solid #b6b6b6;\n    border-bottom: 0;\n    padding: 8px 22px;\n}\n.sticky[data-v-299e239e] {\n    /*position: -webkit-sticky;*/\n    /*position: sticky;*/\n    top: 0;\n    padding: 5px;\n    /*background-color: #cae8ca;*/\n    /*border: 2px solid #c4c4c4;*/\n}\n\n/*.archive-icon {*/\n/*    position: absolute;*/\n/*    right: 0;*/\n/*    font-size: 25px;*/\n/*    margin-top: -10px;*/\n/*}*/\n\n/*.archive-img {*/\n/*    position: absolute;*/\n/*    width: 24px;*/\n/*    right: 0;*/\n/*    top: 5px;*/\n/*}*/\n.fa-archive[data-v-299e239e] {\n    position: absolute;\n    width: 24px;\n    font-size: 18px;\n    right: 0;\n    top: 5px;\n}\n.container[data-v-299e239e] {\n    max-width: 1170px;\n    margin: auto;\n}\nimg[data-v-299e239e] {\n    max-width: 100%;\n}\n.inbox_people[data-v-299e239e] {\n    background: #f8f8f8 none repeat scroll 0 0;\n    float: left;\n    overflow: hidden;\n    width: 100%;\n    border-right: 1px solid #c4c4c4;\n}\n.inbox_msg[data-v-299e239e] {\n    border: 1px solid #c4c4c4;\n    clear: both;\n    overflow: hidden;\n    border-top: 0;\n}\n.top_spac[data-v-299e239e] {\n    margin: 20px 0 0;\n}\n.recent_heading[data-v-299e239e] {\n    float: left;\n    width: 40%;\n}\n.srch_bar[data-v-299e239e] {\n    display: inline-block;\n    text-align: right;\n    width: 60%;\n    padding: 0;\n    outline: 0;\n}\n.headind_srch[data-v-299e239e] {\n    padding: 10px 29px 10px 20px;\n    overflow: hidden;\n    border-bottom: 1px solid #c4c4c4;\n}\n.recent_heading h4[data-v-299e239e] {\n    color: #05728f;\n    font-size: 21px;\n    margin: auto;\n}\n.srch_bar input[data-v-299e239e] {\n    border: 1px solid #cdcdcd;\n    border-width: 0 0 1px 0;\n    width: 80%;\n    padding: 2px 0 4px 6px;\n    background: none;\n    outline: 0;\n}\n.srch_bar .input-group-addon button[data-v-299e239e] {\n    background: rgba(0, 0, 0, 0) none repeat scroll 0 0;\n    border: medium none;\n    padding: 0;\n    color: #707070;\n    font-size: 18px;\n    outline: 0;\n}\n.srch_bar .input-group-addon[data-v-299e239e] {\n    margin: 0 0 0 -27px;\n}\n.chat_ib h5[data-v-299e239e] {\n    font-size: 15px;\n    color: #464646;\n    margin: 0 0 8px 0;\n}\n.chat_ib h5 span[data-v-299e239e] {\n    font-size: 13px;\n    float: right;\n}\n.chat_ib p[data-v-299e239e] {\n    font-size: 14px;\n    color: #989898;\n    margin: auto\n}\n.chat_img[data-v-299e239e] {\n    float: left;\n    width: 11%;\n}\n.chat_ib[data-v-299e239e] {\n    float: left;\n    padding: 0 0 0 15px;\n    width: 88%;\n}\n.chat_people[data-v-299e239e] {\n    overflow: hidden;\n    color: white;\n    clear: both;\n    overflow: scroll;\n}\n.chat_list[data-v-299e239e] {\n    border-bottom: 1px solid #c4c4c4;\n    margin: 0;\n    padding: 18px 16px 10px;\n    overflow-y: scroll;\n}\n.inbox_chat[data-v-299e239e] {\n    scroll-behavior: smooth;\n    max-height: 520px;\n    overflow-y: scroll;\n}\n.active_chat[data-v-299e239e] {\n    background: #ebebeb;\n}\n.incoming_msg_img[data-v-299e239e] {\n    display: inline-block;\n    width: 6%;\n}\n.received_msg[data-v-299e239e] {\n    display: inline-block;\n    padding: 0 0 0 10px;\n    vertical-align: top;\n    width: 92%;\n}\n.received_withd_msg p[data-v-299e239e] {\n    background: #144579c9 none repeat scroll 0 0;\n    /*border-radius: 3px;*/\n    color: #FFFFFF;\n    font-size: 14px;\n    margin: 0;\n    padding: 5px 10px 5px 12px;\n    width: 100%;\n}\n.time_date[data-v-299e239e] {\n    color: #ffffff;\n    display: block;\n    font-size: 12px;\n    margin: 8px 0 0;\n    font-weight: bold;\n}\n.received_withd_msg[data-v-299e239e] {\n    width: 57%;\n}\n.mesgs[data-v-299e239e] {\n    border-left: 1px solid #c4c4c4;\n    float: left;\n    padding: 30px 15px 0 25px;\n    width: 60%;\n}\n.sent_msg p[data-v-299e239e] {\n    background: #39A7DE none repeat scroll 0 0;\n\n    /*border-radius: 3px;*/\n    font-size: 14px;\n    margin: 0;\n    color: #fff;\n    padding: 5px 10px 5px 12px;\n    width: 100%;\n}\n.outgoing_msg[data-v-299e239e],.incoming_msg[data-v-299e239e] {\n    overflow: hidden;\n    margin: 26px 0 26px;\n}\n.sent_msg[data-v-299e239e] {\n    float: right;\n    width: 46%;\n}\n.input_msg_write input[data-v-299e239e] {\n    background: rgba(0, 0, 0, 0) none repeat scroll 0 0;\n    border: medium none;\n    color: #4c4c4c;\n    font-size: 15px;\n    min-height: 48px;\n    width: 85%;\n    outline: 0;\n}\n.type_msg[data-v-299e239e] {\n    border-top: 1px solid #c4c4c4;\n    position: relative;\n}\n.msg_send_btn[data-v-299e239e] {\n    background: #71B20C none repeat scroll 0 0;\n    border: medium none;\n    border-radius: 50%;\n    color: #fff;\n    cursor: pointer;\n    font-size: 17px;\n    height: 33px;\n    position: absolute;\n    right: 40px;\n    top: 11px;\n    width: 33px;\n}\n.img_send_btn[data-v-299e239e] {\n    background: #71B20C none repeat scroll 0 0;\n    border: medium none;\n    border-radius: 50%;\n    color: #fff;\n    cursor: pointer;\n    font-size: 17px;\n    height: 33px;\n    position: absolute;\n    right: 0px;\n    top: 11px;\n    width: 33px;\n}\n.messaging[data-v-299e239e] {\n    padding: 0 0 50px 0;\n}\n.msg_history[data-v-299e239e] {\n    height: 516px;\n    overflow-y: scroll;\n}\n.chat_date[data-v-299e239e] {\n    font-size: 13px;\n    float: right;\n    font-weight: bold;\n    color: #4c4c4c;\n}\n.archive[data-v-299e239e] {\n    font-size: 13px;\n    float: right;\n    font-weight: bold;\n    color: #4c4c4c;\n}\n.active[data-v-299e239e] {\n    background-color: #39A7DE;\n}\n\n", ""]);
+exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n/*EMOJI*/\n/*.message-emoji {*/\n/*    position: absolute;*/\n/*    right: 450px;*/\n/*    top: 8px;*/\n/*}*/\n.date[data-v-299e239e]{\n    max-width: 500px;\n}\nimg[data-v-299e239e]:hover {\n    cursor: pointer;\n}\n.button[data-v-299e239e]{\n    cursor: pointer;\n    background: #17a2b8;\n    border: 0;\n    border-radius: 50px;\n    color: #ffffff;\n    padding: 12px 60px;\n    font-weight: 700;\n    font-size: 12px;\n    outline: 0;\n    text-transform: uppercase;\n    /*margin: 0 auto;*/\n    display: table;\n    margin-left: 10%;\n}\n.button[data-v-299e239e]:hover{\n    -webkit-filter: brightness(95%);\n            filter: brightness(95%);\n}\n.group-date[data-v-299e239e]{\n    background: #71B20C none repeat scroll 0 0;\n    border-radius: 3px;\n    font-size: 14px;\n    color: #fff;\n    padding: 5px 10px;\n    width: 20%;\n    margin: 0 auto;\n}\n#msg[data-v-299e239e]\n{\n    border-radius: 5px;\n    overflow: hidden;\n}\n.base-image-input[data-v-299e239e] {\n    display: block;\n    width: 300px;\n    height: 200px;\n    cursor: pointer;\n    background-size: cover;\n    background-position: center center;\n}\n.placeholder[data-v-299e239e] {\n    background: #F0F0F0;\n    width: 100%;\n    height: 100%;\n    display: -webkit-box;\n    display: flex;\n    -webkit-box-pack: center;\n            justify-content: center;\n    -webkit-box-align: center;\n            align-items: center;\n    color: #333;\n    font-size: 18px;\n    font-family: Helvetica;\n}\n.placeholder[data-v-299e239e]:hover {\n    background: #E0E0E0;\n}\n.file-input[data-v-299e239e] {\n    display: none;\n}\n.header[data-v-299e239e]{\n    border: 1px solid #b6b6b6;\n    border-bottom: 0;\n    padding: 8px 22px;\n}\n.sticky[data-v-299e239e] {\n    /*position: -webkit-sticky;*/\n    /*position: sticky;*/\n    top: 0;\n    padding: 5px;\n    /*background-color: #cae8ca;*/\n    /*border: 2px solid #c4c4c4;*/\n}\n\n/*.archive-icon {*/\n/*    position: absolute;*/\n/*    right: 0;*/\n/*    font-size: 25px;*/\n/*    margin-top: -10px;*/\n/*}*/\n\n/*.archive-img {*/\n/*    position: absolute;*/\n/*    width: 24px;*/\n/*    right: 0;*/\n/*    top: 5px;*/\n/*}*/\n.fa-archive[data-v-299e239e] {\n    position: absolute;\n    width: 24px;\n    font-size: 18px;\n    right: 0;\n    top: 5px;\n}\n.container[data-v-299e239e] {\n    max-width: 1170px;\n    margin: auto;\n}\nimg[data-v-299e239e] {\n    max-width: 100%;\n}\n.inbox_people[data-v-299e239e] {\n    background: #f8f8f8 none repeat scroll 0 0;\n    float: left;\n    overflow: hidden;\n    width: 100%;\n    border-right: 1px solid #c4c4c4;\n}\n.inbox_msg[data-v-299e239e] {\n    border: 1px solid #c4c4c4;\n    clear: both;\n    overflow: hidden;\n    border-top: 0;\n}\n.top_spac[data-v-299e239e] {\n    margin: 20px 0 0;\n}\n.recent_heading[data-v-299e239e] {\n    float: left;\n    width: 40%;\n}\n.srch_bar[data-v-299e239e] {\n    display: inline-block;\n    text-align: right;\n    width: 60%;\n    padding: 0;\n    outline: 0;\n}\n.headind_srch[data-v-299e239e] {\n    padding: 10px 29px 10px 20px;\n    overflow: hidden;\n    border-bottom: 1px solid #c4c4c4;\n}\n.recent_heading h4[data-v-299e239e] {\n    color: #05728f;\n    font-size: 21px;\n    margin: auto;\n}\n.srch_bar input[data-v-299e239e] {\n    border: 1px solid #cdcdcd;\n    border-width: 0 0 1px 0;\n    width: 80%;\n    padding: 2px 0 4px 6px;\n    background: none;\n    outline: 0;\n}\n.srch_bar .input-group-addon button[data-v-299e239e] {\n    background: rgba(0, 0, 0, 0) none repeat scroll 0 0;\n    border: medium none;\n    padding: 0;\n    color: #707070;\n    font-size: 18px;\n    outline: 0;\n}\n.srch_bar .input-group-addon[data-v-299e239e] {\n    margin: 0 0 0 -27px;\n}\n.chat_ib h5[data-v-299e239e] {\n    font-size: 15px;\n    color: #464646;\n    margin: 0 0 8px 0;\n}\n.chat_ib h5 span[data-v-299e239e] {\n    font-size: 13px;\n    float: right;\n}\n.chat_ib p[data-v-299e239e] {\n    font-size: 14px;\n    color: #989898;\n    margin: auto\n}\n.chat_img[data-v-299e239e] {\n    float: left;\n    width: 11%;\n}\n.chat_ib[data-v-299e239e] {\n    float: left;\n    padding: 0 0 0 15px;\n    width: 88%;\n}\n.chat_people[data-v-299e239e] {\n    overflow: hidden;\n    color: white;\n    clear: both;\n    overflow: scroll;\n}\n.chat_list[data-v-299e239e] {\n    border-bottom: 1px solid #c4c4c4;\n    margin: 0;\n    padding: 18px 16px 10px;\n    overflow-y: scroll;\n}\n.inbox_chat[data-v-299e239e] {\n    scroll-behavior: smooth;\n    max-height: 520px;\n    overflow-y: scroll;\n}\n.active_chat[data-v-299e239e] {\n    background: #ebebeb;\n}\n.incoming_msg_img[data-v-299e239e] {\n    display: inline-block;\n    width: 6%;\n}\n.received_msg[data-v-299e239e] {\n    display: inline-block;\n    padding: 0 0 0 10px;\n    vertical-align: top;\n    width: 92%;\n}\n.received_withd_msg p[data-v-299e239e] {\n    background: #144579c9 none repeat scroll 0 0;\n    /*border-radius: 3px;*/\n    color: #FFFFFF;\n    font-size: 14px;\n    margin: 0;\n    padding: 5px 10px 5px 12px;\n    width: 100%;\n}\n.time_date[data-v-299e239e] {\n    color: #ffffff;\n    display: block;\n    font-size: 12px;\n    margin: 8px 0 0;\n    font-weight: bold;\n}\n.received_withd_msg[data-v-299e239e] {\n    width: 57%;\n}\n.mesgs[data-v-299e239e] {\n    border-left: 1px solid #c4c4c4;\n    float: left;\n    padding: 30px 15px 0 25px;\n    width: 60%;\n}\n.sent_msg p[data-v-299e239e] {\n    background: #39A7DE none repeat scroll 0 0;\n\n    /*border-radius: 3px;*/\n    font-size: 14px;\n    margin: 0;\n    color: #fff;\n    padding: 5px 10px 5px 12px;\n    width: 100%;\n}\n.outgoing_msg[data-v-299e239e],.incoming_msg[data-v-299e239e] {\n    overflow: hidden;\n    margin: 26px 0 26px;\n}\n.sent_msg[data-v-299e239e] {\n    float: right;\n    width: 46%;\n}\n.input_msg_write input[data-v-299e239e] {\n    background: rgba(0, 0, 0, 0) none repeat scroll 0 0;\n    border: medium none;\n    color: #4c4c4c;\n    font-size: 15px;\n    min-height: 48px;\n    width: 85%;\n    outline: 0;\n}\n.type_msg[data-v-299e239e] {\n    border-top: 1px solid #c4c4c4;\n    position: relative;\n}\n.msg_send_btn[data-v-299e239e] {\n    background: #71B20C none repeat scroll 0 0;\n    border: medium none;\n    border-radius: 50%;\n    color: #fff;\n    cursor: pointer;\n    font-size: 17px;\n    height: 33px;\n    position: absolute;\n    right: 40px;\n    top: 11px;\n    width: 33px;\n}\n.img_send_btn[data-v-299e239e] {\n    background: #71B20C none repeat scroll 0 0;\n    border: medium none;\n    border-radius: 50%;\n    color: #fff;\n    cursor: pointer;\n    font-size: 17px;\n    height: 33px;\n    position: absolute;\n    right: 0px;\n    top: 11px;\n    width: 33px;\n}\n.messaging[data-v-299e239e] {\n    padding: 0 0 50px 0;\n}\n.msg_history[data-v-299e239e] {\n    height: 516px;\n    overflow-y: scroll;\n}\n.chat_date[data-v-299e239e] {\n    font-size: 13px;\n    float: right;\n    font-weight: bold;\n    color: #4c4c4c;\n}\n.archive[data-v-299e239e] {\n    font-size: 13px;\n    float: right;\n    font-weight: bold;\n    color: #4c4c4c;\n}\n.active[data-v-299e239e] {\n    background-color: #39A7DE;\n}\n\n", ""]);
 
 // exports
 
@@ -42054,258 +42060,254 @@ var render = function() {
           _c("div", { staticClass: "modal-content" }, [
             _vm._m(0),
             _vm._v(" "),
-            _c(
-              "form",
-              {
-                on: {
-                  submit: function($event) {
-                    $event.preventDefault()
-                    return _vm.submitForm($event)
-                  }
-                }
-              },
-              [
-                _c("div", { staticClass: "modal-body" }, [
-                  _c("div", { staticClass: "form-group" }, [
-                    _c("label", { attrs: { for: "firstname" } }, [
-                      _vm._v("First Name")
-                    ]),
-                    _vm._v(" "),
-                    _c("input", {
-                      directives: [
-                        {
-                          name: "model",
-                          rawName: "v-model",
-                          value: _vm.firstName,
-                          expression: "firstName"
-                        }
-                      ],
-                      staticClass: "form-control",
-                      attrs: {
-                        type: "text",
-                        id: "firstname",
-                        "aria-describedby": "emailHelp",
-                        placeholder: "First Name"
-                      },
-                      domProps: { value: _vm.firstName },
-                      on: {
-                        input: function($event) {
-                          if ($event.target.composing) {
-                            return
-                          }
-                          _vm.firstName = $event.target.value
-                        }
-                      }
-                    })
+            _c("form", [
+              _c("div", { staticClass: "modal-body" }, [
+                _c("div", { staticClass: "form-group" }, [
+                  _c("label", { attrs: { for: "firstname" } }, [
+                    _vm._v("First Name")
                   ]),
                   _vm._v(" "),
-                  _c("div", { staticClass: "form-group" }, [
-                    _c("label", { attrs: { for: "lastname" } }, [
-                      _vm._v("Last Name")
-                    ]),
-                    _vm._v(" "),
-                    _c("input", {
-                      directives: [
-                        {
-                          name: "model",
-                          rawName: "v-model",
-                          value: _vm.lastName,
-                          expression: "lastName"
-                        }
-                      ],
-                      staticClass: "form-control",
-                      attrs: {
-                        type: "text",
-                        id: "lastname",
-                        placeholder: "Last Name"
-                      },
-                      domProps: { value: _vm.lastName },
-                      on: {
-                        input: function($event) {
-                          if ($event.target.composing) {
-                            return
-                          }
-                          _vm.lastName = $event.target.value
-                        }
+                  _c("input", {
+                    directives: [
+                      {
+                        name: "model",
+                        rawName: "v-model",
+                        value: _vm.Users.firstName,
+                        expression: "Users.firstName"
                       }
-                    })
+                    ],
+                    staticClass: "form-control",
+                    attrs: {
+                      type: "text",
+                      id: "firstname",
+                      "aria-describedby": "emailHelp",
+                      placeholder: "First Name"
+                    },
+                    domProps: { value: _vm.Users.firstName },
+                    on: {
+                      input: function($event) {
+                        if ($event.target.composing) {
+                          return
+                        }
+                        _vm.$set(_vm.Users, "firstName", $event.target.value)
+                      }
+                    }
+                  })
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "form-group" }, [
+                  _c("label", { attrs: { for: "lastname" } }, [
+                    _vm._v("Last Name")
                   ]),
                   _vm._v(" "),
-                  _c("div", { staticClass: "form-group" }, [
-                    _c("label", { attrs: { for: "MobilePhone" } }, [
-                      _vm._v("Mobile Phone")
-                    ]),
-                    _vm._v(" "),
-                    _c("input", {
-                      directives: [
-                        {
-                          name: "model",
-                          rawName: "v-model",
-                          value: _vm.mobilePhone,
-                          expression: "mobilePhone"
-                        }
-                      ],
-                      staticClass: "form-control",
-                      attrs: {
-                        type: "text",
-                        id: "MobilePhone",
-                        placeholder: "Mobile Phone"
-                      },
-                      domProps: { value: _vm.mobilePhone },
-                      on: {
-                        input: function($event) {
-                          if ($event.target.composing) {
-                            return
-                          }
-                          _vm.mobilePhone = $event.target.value
-                        }
+                  _c("input", {
+                    directives: [
+                      {
+                        name: "model",
+                        rawName: "v-model",
+                        value: _vm.Users.lastName,
+                        expression: "Users.lastName"
                       }
-                    })
+                    ],
+                    staticClass: "form-control",
+                    attrs: {
+                      type: "text",
+                      id: "lastname",
+                      placeholder: "Last Name"
+                    },
+                    domProps: { value: _vm.Users.lastName },
+                    on: {
+                      input: function($event) {
+                        if ($event.target.composing) {
+                          return
+                        }
+                        _vm.$set(_vm.Users, "lastName", $event.target.value)
+                      }
+                    }
+                  })
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "form-group" }, [
+                  _c("label", { attrs: { for: "MobilePhone" } }, [
+                    _vm._v("Mobile Phone")
                   ]),
                   _vm._v(" "),
-                  _c(
-                    "div",
-                    { staticClass: "form-group" },
-                    [
-                      _c("label", { attrs: { for: "EmailAddress" } }, [
-                        _vm._v("Email Address")
-                      ]),
-                      _vm._v(" "),
-                      _c("input", {
-                        directives: [
-                          {
-                            name: "model",
-                            rawName: "v-model",
-                            value: _vm.emailAddress,
-                            expression: "emailAddress"
-                          }
-                        ],
-                        staticClass: "form-control",
-                        attrs: {
-                          type: "email",
-                          id: "EmailAddress",
-                          placeholder: "Email Address"
-                        },
-                        domProps: { value: _vm.emailAddress },
-                        on: {
-                          input: function($event) {
-                            if ($event.target.composing) {
-                              return
-                            }
-                            _vm.emailAddress = $event.target.value
-                          }
-                        }
-                      }),
-                      _vm._v(" "),
-                      _c(
-                        "medium",
-                        {
-                          staticClass: "form-text text-muted",
-                          attrs: { id: "emailOptional" }
-                        },
-                        [_vm._v("(Optional)")]
-                      )
+                  _c("input", {
+                    directives: [
+                      {
+                        name: "model",
+                        rawName: "v-model",
+                        value: _vm.Users.mobilePhone,
+                        expression: "Users.mobilePhone"
+                      }
                     ],
-                    1
-                  ),
+                    staticClass: "form-control",
+                    attrs: {
+                      type: "text",
+                      id: "MobilePhone",
+                      placeholder: "Mobile Phone"
+                    },
+                    domProps: { value: _vm.Users.mobilePhone },
+                    on: {
+                      input: function($event) {
+                        if ($event.target.composing) {
+                          return
+                        }
+                        _vm.$set(_vm.Users, "mobilePhone", $event.target.value)
+                      }
+                    }
+                  })
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "form-group" }, [
+                  _c("label", { attrs: { for: "EmailAddress" } }, [
+                    _vm._v("Email Address")
+                  ]),
+                  _vm._v(" "),
+                  _c("input", {
+                    directives: [
+                      {
+                        name: "model",
+                        rawName: "v-model",
+                        value: _vm.Users.emailAddress,
+                        expression: "Users.emailAddress"
+                      }
+                    ],
+                    staticClass: "form-control",
+                    attrs: {
+                      type: "email",
+                      id: "EmailAddress",
+                      placeholder: "Email Address"
+                    },
+                    domProps: { value: _vm.Users.emailAddress },
+                    on: {
+                      input: function($event) {
+                        if ($event.target.composing) {
+                          return
+                        }
+                        _vm.$set(_vm.Users, "emailAddress", $event.target.value)
+                      }
+                    }
+                  }),
                   _vm._v(" "),
                   _c(
-                    "div",
-                    { staticClass: "form-group" },
-                    [
-                      _c("label", { attrs: { for: "PetsName" } }, [
-                        _vm._v("Pets Name")
-                      ]),
-                      _vm._v(" "),
-                      _c("input", {
-                        directives: [
-                          {
-                            name: "model",
-                            rawName: "v-model",
-                            value: _vm.petsName,
-                            expression: "petsName"
-                          }
-                        ],
-                        staticClass: "form-control",
-                        attrs: {
-                          type: "text",
-                          id: "PetsName",
-                          placeholder: "Pets Name"
-                        },
-                        domProps: { value: _vm.petsName },
-                        on: {
-                          input: function($event) {
-                            if ($event.target.composing) {
-                              return
-                            }
-                            _vm.petsName = $event.target.value
-                          }
-                        }
-                      }),
-                      _vm._v(" "),
-                      _c(
-                        "medium",
-                        {
-                          staticClass: "form-text text-muted",
-                          attrs: { id: "nameOptional" }
-                        },
-                        [_vm._v("(Optional)")]
-                      )
-                    ],
-                    1
-                  ),
-                  _vm._v(" "),
-                  _c(
-                    "div",
-                    { staticClass: "form-group date" },
-                    [
-                      _c("label", { attrs: { for: "petdate" } }, [
-                        _vm._v("Pets Birthday")
-                      ]),
-                      _vm._v(" "),
-                      _c("input", {
-                        directives: [
-                          {
-                            name: "model",
-                            rawName: "v-model",
-                            value: _vm.petsBirthday,
-                            expression: "petsBirthday"
-                          }
-                        ],
-                        staticClass: "form-control",
-                        attrs: {
-                          type: "date",
-                          name: "date",
-                          id: "petdate",
-                          placeholder: "dd.mm.yyyy"
-                        },
-                        domProps: { value: _vm.petsBirthday },
-                        on: {
-                          input: function($event) {
-                            if ($event.target.composing) {
-                              return
-                            }
-                            _vm.petsBirthday = $event.target.value
-                          }
-                        }
-                      }),
-                      _vm._v(" "),
-                      _c(
-                        "medium",
-                        {
-                          staticClass: "form-text text-muted",
-                          attrs: { id: "dateOptional" }
-                        },
-                        [_vm._v("(Optional)")]
-                      )
-                    ],
-                    1
+                    "small",
+                    {
+                      staticClass: "form-text text-muted",
+                      attrs: { id: "emailOptional" }
+                    },
+                    [_vm._v("(Optional)")]
                   )
                 ]),
                 _vm._v(" "),
-                _vm._m(1)
-              ]
-            )
+                _c("div", { staticClass: "form-group" }, [
+                  _c("label", { attrs: { for: "PetsName" } }, [
+                    _vm._v("Pets Name")
+                  ]),
+                  _vm._v(" "),
+                  _c("input", {
+                    directives: [
+                      {
+                        name: "model",
+                        rawName: "v-model",
+                        value: _vm.Users.petsName,
+                        expression: "Users.petsName"
+                      }
+                    ],
+                    staticClass: "form-control",
+                    attrs: {
+                      type: "text",
+                      id: "PetsName",
+                      placeholder: "Pets Name"
+                    },
+                    domProps: { value: _vm.Users.petsName },
+                    on: {
+                      input: function($event) {
+                        if ($event.target.composing) {
+                          return
+                        }
+                        _vm.$set(_vm.Users, "petsName", $event.target.value)
+                      }
+                    }
+                  }),
+                  _vm._v(" "),
+                  _c(
+                    "small",
+                    {
+                      staticClass: "form-text text-muted",
+                      attrs: { id: "nameOptional" }
+                    },
+                    [_vm._v("(Optional)")]
+                  )
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "form-group date" }, [
+                  _c("label", { attrs: { for: "petdate" } }, [
+                    _vm._v("Pets Birthday")
+                  ]),
+                  _vm._v(" "),
+                  _c("input", {
+                    directives: [
+                      {
+                        name: "model",
+                        rawName: "v-model",
+                        value: _vm.Users.petsBirthday,
+                        expression: "Users.petsBirthday"
+                      }
+                    ],
+                    staticClass: "form-control",
+                    attrs: {
+                      type: "date",
+                      name: "date",
+                      id: "petdate",
+                      placeholder: "dd.mm.yyyy"
+                    },
+                    domProps: { value: _vm.Users.petsBirthday },
+                    on: {
+                      input: function($event) {
+                        if ($event.target.composing) {
+                          return
+                        }
+                        _vm.$set(_vm.Users, "petsBirthday", $event.target.value)
+                      }
+                    }
+                  }),
+                  _vm._v(" "),
+                  _c(
+                    "small",
+                    {
+                      staticClass: "form-text text-muted",
+                      attrs: { id: "dateOptional" }
+                    },
+                    [_vm._v("(Optional)")]
+                  )
+                ])
+              ]),
+              _vm._v(" "),
+              _c(
+                "div",
+                {
+                  staticClass:
+                    "modal-footer border-top-0 d-flex justify-content-center"
+                },
+                [
+                  _c(
+                    "button",
+                    {
+                      staticClass: "btn btn-success",
+                      attrs: { type: "submit", value: "Add Contact" },
+                      on: {
+                        click: function($event) {
+                          $event.preventDefault()
+                          return _vm.submitForm($event)
+                        }
+                      }
+                    },
+                    [_vm._v("Save")]
+                  )
+                ]
+              )
+            ])
           ])
         ]
       )
@@ -42337,27 +42339,6 @@ var staticRenderFns = [
         [_c("span", { attrs: { "aria-hidden": "true" } }, [_vm._v("×")])]
       )
     ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c(
-      "div",
-      {
-        staticClass: "modal-footer border-top-0 d-flex justify-content-center"
-      },
-      [
-        _c(
-          "button",
-          {
-            staticClass: "btn btn-success",
-            attrs: { type: "submit", value: "Add Contact" }
-          },
-          [_vm._v("Save")]
-        )
-      ]
-    )
   }
 ]
 render._withStripped = true
@@ -42625,6 +42606,7 @@ var render = function() {
                         staticClass: "write_msg",
                         attrs: {
                           type: "text",
+                          id: "mytext",
                           placeholder: "Type a message..."
                         },
                         domProps: { value: _vm.typedMessage },

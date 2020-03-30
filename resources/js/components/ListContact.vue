@@ -110,7 +110,7 @@
         },
 
         mounted() {
-            console.log('mounted');
+            // console.log('mounted');
             this.filteredContacts()
             this.scrollElm = document.querySelector('#inbox_chat' + this.id)
             this.loadOnScroll()
@@ -128,20 +128,22 @@
         },
         methods:{
             scrollToTop() {
-                console.log('scrollToTop');
+                // console.log('scrollToTop');
                 var myDiv = document.getElementById('inbox_chat1');
                 if (myDiv) {
                     myDiv.scrollTop = 0;
                 }
             },
+
             loadOnScroll() {
-                console.log('loadOnScroll');
+                // console.log('loadOnScroll');
                 this.scrollElm.addEventListener('scroll', this.scrollListener)
             },
+
             scrollListener() {
-                console.log('scrollListener');
+                // console.log('scrollListener');
                 if (this.scrollElm.scrollTop + this.scrollElm.clientHeight >= this.scrollElm.scrollHeight) {
-                    console.log(this.listLoadMore)
+                    // console.log(this.listLoadMore)
                     if (this.listLoadMore) {
                         this.filteredContacts()
                     } else {
@@ -149,8 +151,9 @@
                     }
                 }
             },
+
             searchData(e) {
-                console.log('searchDate');
+                // console.log('searchDate');
                 this.listFilterPage = 1
                 this.listLoadMore = true
                 this.listSearch = e.target.value;
@@ -158,7 +161,7 @@
             },
 
             sortBy(e) {
-                console.log('sortBy');
+                // console.log('sortBy');
                 this.listFilterPage = 1
                 this.listLoadMore = true
                 this.listFilter = e.target.value
@@ -167,7 +170,7 @@
             },
 
             filteredContacts() {
-                console.log('filteredContacts');
+                // console.log('filteredContacts');
                 if(this.isLoading) {
                     return false;
                 }
@@ -218,11 +221,11 @@
                     if (this.listFilterPage === 1) {
                         this.listContacts = []
                     }
-                    console.log(this.listFilterPage)
+                    // console.log(this.listFilterPage)
                     // this.listFilterPage++
                     let temp1 = response.data.data.search.data;
                     if (temp1.length > 0) {
-                        console.log(this.listContacts.length)
+                        // console.log(this.listContacts.length)
                         this.listContacts.push(...temp1)
                         if (this.listFilterPage === 1) {
                             this.loadMessage(this.listContacts,response.data.data.search.data[0].contact_id,'no')

@@ -53,11 +53,12 @@
                                 </div>
                             </div>
                         </div>
-
+                        <!-- SEND MESSAGE-->
                         <div class="type_msg" v-show="activeIndex" style="display: none">
                             <div class="input_msg_write" >
-                                <input type="text" class="write_msg" placeholder="Type a message..."
+                                <input type="text" id="mytext" class="write_msg" placeholder="Type a message..."
                                        v-model="typedMessage" v-on:keyup.enter="sendMessage"/>
+<!--                                MESSAGE-->
                                 <button class="msg_send_btn" type="button" v-if="typedMessage.trim()" v-on:click="sendMessage">
                                     <i class="fa fa-paper-plane-o"
                                        aria-hidden="true">
@@ -182,9 +183,13 @@
                 errorMsg:'',
                 showMyModal: 0,
                 archived:'',
-                fullWidthImage: false
+                msgArchived:'',
+                fullWidthImage: false,
+                msgStatus:'',
+                archivedMessg:''
             }
         },
+
         watch: {
             sortBy: {
                 handler(n, o) {
@@ -195,7 +200,7 @@
         },
         computed: {
             datedMessages () {
-                console.log('datedMessages');
+                // console.log('datedMessages');
                 let dupDates = this.messages.map((item => {
                     return item.message_created_at.split(' ')[0]
                 }))
@@ -226,12 +231,13 @@
             //     $('#myModalViewImage').modal('show')
             // },
 
+
             image() {
                 document.getElementById('img_upload').click();
             },
 
             encodeImageFileAsURL(event) {
-                console.log('encodeImageFileAsURL');
+                // console.log('encodeImageFileAsURL');
                 var file = event.target.files[0];
                 var reader = new FileReader();
                 let vm = this
@@ -251,7 +257,7 @@
             },
 
             scrollToTop() {
-                console.log('scrollToTop');
+                // console.log('scrollToTop');
                 var myDiv = document.getElementById('inbox_chat' + this.id);
                 if (myDiv) {
                     myDiv.scrollTop = 0;
@@ -259,7 +265,7 @@
             },
 
             scrollMessagesTop() {
-                console.log('scrollMessagesTop');
+                // console.log('scrollMessagesTop');
                 var myDiv = document.getElementById('msg_history');
                 if (myDiv) {
                     myDiv.scrollTop = myDiv.scrollHeight
@@ -267,22 +273,23 @@
             },
 
             scrollToEnd() {
-                console.log('scrollToEnd');
+                // console.log('scrollToEnd');
                 let container = document.querySelector('.msg_history');
                 let height = container.scrollHeight;
                 container.scrollTop = height;
             },
 
-            archivedContact() {
-                console.log('archivedContact');
-                // console.log(this.activeIndex);
-                // this.$swal('User has been archived successfully','','success');
+            archivedAlert(){
                 if(this.archived === 1){
                     this.$swal('User has been unarchived successfully','','success');
                 }
                 else if (!this.archived){
                     this.$swal('User has been archived successfully','','success');
                 }
+            },
+
+            archivedContact() {
+                this.archivedAlert()
                 axios({
                     url: 'https://app.nextpaw.com/graph-api',
                     headers: {
@@ -308,11 +315,12 @@
                     this.loadMore = true
                     this.TRIGGER_FILTERED_CONTACTS_ACTION()
                 }).catch((e) => console.log(e))
+
                 // this.activeIndex=value
             },
 
             loadMessage(listContacts, value, reload) {
-                console.log('loadMessage');
+                // console.log('loadMessage');
                 if(listContacts) {
                     this.allContacts = listContacts;
                 } else {
@@ -361,8 +369,9 @@
                 }).then(response => {
                     this.msgLoading = false;
                     this.messages = response.data.data.singleConversion.data.reverse()
-                    console.log(this.messages)
-                    // console.log(this.messages)
+
+                    // this.msgArchived = response.data.data.singleConversion.data[0].archived;
+                    // this.msgStatus = response.data.data.singleConversion.data[0].status;
                     setTimeout(() => {
                         this.scrollToEnd()
                     }, 400)
@@ -375,12 +384,15 @@
                         this.activeTitle = activeContact[0].first_name + contactNum
                     }
                 }).catch((e) => console.log(e));
+                // if (this.msgArchived === 1 && this.msgStatus === 'SENT'){
+                //     this.archivedMessage()
+                // }
                 this.activeIndex = value
                 return value;
             },
 
             addMessage(message, contactId,image = null) {
-                console.log('addMessage');
+                // console.log('addMessage');
                 return {
                     id: 100197,
                     first_name: "Unknown",
@@ -416,7 +428,7 @@
             },
 
             sendMessage: function () {
-                console.log('sendMessage');
+                // console.log('sendMessage');
                 if(!this.base64Image){
                     this.messages.push(this.addMessage(this.typedMessage, this.activeIndex));
                 } else{
@@ -461,15 +473,12 @@
                 }).then(response => {
                     setTimeout(() => {
                         this.state = response.data.data.messageSendMutation.error
-                        console.log(this.state)
                         this.errorMsg = response.data.data.messageSendMutation.message
-                        console.log(this.errorMsg)
                         this.errorMessages()
                         this.loadMessage(this.allContacts, response.data.data.messageSendMutation.id, 'no');
                         this.filterPage = 1
                         this.loadMore = true
                         this.TRIGGER_FILTERED_CONTACTS_ACTION();
-
                         // this.loadAll = true
                         setTimeout(() => {
                             this.scrollToTop()
@@ -477,7 +486,6 @@
                     }, 1000);
                 }).catch(e => {
                         this.errors.push(e)
-
                         // this.activeIndex = value
                     })
                 this.typedMessage = '';
@@ -490,6 +498,12 @@
 
 
 <style scoped>
+    /*EMOJI*/
+    /*.message-emoji {*/
+    /*    position: absolute;*/
+    /*    right: 450px;*/
+    /*    top: 8px;*/
+    /*}*/
     .date{
         max-width: 500px;
     }

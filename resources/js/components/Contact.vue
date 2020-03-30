@@ -8,38 +8,39 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <form @submit.prevent="submitForm">
+<!--                @submit.prevent="submitForm"-->
+                <form>
                     <div class="modal-body">
                         <div class="form-group">
                             <label for="firstname">First Name</label>
-                            <input v-model="firstName" type="text" class="form-control" id="firstname" aria-describedby="emailHelp" placeholder="First Name">
+                            <input v-model="Users.firstName" type="text" class="form-control" id="firstname" aria-describedby="emailHelp" placeholder="First Name">
                         </div>
                         <div class="form-group">
                             <label for="lastname">Last Name</label>
-                            <input v-model="lastName" type="text" class="form-control" id="lastname" placeholder="Last Name">
+                            <input v-model="Users.lastName" type="text" class="form-control" id="lastname" placeholder="Last Name">
                         </div>
                         <div class="form-group">
                             <label for="MobilePhone">Mobile Phone</label>
-                            <input v-model="mobilePhone" type="text" class="form-control" id="MobilePhone" placeholder="Mobile Phone">
+                            <input v-model="Users.mobilePhone" type="text" class="form-control" id="MobilePhone" placeholder="Mobile Phone">
                         </div>
                         <div class="form-group">
                             <label for="EmailAddress">Email Address</label>
-                            <input v-model="emailAddress" type="email" class="form-control" id="EmailAddress" placeholder="Email Address">
-                            <medium id="emailOptional" class="form-text text-muted">(Optional)</medium>
+                            <input v-model="Users.emailAddress" type="email" class="form-control" id="EmailAddress" placeholder="Email Address">
+                            <small id="emailOptional" class="form-text text-muted">(Optional)</small>
                         </div>
                         <div class="form-group">
                             <label for="PetsName">Pets Name</label>
-                            <input v-model="petsName" type="text" class="form-control" id="PetsName" placeholder="Pets Name">
-                            <medium id="nameOptional" class="form-text text-muted">(Optional)</medium>
+                            <input v-model="Users.petsName" type="text" class="form-control" id="PetsName" placeholder="Pets Name">
+                            <small id="nameOptional" class="form-text text-muted">(Optional)</small>
                         </div>
                         <div class="form-group date">
                             <label for="petdate">Pets Birthday</label>
-                            <input v-model="petsBirthday" type="date" class="form-control" name="date" id="petdate" placeholder="dd.mm.yyyy">
-                            <medium id="dateOptional" class="form-text text-muted">(Optional)</medium>
+                            <input v-model="Users.petsBirthday" type="date" class="form-control" name="date" id="petdate" placeholder="dd.mm.yyyy">
+                            <small id="dateOptional" class="form-text text-muted">(Optional)</small>
                         </div>
                     </div>
                     <div class="modal-footer border-top-0 d-flex justify-content-center">
-                        <button type="submit" value="Add Contact" class="btn btn-success">Save</button>
+                        <button type="submit" value="Add Contact" class="btn btn-success" @click.prevent="submitForm">Save</button>
                     </div>
                 </form>
             </div>
@@ -48,20 +49,23 @@
 </template>
 
 <script>
+
     export default {
         name: "Contact",
         data() {
             return {
                 submitUser: JSON.parse(localStorage.getItem('user')),
-                firstName: '',
-                lastName: '',
-                mobilePhone: '',
-                emailAddress: null,
-                petsName: null,
-                petsBirthday: null,
-                submitData:'',
-                submitError:'',
-                errorInfo:''
+                 Users: {
+                    firstName: '',
+                    lastName: '',
+                    mobilePhone: '',
+                    emailAddress: '',
+                    petsName: null,
+                    petsBirthday: null,
+                    submitData: '',
+                    submitError: '',
+                    errorInfo: ''
+                }
             }
         },
         methods: {
@@ -75,12 +79,12 @@
                     data: {
                         query: `mutation contactMutation{
                                 contactMutation(
-                                                first_name: "allen",
-                                                last_name: "jane",
-                                                email: "allenjane@gmail.com",
-                                                mobile_number: "8976543452",
-                                                pet_name: ${this.petsName},
-                                                pet_birthday: ${this.petsBirthday},
+                                                first_name:"${this.Users.firstName}",
+                                                last_name: "${this.Users.lastName}",
+                                                email: "${this.Users.emailAddress}",
+                                                mobile_number: "${this.Users.mobilePhone}",
+                                                pet_name: "${this.Users.petsName}",
+                                                pet_birthday: "${this.Users.petsBirthday}",
                                                 operations: "create",
                                                 clientId: 1,
                                                 locationId: 1
@@ -98,12 +102,18 @@
                     this.submitData = response.data.data.contactMutation;
                     console.log(this.submitData)
                     this.submitError = response.data.data.contactMutation.error;
-                    console.log(this.submitError)
                     this.errorInfo = response.data.data.contactMutation.message;
                     if (this.submitError === "1" || this.submitError === "0"){
                         this.$swal(this.errorInfo)
                     }
+
                 }).catch((e) => console.log(e))
+                this.Users.firstName = ''
+                this.Users.lastName = ''
+                this.Users.emailAddress = ''
+                this.Users.mobilePhone = ''
+                this.Users.petsName = ''
+                this.Users.petsBirthday = ''
             }
         }
     }
