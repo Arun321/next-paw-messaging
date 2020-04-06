@@ -30,10 +30,10 @@
         <div v-if="listContactLoading" style="display: flex; justify-content: center; align-items: center;">
             <i class="fa fa-circle-o-notch fa-spin" style="font-size: 45px; color: deepskyblue;"></i>
         </div>
-        <div v-bind:id="'inbox_chat' + id" class="inbox_chat" v-show="listContacts.length > 0">
+        <div v-bind:id="'inbox_chat' +id " class="inbox_chat" v-show="listContacts.length > 0">
             <div v-if="!listContactLoading">
                 <div class="chat_list" v-for="(contact,index) in listContacts"
-                     v-on:click="listActiveIndex=loadMessage(listContacts, contact.contact_id, 'yes')"
+                     v-on:click="callLoadFunction(listContacts, contact.contact_id)"
                      :class="{'active': contact.contact_id === listActiveIndex || (listActiveIndex === 0 && index === 0)}">
                     <div class="chat_people">
                         <div class="chat_img">
@@ -110,8 +110,8 @@
         },
 
         mounted() {
-            // console.log('mounted');
             this.filteredContacts()
+            // this.contactList()
             this.scrollElm = document.querySelector('#inbox_chat' + this.id)
             this.loadOnScroll()
         },
@@ -127,6 +127,13 @@
             }
         },
         methods:{
+            callLoadFunction(listContacts, contact_id){
+                this.loadMessage(listContacts, contact_id, 'yes')
+                    .then(response => {
+                        this.listActiveIndex = response
+                    })
+            },
+
             scrollToTop() {
                 // console.log('scrollToTop');
                 var myDiv = document.getElementById('inbox_chat1');

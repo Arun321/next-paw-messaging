@@ -12,7 +12,7 @@
                 </div>
 
 <!--                <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#addNewContact" style="margin-left: 130px;">NEW CONTACT</button>-->
-                <AddContact></AddContact>
+<!--                <AddContact></AddContact>-->
                 <contact></contact>
                 <div class="toolbar__label current_name text-center">
                     <h4 style="text-align: right;" class="col-md-9 offset-md-1 ">{{ this.activeTitle }}</h4>
@@ -41,9 +41,9 @@
                                 <div v-for="(message, ind) in dated.arr" :key="ind" :class="messageType(message.type, 'incoming_msg', 'outgoing_msg')">
                                     <div :class="messageType(message.type, 'received_msg', 'sent_msg')">
                                         <div id="msg" :class="messageType(message.type, 'received_withd_msg', 'sent_withd_msg')">
+                                            <p v-if="message.type === 'fb_send' || message.type === 'fb_received'"><small>Facebook Message</small></p>
                                             <p v-if='message.body' class="text-msg">{{message.body}}</p>
-                                            <p v-if="message.media_url" class="text-img"  ><img v-bind:src="message.media_url" />
-                                            </p>
+                                            <p v-if="message.media_url" class="text-img"  ><img v-bind:src="message.media_url" /></p>
                                             <p v-if='message.status == "SENT"' class="text-right"><i class="fa fa-check-circle" aria-hidden="true" style="float: left"></i>
                                                 <span class="time_date text-right" style="display:inline"> {{format_time( message.message_created_at) }}</span>
                                             </p>
@@ -74,6 +74,7 @@
                 </div>
             </div>
         </div>
+<!--        ALL CONTACTS-->
         <div class="modal fade" id="myModal" role="dialog" v-if="showMyModal">
             <div class="modal-dialog">
                 <!--          modal content  -->
@@ -88,7 +89,31 @@
                             <button type="button" class="close" data-dismiss="modal">&times;</button>
                         </div>
                     </div>
-                    <ListContact id="2"  :zeroOrOne="1" :loadMessage="loadMessage"></ListContact>
+                    <ListContact id="2"  :zeroOrOne="1"  :loadMessage="loadMessage"></ListContact>
+
+<!--                    <div class="chat_list" v-for="contacts in listContact"-->
+<!--                        v-on:click="loadMessage"-->
+<!--                         :class="{'active': contacts.contact_id === activeIndex}">-->
+<!--                        <div class="chat_people">-->
+<!--                            <div class="chat_img">-->
+<!--                                <img v-show="!contacts.ps_id" src="https://app.nextpaw.com/img/text-msg.png">-->
+<!--                                <img v-show="contacts.ps_id" src="https://app.nextpaw.com//img/fb-msg.png">-->
+<!--                            <div class="chat_ib">-->
+<!--                                <h5>{{contacts.first_name}} {{contacts.last_name}} <span class="archive"-->
+<!--                                                                                       v-if="contacts.archived === 1">Archived</span>-->
+<!--                                </h5>-->
+<!--                                <p style="color: black" class="msg-body" v-if='contacts.status == "SENT"' >-->
+<!--                                    {{ trunc(contacts.body) }}-->
+<!--                                    <i class="fa fa-check-circle" aria-hidden="true" style="float: left"></i>-->
+<!--                                    <span class="chat_date">{{ format_date(contacts.message_created_at) }}</span>-->
+<!--                                    <span class="image" v-if="contacts.media_url!=null">-->
+<!--                                    <i class="fa fa-picture-o" aria-hidden="true"></i>-->
+<!--                                </span>-->
+<!--                                </p>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+
                 </div>
             </div>
         </div>
@@ -186,7 +211,7 @@
                 msgArchived:'',
                 fullWidthImage: false,
                 msgStatus:'',
-                archivedMessg:''
+                listContact:[]
             }
         },
 
@@ -288,6 +313,71 @@
                 }
             },
 
+            // contactList() {
+            //     // console.log('filteredContacts');
+            //     axios({
+            //         url: 'https://app.nextpaw.com/graph-api',
+            //         headers: {
+            //             Authorization: `Bearer ${this.user.token}`
+            //         },
+            //         method: 'POST',
+            //         data: {
+            //             query: `{
+            //             search(clientId: 1, locationId: 1, contacts: 1,
+            //                     search: null,
+            //                     filter: "all",
+            //                     page: ${this.filterPage},
+            //                     limit: 15){
+            //                                 data{
+            //                                     id
+            //                                     contact_id
+            //                                     archived
+            //                                     first_name
+            //                                     last_name
+            //                                     body
+            //                                     media_url
+            //                                     message_created_at
+            //                                     deleted_at
+            //                                     type
+            //                                     status
+            //                                     sender
+            //                                     receiver
+            //                                     ps_id
+            //                                     unread_message_count
+            //                                 }
+            //                                 total
+            //                                 per_page
+            //                     }
+            //             }`
+            //         }
+            //     }).then(response => {
+            //         if (this.filterPage === 1) {
+            //             this.listContact = []
+            //         }
+            //         let temp1 = response.data.data.search.data;
+            //         if (temp1.length > 0) {
+            //             // console.log(this.listContacts.length)
+            //             this.listContact.push(...temp1)
+            //             if (this.filterPage === 1) {
+            //                 this.loadMessage(this.listContacts,response.data.data.search.data[0].contact_id,'no')
+            //             }
+            //             if (temp1.length < 15) {
+            //                 this.loadMore = false
+            //             }
+            //             this.loadMore = true
+            //         }
+            //         else {
+            //             this.activeIndex = 0;
+            //             this.loadMore = false
+            //         }
+            //         this.filterPage++
+            //         // this.isLoading = false
+            //     }).catch((e) => {
+            //         // this.isLoading = false
+            //         console.log(e)
+            //     })
+            // },
+
             archivedContact() {
                 this.archivedAlert()
                 axios({
@@ -388,7 +478,9 @@
                 //     this.archivedMessage()
                 // }
                 this.activeIndex = value
-                return value;
+                return new Promise((resolve) => {
+                    resolve(value)
+                })
             },
 
             addMessage(message, contactId,image = null) {

@@ -42,7 +42,7 @@
                     url: 'https://app.nextpaw.com/graph-api/secret',
                     method: 'post',
                     data: {
-                        query: `{login(email:"testing.nextpawindia@gmail.com", password:"123456") {
+                        query: `{login(email:"testing.nextpawindia@gmail.com", password:"Nextpaw@india") {
                                      id
                                      first_name
                                      last_name
@@ -93,7 +93,5 @@
         height: auto;
         padding: 10px;
     }
-
-
 </style>
 
