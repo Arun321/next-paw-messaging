@@ -7,7 +7,7 @@
                     <div class="offset-md-3" style="text-align: left;">
                         <select v-on:change="sortBy" v-model="selectedOption" class="form-control filters"
                                 name="msg_filter" id="msg_filter" style="width: 220px;">
-                            <option value="all">All</option>
+                            <option value="all" >All</option>
                             <option value="unread">Unread</option>
                             <option value="facebook">Facebook</option>
                             <option value="text">Text</option>
@@ -44,6 +44,10 @@
                             <h5>{{contact.first_name}} {{contact.last_name}} <span class="archive"
                                                                                    v-if="contact.archived === 1">Archived</span>
                             </h5>
+                            <span style="color: black" class="msg-body" v-if='contact.status == "WAITING" || contact.status == "FAILED" '>
+                                Message is not delivered
+                                <i class="fa fa-times" aria-hidden="true"></i>
+                            </span>
                             <p style="color: black" class="msg-body" v-if='contact.status == "SENT"' >
                                 {{ trunc(contact.body) }}
                                 <i class="fa fa-check-circle" aria-hidden="true" style="float: left"></i>
@@ -91,6 +95,7 @@
                 listContactLoading: false,
                 listFilter: '',
                 listActiveIndex: 0,
+
                 // activeTitle: '',
                 page: 1,
                 listFilterPage: 1,
@@ -228,8 +233,6 @@
                     if (this.listFilterPage === 1) {
                         this.listContacts = []
                     }
-                    // console.log(this.listFilterPage)
-                    // this.listFilterPage++
                     let temp1 = response.data.data.search.data;
                     if (temp1.length > 0) {
                         // console.log(this.listContacts.length)
@@ -240,7 +243,7 @@
                         if (temp1.length < 15) {
                                this.listLoadMore = false
                         }
-                     this.listLoadMore = true
+                        this.listLoadMore = true
                     }
                     else {
                         this.listActiveIndex = 0;

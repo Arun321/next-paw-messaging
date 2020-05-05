@@ -6,7 +6,7 @@
 <!--                <button type="button" class="start_conversation" @click="openMyModal"><i class="fa fa-address-book-o" aria-hidden="true"></i>-->
 <!--                </button>-->
                 <div class="modal__button">
-                    <button type="button" class="button" @click="openMyModal">
+                    <button type="button" class="button" data-toggle="modal" data-target="#myModal" @click="openMyModal">
                         All Contacts
                     </button>
                 </div>
@@ -74,6 +74,7 @@
                 </div>
             </div>
         </div>
+
 <!--        ALL CONTACTS-->
         <div class="modal fade" id="myModal" role="dialog" v-if="showMyModal">
             <div class="modal-dialog">
@@ -90,33 +91,10 @@
                         </div>
                     </div>
                     <ListContact id="2"  :zeroOrOne="1"  :loadMessage="loadMessage"></ListContact>
-
-<!--                    <div class="chat_list" v-for="contacts in listContact"-->
-<!--                        v-on:click="loadMessage"-->
-<!--                         :class="{'active': contacts.contact_id === activeIndex}">-->
-<!--                        <div class="chat_people">-->
-<!--                            <div class="chat_img">-->
-<!--                                <img v-show="!contacts.ps_id" src="https://app.nextpaw.com/img/text-msg.png">-->
-<!--                                <img v-show="contacts.ps_id" src="https://app.nextpaw.com//img/fb-msg.png">-->
-<!--                            <div class="chat_ib">-->
-<!--                                <h5>{{contacts.first_name}} {{contacts.last_name}} <span class="archive"-->
-<!--                                                                                       v-if="contacts.archived === 1">Archived</span>-->
-<!--                                </h5>-->
-<!--                                <p style="color: black" class="msg-body" v-if='contacts.status == "SENT"' >-->
-<!--                                    {{ trunc(contacts.body) }}-->
-<!--                                    <i class="fa fa-check-circle" aria-hidden="true" style="float: left"></i>-->
-<!--                                    <span class="chat_date">{{ format_date(contacts.message_created_at) }}</span>-->
-<!--                                    <span class="image" v-if="contacts.media_url!=null">-->
-<!--                                    <i class="fa fa-picture-o" aria-hidden="true"></i>-->
-<!--                                </span>-->
-<!--                                </p>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                    </div>-->
-
                 </div>
             </div>
         </div>
+
         <!--IMAGE MODAL-->
         <div class="modal fade" id="myModalImage" role="dialog">
             <div class="modal-dialog">
@@ -244,6 +222,7 @@
         },
         methods: {
             ...mapActions('listStore', ['TRIGGER_FILTERED_CONTACTS_ACTION']),
+
             openMyModal () {
                 this.showMyModal = 1
                 setTimeout(() => {
@@ -459,9 +438,6 @@
                 }).then(response => {
                     this.msgLoading = false;
                     this.messages = response.data.data.singleConversion.data.reverse()
-
-                    // this.msgArchived = response.data.data.singleConversion.data[0].archived;
-                    // this.msgStatus = response.data.data.singleConversion.data[0].status;
                     setTimeout(() => {
                         this.scrollToEnd()
                     }, 400)
@@ -474,9 +450,6 @@
                         this.activeTitle = activeContact[0].first_name + contactNum
                     }
                 }).catch((e) => console.log(e));
-                // if (this.msgArchived === 1 && this.msgStatus === 'SENT'){
-                //     this.archivedMessage()
-                // }
                 this.activeIndex = value
                 return new Promise((resolve) => {
                     resolve(value)
@@ -511,10 +484,9 @@
             },
 
             errorMessages(){
-                if (this.state === "7"){
-                    this.$swal(this.errorMsg)
-                }
-                if (this.state === "12"){
+                if (this.state === "7" || this.state === "12" || this.state === "3" ||
+                    this.state === "4" || this.state === "6" || this.state === "5" ||
+                    this.state === "1" || this.state === "11" || this.state === "0"){
                     this.$swal(this.errorMsg)
                 }
             },
